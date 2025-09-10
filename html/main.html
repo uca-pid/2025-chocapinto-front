@@ -8,18 +8,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
-<script src="app.js"></script>
+<script src=".../js/app.js"></script>
 
 <body class="main-body">
     <header class="main-header">
         <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
         <nav class="main-nav">
-            
-            <button class="profile-btn" onclick="window.location.href='perfil.html'">
-                <span>Tu perfil</span>
-                <svg width="24" height="24" fill="none" stroke="#2c5a91" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 8-4 8-4s8 0 8 4"/></svg>
-            </button>
-        </nav>
+    <button class="profile-btn" onclick="window.location.href='perfil.html'">
+        <span id="usernameDisplay">Tu perfil</span>
+        <svg width="24" height="24" fill="none" stroke="#2c5a91" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-4 8-4 8-4s8 0 8 4"/>
+        </svg>
+    </button>
+
+    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+</nav>
+
     </header>
     <main>
 
