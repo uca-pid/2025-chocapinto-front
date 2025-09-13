@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Club de Lectura</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="crear-club-container">
+        <h2>Crear Club de Lectura</h2>
+        <form id="crearClubForm">
+            <input type="text" id="name" placeholder="Nombre del club" required maxlength="50">
+            <textarea id="description" placeholder="Descripción del club" required maxlength="255"></textarea>
+            <button type="submit">Crear club</button>
+        </form>
+        <div id="crearClubMsg"></div>
+        <button onclick="window.location.href='main.html'" style="margin-top:1rem;">Volver</button>
+    </div>
+
+    <script>
+    const API_URL = "http://127.0.0.1:5000";
+
+    document.getElementById("crearClubForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const ownerUsername = localStorage.getItem("username");
+        const msg = document.getElementById("crearClubMsg");
+        msg.textContent = "";
+
+        if (!ownerUsername) {
+            msg.textContent = "Debes iniciar sesión primero";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/createClub`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, description, ownerUsername })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                msg.style.color = "#0984e3";
+                msg.textContent = "Club creado con éxito. Ahora eres moderador!";
+                setTimeout(() => window.location.href = "main.html", 1200);
+            } else {
+                msg.style.color = "#d63031";
+                msg.textContent = data.message || "Error al crear club";
+            }
+        } catch (error) {
+            msg.style.color = "#d63031";
+            msg.textContent = "Error de conexión con el servidor";
+        }
+    });
+    </script>
+</body>
+</html>

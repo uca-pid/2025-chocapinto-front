@@ -8,125 +8,49 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
-<script src=".../js/app.js"></script>
-
 <body class="main-body">
     <header class="main-header">
         <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
         <nav class="main-nav">
-
-    <div class="profile-dropdown">
-        <button class="profile-btn" id="profileDropdownBtn">
-            <span id="usernameDisplay">Tu perfil</span>
-            <svg width="24" height="24" fill="none" stroke="#2c5a91" stroke-width="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 8-4 8-4s8 0 8 4"/>
-            </svg>
-            <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="#2c5a91" stroke-width="2" fill="none"/></svg>
-        </button>
-        <div class="dropdown-content" id="profileDropdownContent">
-            <a href="perfil.html">Editar perfil</a>
-            <a href="#" onclick="logout()">Cerrar sesión</a>
-        </div>
-    </div>
-</nav>
-
+            <div class="profile-dropdown">
+                <button class="profile-btn" id="profileDropdownBtn">
+                    <span id="usernameDisplay">Tu perfil</span>
+                    <svg width="24" height="24" fill="none" stroke="#2c5a91" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 20c0-4 8-4 8-4s8 0 8 4"/>
+                    </svg>
+                    <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16">
+                        <path d="M4 6l4 4 4-4" stroke="#2c5a91" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+                <div class="dropdown-content" id="profileDropdownContent">
+                    <a href="perfil.html">Editar perfil</a>
+                    <a href="#" onclick="logout()">Cerrar sesión</a>
+                </div>
+            </div>
+        </nav>
     </header>
-    <main>
 
+    <main>
+        <!-- Sección Mis Clubes -->
         <section class="mis-clubes-section">
             <h2>Mis Clubes</h2>
-            <div class="mis-clubes-grid">
-                <div class="mis-club-card">
-                    <div class="mis-club-logo">
-                        <svg width="32" height="32" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                            <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                            <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                        </svg>
-                    </div>
-                    <div class="mis-club-info">
-                        <h3>Club Fantasía</h3>
-                        <div class="progreso-bar">
-                            <div class="progreso-bar-inner" style="width: 60%"></div>
-                        </div>
-                        <span class="progreso-label">60% leído</span>
-                    </div>
-                </div>
-                <div class="mis-club-card">
-                    <div class="mis-club-logo">
-                        <svg width="32" height="32" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                            <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                            <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                        </svg>
-                    </div>
-                    <div class="mis-club-info">
-                        <h3>Club Realismo</h3>
-                        <div class="progreso-bar">
-                            <div class="progreso-bar-inner" style="width: 35%"></div>
-                        </div>
-                        <span class="progreso-label">35% leído</span>
-                    </div>
-                </div>
-            </div>
+            <div class="mis-clubes-grid"></div>
         </section>
-       
+
+        <!-- Sección Todos los Clubes -->
         <section class="main-sections">
             <h2>Clubes de Lectura</h2>
-            <div class="clubes-grid">
-               
-                                                <div class="section-card club-card">
-                                                        <div class="club-logo club-logo-default">
-                                                                <!-- Logo libro azul -->
-                                                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                                                                    <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                                                                    <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                                                                </svg>
-                                                        </div>
-                                                        <h3>Nombre del Club</h3>
-                                                        <p>Descripción breve del club de lectura. Sumate a compartir lecturas y experiencias.</p>
-                                                        <button class="unirme-btn">Unirme</button>
-                                                </div>
-                                                <div class="section-card club-card">
-                                                        <div class="club-logo club-logo-default">
-                                                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                                                                    <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                                                                    <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                                                                </svg>
-                                                        </div>
-                                                        <h3>Nombre del Club</h3>
-                                                        <p>Descripción breve del club de lectura. Sumate a compartir lecturas y experiencias.</p>
-                                                        <button class="unirme-btn">Unirme</button>
-                                                </div>
-                                                <div class="section-card club-card">
-                                                        <div class="club-logo club-logo-default">
-                                                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                                                                    <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                                                                    <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                                                                </svg>
-                                                        </div>
-                                                        <h3>Nombre del Club</h3>
-                                                        <p>Descripción breve del club de lectura. Sumate a compartir lecturas y experiencias.</p>
-                                                        <button class="unirme-btn">Unirme</button>
-                                                </div>
-                                                <div class="section-card club-card">
-                                                        <div class="club-logo club-logo-default">
-                                                                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                                    <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                                                                    <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                                                                    <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                                                                </svg>
-                                                        </div>
-                                                        <h3>Nombre del Club</h3>
-                                                        <p>Descripción breve del club de lectura. Sumate a compartir lecturas y experiencias.</p>
-                                                        <button class="unirme-btn">Unirme</button>
-                                                </div>
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <button onclick="window.location.href='crear_club.html'" 
+                        style="padding:0.8rem 1.5rem; background:#0984e3; color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:700;">
+                    Crear nuevo club
+                </button>
             </div>
+            <div id="clubesGrid" class="clubes-grid"></div>
         </section>
+
+        <!-- Sección Recomendaciones de libros -->
         <section>
             <div class="recomendaciones-section">
                 <h2>Recomendaciones de Libros</h2>
@@ -155,47 +79,102 @@
             </div>
         </section>
     </main>
+
     <footer class="main-footer">
         <p>¿Deseás más información de los clubes? Escribinos a <a href="mailto:mail@booksy.com">mail@booksy.com</a></p>
         <p class="footer-credits">Booksy &copy; 2025</p>
     </footer>
+
     <script>
-function logout() {
-    localStorage.removeItem("username");
-    localStorage.removeItem("role");
-    window.location.href = "login.html";
-}
+        const API_URL = "http://127.0.0.1:5000";
 
-// Mostrar nombre del usuario en el header
-document.addEventListener("DOMContentLoaded", () => {
-    const username = localStorage.getItem("username");
-    const usernameDisplay = document.getElementById("usernameDisplay");
+        function logout() {
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+            window.location.href = "login.html";
+        }
 
-    if (username && usernameDisplay) {
-        usernameDisplay.textContent = username;
-    } else {
-        window.location.href = "login.html";
+        async function cargarClubes() {
+            const username = localStorage.getItem("username");
+            const misClubesGrid = document.querySelector(".mis-clubes-grid");
+            const clubesGrid = document.getElementById("clubesGrid");
+
+            misClubesGrid.innerHTML = "";
+            clubesGrid.innerHTML = "";
+
+            try {
+                const res = await fetch(`${API_URL}/clubs`);
+                const data = await res.json();
+                if (!data.success) return;
+
+                data.clubs.forEach(club => {
+                    const esMiembro = club.members.some(m => m.username === username);
+                     const esCreador = club.ownerUsername === username; // <-- compara con el creador
+                    const clubCard = document.createElement("div");
+                    clubCard.className = "section-card club-card";
+                      clubCard.innerHTML = `<div class="club-logo club-logo-default">
+            <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+                <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
+                <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
+                            <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
+                        </svg>
+                    </div>
+                    <h3>${club.name}</h3>
+                    <p>${club.description}</p>
+                    ${esMiembro ? '<span style="color:#0984e3;font-weight:700;">Ya eres miembro</span>' : '<button class="unirme-btn">Unirme</button>'}
+                    ${esCreador ? '<button class="editar-btn">Editar</button>' : ''}
+                `;
+                    if (esMiembro) {
+                        document.querySelector(".mis-clubes-grid").appendChild(clubCard);
+                    } else {
+                          document.getElementById("clubesGrid").appendChild(clubCard);
+                    }
+
+                    if (!esMiembro) {
+                        clubCard.querySelector(".unirme-btn").addEventListener("click", async () => {
+            const joinRes = await fetch(`${API_URL}/joinClub`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clubId: club.id, username })
+            });
+            const joinData = await joinRes.json();
+            if (joinData.success) cargarClubes();
+            else alert(joinData.message);
+        });
+                    }
+                    if (esCreador) {
+        clubCard.querySelector(".editar-btn").addEventListener("click", () => {
+            window.location.href = `editar_club.html?clubId=${club.id}`;
+        });
     }
+                });
+            } catch (error) {
+                console.error("Error al cargar clubes:", error);
+            }
+        }
 
-    // Dropdown funcionalidad
-    const dropdownBtn = document.getElementById("profileDropdownBtn");
-    const dropdownContent = document.getElementById("profileDropdownContent");
-    if (dropdownBtn && dropdownContent) {
-        dropdownBtn.addEventListener("mouseenter", () => {
-            dropdownContent.style.display = "block";
+        document.addEventListener("DOMContentLoaded", () => {
+            const username = localStorage.getItem("username");
+            const usernameDisplay = document.getElementById("usernameDisplay");
+
+            if (username && usernameDisplay) {
+                usernameDisplay.textContent = username;
+            } else {
+                window.location.href = "login.html";
+            }
+
+            cargarClubes();
+
+            // Dropdown funcionalidad
+            const dropdownBtn = document.getElementById("profileDropdownBtn");
+            const dropdownContent = document.getElementById("profileDropdownContent");
+            if (dropdownBtn && dropdownContent) {
+                dropdownBtn.addEventListener("mouseenter", () => { dropdownContent.style.display = "block"; });
+                dropdownBtn.addEventListener("mouseleave", () => { setTimeout(() => { if (!dropdownContent.matches(':hover')) dropdownContent.style.display = "none"; }, 100); });
+                dropdownContent.addEventListener("mouseleave", () => { dropdownContent.style.display = "none"; });
+                dropdownContent.addEventListener("mouseenter", () => { dropdownContent.style.display = "block"; });
+            }
         });
-        dropdownBtn.addEventListener("mouseleave", () => {
-            setTimeout(() => { if (!dropdownContent.matches(':hover')) dropdownContent.style.display = "none"; }, 100);
-        });
-        dropdownContent.addEventListener("mouseleave", () => {
-            dropdownContent.style.display = "none";
-        });
-        dropdownContent.addEventListener("mouseenter", () => {
-            dropdownContent.style.display = "block";
-        });
-    }
-});
     </script>
-
 </body>
 </html>
