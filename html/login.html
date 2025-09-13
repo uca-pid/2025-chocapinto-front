@@ -1,30 +1,33 @@
 <!DOCTYPE html>
-<link rel="stylesheet" href="../css/styles.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    
+    <link rel="stylesheet" href="../css/loginstyles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
+
+
 <body id="LoginBackground">
     <div class="login-container">
-        <img src="..\images\BooksyLogo.png" class="BooksyLogo">
-        <h1>Tu historia comienza aqui</h1>
+        <img src="../images/BooksyLogo.png" class="BooksyLogo">
+        <h1>Tu historia comienza aquí</h1>
         <h2>Login</h2>
-        <form>
-            <input type="text" placeholder="Username" required>
-            <input type="password" placeholder="Password" required>
-            <button type="submit" onclick="redirectToHome()">Login</button>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
         </form>
+        <p id="errorMsg" style="color:red; display:none;">Usuario o contraseña incorrectos</p>
+        <div class="register-link">
+            ¿No tienes cuenta? <a href="registro.html">Regístrate</a>
+        </div>
     </div>
-</body>
-<script>
-function redirectToHome() {
-  location.replace("main.html")
-}
-</script>
-</html>
 
+
+    
+</body>
+<script src="../js/app.js"></script>
+</html>

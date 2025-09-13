@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro</title>
+  <link rel="stylesheet" href="../css/registerstyles.css">
+</head>
+
+<body>
+  <div class="register-container">
+    <img src="../images/BooksyLogo.png" class="BooksyLogo" style="width: 100px; height: 50px;">
+    <h2>Registro</h2>
+    <form id="registerForm">
+      <input type="text" id="username" placeholder="Usuario" required>
+      <input type="password" id="password" placeholder="Contraseña" required>
+
+      <button type="submit">Registrarse</button>
+    </form>
+    <div class="register-link">
+            Tenes cuenta? <a href="login.html">Inicia sesión</a>
+        </div>
+    <p id="message"></p>
+  </div>
+
+ 
+</body>
+<script>
+const API_URL = "http://127.0.0.1:5000"; // Flask local
+const registerForm = document.getElementById("registerForm");
+if (registerForm) {
+    registerForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        
+
+        try {
+            const response = await fetch(`${API_URL}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password})
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert(result.message);
+                
+                window.location.href = "login.html";
+            } else {
+                document.getElementById("message").innerText = result.message || "Error en el registro";
+            }
+        } catch (error) {
+            console.error("Error en registro:", error);
+            document.getElementById("message").innerText = "Error de conexión con el servidor";
+        }
+    });
+}
+</script>
+</html>
