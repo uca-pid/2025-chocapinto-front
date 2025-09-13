@@ -14,15 +14,21 @@
     <header class="main-header">
         <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
         <nav class="main-nav">
-    <button class="profile-btn" onclick="window.location.href='perfil.html'">
-        <span id="usernameDisplay">Tu perfil</span>
-        <svg width="24" height="24" fill="none" stroke="#2c5a91" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 8-4 8-4s8 0 8 4"/>
-        </svg>
-    </button>
 
-    <button class="logout-btn" onclick="logout()">Cerrar sesión</button>
+    <div class="profile-dropdown">
+        <button class="profile-btn" id="profileDropdownBtn">
+            <span id="usernameDisplay">Tu perfil</span>
+            <svg width="24" height="24" fill="none" stroke="#2c5a91" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 8-4 8-4s8 0 8 4"/>
+            </svg>
+            <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16"><path d="M4 6l4 4 4-4" stroke="#2c5a91" stroke-width="2" fill="none"/></svg>
+        </button>
+        <div class="dropdown-content" id="profileDropdownContent">
+            <a href="perfil.html">Editar perfil</a>
+            <a href="#" onclick="logout()">Cerrar sesión</a>
+        </div>
+    </div>
 </nav>
 
     </header>
@@ -153,5 +159,43 @@
         <p>¿Deseás más información de los clubes? Escribinos a <a href="mailto:mail@booksy.com">mail@booksy.com</a></p>
         <p class="footer-credits">Booksy &copy; 2025</p>
     </footer>
+    <script>
+function logout() {
+    localStorage.removeItem("username");
+    localStorage.removeItem("role");
+    window.location.href = "login.html";
+}
+
+// Mostrar nombre del usuario en el header
+document.addEventListener("DOMContentLoaded", () => {
+    const username = localStorage.getItem("username");
+    const usernameDisplay = document.getElementById("usernameDisplay");
+
+    if (username && usernameDisplay) {
+        usernameDisplay.textContent = username;
+    } else {
+        window.location.href = "login.html";
+    }
+
+    // Dropdown funcionalidad
+    const dropdownBtn = document.getElementById("profileDropdownBtn");
+    const dropdownContent = document.getElementById("profileDropdownContent");
+    if (dropdownBtn && dropdownContent) {
+        dropdownBtn.addEventListener("mouseenter", () => {
+            dropdownContent.style.display = "block";
+        });
+        dropdownBtn.addEventListener("mouseleave", () => {
+            setTimeout(() => { if (!dropdownContent.matches(':hover')) dropdownContent.style.display = "none"; }, 100);
+        });
+        dropdownContent.addEventListener("mouseleave", () => {
+            dropdownContent.style.display = "none";
+        });
+        dropdownContent.addEventListener("mouseenter", () => {
+            dropdownContent.style.display = "block";
+        });
+    }
+});
+    </script>
+
 </body>
 </html>

@@ -1,3 +1,62 @@
+/* --- Dropdown perfil usuario --- */
+.profile-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-btn {
+    background: #fff;
+    border: 1px solid #2c5a91;
+    color: #2c5a91;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    position: relative;
+}
+.profile-btn:hover, .profile-btn:focus {
+    background: #e6eafc;
+    color: #17406b;
+}
+.profile-btn .dropdown-arrow {
+    margin-left: 0.2rem;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: #fff;
+    min-width: 160px;
+    box-shadow: 0 8px 24px rgba(44, 62, 80, 0.12);
+    border-radius: 8px;
+    z-index: 10;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    padding: 0.5rem 0;
+}
+.dropdown-content a {
+    color: #2c5a91;
+    padding: 0.7rem 1.2rem;
+    text-decoration: none;
+    display: block;
+    font-size: 1rem;
+    border: none;
+    background: none;
+    text-align: left;
+    transition: background 0.2s, color 0.2s;
+}
+.dropdown-content a:hover {
+    background: #e6eafc;
+    color: #17406b;
+}
+.profile-dropdown:hover .dropdown-content {
+    display: block;
+}
 @media (max-width: 430px) {
     .mis-clubes-grid,
     .clubes-grid,
