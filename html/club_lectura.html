@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Club de Lectura</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f7f7f7; }
+        header { background: #4a90e2; color: #fff; padding: 1rem; text-align: center; }
+        main { max-width: 600px; margin: 2rem auto; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);}
+        .book-cover { width: 120px; float: right; margin-left: 2rem; border-radius: 4px; }
+        .info { overflow: hidden; }
+        .members { margin-top: 2rem; }
+        .members ul { padding-left: 1.2rem; }
+        .join-btn { background: #4a90e2; color: #fff; border: none; padding: 0.7rem 1.5rem; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="club-title">Club de Lectura</h1>
+    </header>
+    <main>
+        <div class="info">
+            <img id="book-cover" class="book-cover" src="" alt="Portada del libro" style="display:none;">
+            <h2 id="book-title"></h2>
+            <p id="book-author"></p>
+            <p id="club-description"></p>
+        </div>
+        <div class="members">
+            <h3>Miembros</h3>
+            <ul id="members-list"></ul>
+        </div>
+        <button class="join-btn" onclick="joinClub()">Unirse al club</button>
+    </main>
+    <script>
+        // Simulación de datos de clubes
+        const clubs = {
+            "1": {
+                title: "Club de Lectura Fantástica",
+                book: {
+                    title: "El Hobbit",
+                    author: "J.R.R. Tolkien",
+                    cover: "https://covers.openlibrary.org/b/id/6979861-L.jpg"
+                },
+                description: "Un club para los amantes de la fantasía y la aventura. ¡Únete a nosotros para explorar mundos mágicos!",
+                members: ["Ana", "Luis", "María", "Pedro"]
+            },
+            "2": {
+                title: "Club de Novela Histórica",
+                book: {
+                    title: "Los pilares de la Tierra",
+                    author: "Ken Follett",
+                    cover: "https://covers.openlibrary.org/b/id/8231856-L.jpg"
+                },
+                description: "Disfrutamos de novelas históricas y debatimos sobre los hechos reales detrás de la ficción.",
+                members: ["Sofía", "Carlos", "Elena"]
+            }
+            // Puedes agregar más clubes aquí
+        };
+
+        // Obtener el id del club desde la URL (?id=1)
+        function getClubId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id') || "1";
+        }
+
+        function renderClub() {
+            const id = getClubId();
+            const club = clubs[id];
+            if (!club) {
+                document.getElementById('club-title').textContent = "Club no encontrado";
+                document.querySelector('main').innerHTML = "<p>El club solicitado no existe.</p>";
+                return;
+            }
+            document.getElementById('club-title').textContent = club.title;
+            document.getElementById('book-title').textContent = club.book.title;
+            document.getElementById('book-author').textContent = "Autor: " + club.book.author;
+            document.getElementById('club-description').textContent = club.description;
+            document.getElementById('book-cover').src = club.book.cover;
+            document.getElementById('book-cover').style.display = "block";
+            const membersList = document.getElementById('members-list');
+            membersList.innerHTML = "";
+            club.members.forEach(m => {
+                const li = document.createElement('li');
+                li.textContent = m;
+                membersList.appendChild(li);
+            });
+        }
+
+        function joinClub() {
+            alert("¡Te has unido al club!");
+        }
+
+        renderClub();
+    </script>
+</body>
+</html>

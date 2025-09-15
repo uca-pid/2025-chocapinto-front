@@ -125,10 +125,17 @@
                     ${esCreador ? '<button class="editar-btn">Editar</button>' : ''}
                 `;
                     if (esMiembro) {
-                        document.querySelector(".mis-clubes-grid").appendChild(clubCard);
-                    } else {
-                          document.getElementById("clubesGrid").appendChild(clubCard);
-                    }
+        document.querySelector(".mis-clubes-grid").appendChild(clubCard);
+        // 👉 si soy miembro, al hacer click en toda la tarjeta voy al club
+        clubCard.addEventListener("click", (e) => {
+            // evitar que el click al botón editar dispare la redirección
+            if (!e.target.classList.contains("editar-btn")) {
+                window.location.href = `club_lectura.html?clubId=${club.id}`;
+            }
+        });
+    } else {
+        document.getElementById("clubesGrid").appendChild(clubCard);
+    }
 
                     if (!esMiembro) {
                         clubCard.querySelector(".unirme-btn").addEventListener("click", async () => {
