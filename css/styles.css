@@ -1,3 +1,29 @@
+/* --- Scroll horizontal recomendaciones --- */
+.recomendaciones-row {
+    display: flex;
+    flex-direction: row;
+    gap: 1.2rem;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    scroll-snap-type: x mandatory;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: 100%;
+}
+.recomendacion-card {
+    min-width: 220px;
+    max-width: 240px;
+    width: 220px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #2c5a9140;
+    padding: 1.2rem 1rem;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 /* --- Dropdown perfil usuario --- */
 .profile-dropdown {
     position: relative;
@@ -58,8 +84,6 @@
     display: block;
 }
 @media (max-width: 430px) {
-    .mis-clubes-grid,
-    .clubes-grid,
     .recomendaciones-grid {
         flex-wrap: nowrap !important;
         overflow-x: auto;
@@ -69,12 +93,10 @@
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
     }
-    .mis-club-card,
-    .section-card,
-    .club-card,
     .recomendacion-card {
-        min-width: 90vw;
-        max-width: 90vw;
+        min-width: 80vw;
+        max-width: 80vw;
+        width: 80vw;
         scroll-snap-align: start;
     }
 }
@@ -265,13 +287,17 @@
     border: 1px solid #e0e6f6;
 }
 .recomendacion-card:hover, .recomendacion-card:focus-within {
-    box-shadow: 0 8px 32px #2c5a9140, 0 4px 18px #5fa8e930;
-    transform: translateY(-6px) scale(1.04);
-    border-color: #5fa8e9;
-    z-index: 2;
-}
-.recomendacion-img {
-    width: 90px;
+    .recomendaciones-row {
+        display: flex;
+        flex-direction: row;
+        gap: 1.2rem;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        scroll-snap-type: x mandatory;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        width: 100%;
+    }
     height: 130px;
     object-fit: cover;
     border-radius: 10px;

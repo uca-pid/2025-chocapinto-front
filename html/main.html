@@ -54,28 +54,7 @@
         <section>
             <div class="recomendaciones-section">
                 <h2>Recomendaciones de Libros</h2>
-                <div class="recomendaciones-grid">
-                    <div class="recomendacion-card">
-                        <img src="../images/libro1.jpg" alt="Portada del libro 1" class="recomendacion-img">
-                        <h4>El nombre del viento</h4>
-                        <p>Patrick Rothfuss</p>
-                    </div>
-                    <div class="recomendacion-card">
-                        <img src="../images/libro2.jpg" alt="Portada del libro 2" class="recomendacion-img">
-                        <h4>Cien años de soledad</h4>
-                        <p>Gabriel García Márquez</p>
-                    </div>
-                    <div class="recomendacion-card">
-                        <img src="../images/libro3.jpg" alt="Portada del libro 3" class="recomendacion-img">
-                        <h4>Rayuela</h4>
-                        <p>Julio Cortázar</p>
-                    </div>
-                    <div class="recomendacion-card">
-                        <img src="../images/libro4.jpg" alt="Portada del libro 4" class="recomendacion-img">
-                        <h4>1984</h4>
-                        <p>George Orwell</p>
-                    </div>
-                </div>
+                <div class="recomendaciones-row" id="recomendacionesGrid"></div>
             </div>
         </section>
     </main>
@@ -171,6 +150,7 @@
             }
 
             cargarClubes();
+            cargarLibrosRecomendados();
 
             // Dropdown funcionalidad
             const dropdownBtn = document.getElementById("profileDropdownBtn");
@@ -182,6 +162,38 @@
                 dropdownContent.addEventListener("mouseenter", () => { dropdownContent.style.display = "block"; });
             }
         });
+
+        async function cargarLibrosRecomendados() {
+            const grid = document.getElementById("recomendacionesGrid");
+            grid.innerHTML = "";
+            try {
+                const res = await fetch(`${API_URL}/books`);
+                const data = await res.json();
+                if (!data.success || !data.books) {
+                    grid.innerHTML = '<p style="color:#636e72;">No hay libros recomendados.</p>';
+                    return;
+                }
+                data.books.forEach(libro => {
+                    const card = document.createElement("div");
+                    card.className = "recomendacion-card";
+                    card.innerHTML = `
+                        <div style="width:100%;display:flex;justify-content:center;margin-bottom:10px;">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <rect x="8" y="12" width="16" height="28" rx="4" fill="#2c5a91"/>
+                                <rect x="28" y="12" width="12" height="28" rx="4" fill="#5fa8e9"/>
+                                <rect x="24" y="12" width="4" height="28" fill="#e6eafc"/>
+                            </svg>
+                        </div>
+                        <h4>${libro.title}</h4>
+                        <p>${libro.author ? libro.author : "Autor desconocido"}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                grid.innerHTML = '<p style="color:#d63031;">Error al cargar libros.</p>';
+            }
+        }
+        
     </script>
 </body>
 </html>

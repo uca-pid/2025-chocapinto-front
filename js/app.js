@@ -19,6 +19,9 @@ const API_URL = "http://127.0.0.1:5000";
             // Guardar el usuario en localStorage (para usarlo en main.html)
             localStorage.setItem("username", username);
             localStorage.setItem("role", data.role);
+            if (data.id) {
+                localStorage.setItem("userId", data.id);
+            }
 
             // Redirigir al main
             window.location.href = "main.html";
