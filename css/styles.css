@@ -370,7 +370,7 @@
 }
 .section-card:hover, .section-card:focus-within {
     align-items: center;
-    z-index: 100;
+    z-index: 99;
 }
 
 .profile-btn svg {
