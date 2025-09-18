@@ -443,6 +443,9 @@
 
 .main-header {
     display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
     align-items: center;
     justify-content: space-between;
     padding: 1.5rem 3rem 1rem 3rem;
@@ -511,7 +514,7 @@
     left: 0;
     right: 0;
     margin: auto;
-    z-index: 1000;
+    z-index: 99;
 }
 @media (max-width: 900px) {
     .club-card {
