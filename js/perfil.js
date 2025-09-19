@@ -2,24 +2,55 @@ const API_URL = "http://127.0.0.1:5000";
 
 document.addEventListener("DOMContentLoaded", () => {
     const currentUsername = localStorage.getItem("username");
-    const role = localStorage.getItem("role");
-
     if (!currentUsername) {
         window.location.href = "login.html";
         return;
     }
-
-    // Mostrar datos actuales
     document.getElementById("username").value = currentUsername;
-    document.getElementById("role").value = role;
+    // Obtener email actual del backend
+   
+    fetch(`${API_URL}/user/${currentUsername}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            if (data.success && data.user.email) {
+                document.getElementById("email").value = data.user.email;
+            } else {
+                document.getElementById("email").value = "";
+            }
+        })
+        .catch(() => {
+            document.getElementById("email").value = "";
+        });
 });
 
 document.getElementById("perfilForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const currentUsername = localStorage.getItem("username"); // username actual
+    const currentUsername = localStorage.getItem("username");
     const newUsername = document.getElementById("username").value;
     const newPassword = document.getElementById("password").value;
+
+    // Modal helpers
+    function showPerfilModalError(msg) {
+        const modal = document.getElementById("modalPerfilError");
+        const modalMsg = document.getElementById("modalPerfilErrorMsg");
+        modalMsg.textContent = msg;
+        modal.style.display = "flex";
+    }
+    document.getElementById("closeModalPerfilError").onclick = function() {
+        document.getElementById("modalPerfilError").style.display = "none";
+    };
+
+    // Validar contraseña si se quiere cambiar
+    if (newPassword) {
+        const minLength = newPassword.length >= 8;
+        const hasUpper = /[A-Z]/.test(newPassword);
+        if (!minLength || !hasUpper) {
+            showPerfilModalError("La nueva contraseña debe tener al menos 8 caracteres y una mayúscula.");
+            return;
+        }
+    }
 
     try {
         const res = await fetch(`${API_URL}/updateUser`, {
@@ -31,12 +62,21 @@ document.getElementById("perfilForm").addEventListener("submit", async (e) => {
         const data = await res.json();
 
         if (data.success) {
-            alert("Datos actualizados con éxito");
-            localStorage.setItem("username", data.user.username); // actualizar localStorage
-            // No se toca el role
-            window.location.href = "main.html";
+            // Modal de éxito
+            function showPerfilModalSuccess(msg) {
+                const modal = document.getElementById("modalPerfilSuccess");
+                const modalMsg = document.getElementById("modalPerfilSuccessMsg");
+                modalMsg.textContent = msg;
+                modal.style.display = "flex";
+            }
+            document.getElementById("closeModalPerfilSuccess").onclick = function() {
+                document.getElementById("modalPerfilSuccess").style.display = "none";
+                window.location.href = "main.html";
+            };
+            localStorage.setItem("username", data.user.username);
+            showPerfilModalSuccess("Datos actualizados con éxito");
         } else {
-            alert(data.message || "Error al actualizar");
+            showPerfilModalError(data.message || "Error al actualizar");
         }
     } catch (error) {
         console.error("Error al actualizar:", error);
