@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Club de Lectura</title>
+    <link rel="stylesheet" href="../css/crearclub.css">
+</head>
+<body>
+    <header class="main-header">
+        <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
+       
+            
+    </header>
+    <div class="crear-club-container">
+        <h2>Crear Club de Lectura</h2>
+        <form id="crearClubForm">
+            <input type="text" id="name" placeholder="Nombre del club" required maxlength="50">
+            <textarea id="description" placeholder="Descripción del club" required maxlength="255"></textarea>
+            <button type="submit">Crear club</button>
+        </form>
+        <div id="crearClubMsg"></div>
+        <button onclick="window.location.href='main.html'" style="margin-top:1rem;">Volver</button>
+    </div>
+    
+    <script src="../js/creacion_club.js"></script>
+    
+</body>
+</html>
