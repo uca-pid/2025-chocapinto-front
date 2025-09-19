@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:5000"; // Flask local
+const API_URL = "http://127.0.0.1:5000";
 
     document.getElementById("loginForm").addEventListener("submit", async function(e) {
         e.preventDefault(); // evita que recargue la página
@@ -19,6 +19,9 @@ const API_URL = "http://127.0.0.1:5000"; // Flask local
             // Guardar el usuario en localStorage (para usarlo en main.html)
             localStorage.setItem("username", username);
             localStorage.setItem("role", data.role);
+            if (data.id) {
+                localStorage.setItem("userId", data.id);
+            }
 
             // Redirigir al main
             window.location.href = "main.html";
@@ -26,23 +29,3 @@ const API_URL = "http://127.0.0.1:5000"; // Flask local
             document.getElementById("errorMsg").style.display = "block";
         }
     });
-
-
-// --- REGISTRO ---
-
-
-// --- MOSTRAR NOMBRE EN MAIN.HTML ---
-document.addEventListener("DOMContentLoaded", () => {
-    const username = localStorage.getItem("username");
-    const usernameSpan = document.getElementById("usernameDisplay");
-    if (username && usernameSpan) {
-        usernameSpan.textContent = username;
-    }
-});
-
-// --- LOGOUT ---
-function logout() {
-    localStorage.removeItem("username");
-    
-    window.location.href = "login.html";
-}

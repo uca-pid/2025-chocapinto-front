@@ -1,30 +1,90 @@
-/* --- Scroll horizontal recomendaciones --- */
-.recomendaciones-row {
-    display: flex;
-    flex-direction: row;
-    gap: 1.2rem;
-    overflow-x: auto;
-    padding-bottom: 10px;
-    scroll-snap-type: x mandatory;
-    flex-wrap: nowrap;
-    align-items: stretch;
-    width: 100%;
-}
-.recomendacion-card {
-    min-width: 220px;
-    max-width: 240px;
-    width: 220px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px #2c5a9140;
-    padding: 1.2rem 1rem;
-    scroll-snap-align: start;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-/* --- Dropdown perfil usuario --- */
+body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(120deg, #e6eafc 0%, #f5f6fa 100%);
+            margin: 0;
+            min-height: 100vh;
+        }
+        header {
+            background: #2c5a91;
+            color: #fff;
+            padding: 2rem 0 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 8px #2c5a9140;
+        }
+        main {
+            max-width: 400px;
+            margin: 2.5rem auto;
+            background: #fff;
+            padding: 2.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(44, 62, 80, 0.12);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .info {
+            width: 100%;
+            text-align: center;
+        }
+        #club-name {
+            font-size: 2rem;
+            color: #2c5a91;
+            margin-bottom: 1.2rem;
+            font-weight: 700;
+        }
+        #club-description {
+            font-size: 1.1rem;
+            color: #636e72;
+            margin-bottom: 2rem;
+        }
+        .volver-btn {
+            background: #0984e3;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #2c5a9140;
+            transition: background 0.2s;
+        }
+        .volver-btn:hover {
+            background: #74b9ff;
+            color: #2c5a91;
+        }
+                .agregar-libro-btn {
+            background: #00b894;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px #2c5a9140;
+            transition: background 0.2s;
+            margin-bottom: 1.2rem;
+        }
+        .agregar-libro-btn:hover {
+            background: #55efc4;
+            color: #2c5a91;
+        }
+                .libros-leidos-container {
+            width: 100%;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        #libros-leidos-list li {
+            background: #e6eafc;
+            margin-bottom: 0.7rem;
+            padding: 0.7rem 1rem;
+            border-radius: 7px;
+            color: #2d3436;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 8px #2c5a9120;
+        }
+        /* --- Dropdown perfil usuario --- */
 .profile-dropdown {
     position: relative;
     display: inline-block;
@@ -84,6 +144,8 @@
     display: block;
 }
 @media (max-width: 430px) {
+    .mis-clubes-grid,
+    .clubes-grid,
     .recomendaciones-grid {
         flex-wrap: nowrap !important;
         overflow-x: auto;
@@ -93,10 +155,12 @@
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
     }
+    .mis-club-card,
+    .section-card,
+    .club-card,
     .recomendacion-card {
-        min-width: 80vw;
-        max-width: 80vw;
-        width: 80vw;
+        min-width: 90vw;
+        max-width: 90vw;
         scroll-snap-align: start;
     }
 }
@@ -277,7 +341,6 @@
 .recomendacion-card {
     background: #fff;
     border-radius: 16px;
-    margin-top: 1rem;
     box-shadow: 0 2px 16px #2c5a9112, 0 1.5px 8px #a259e610;
     padding: 1.2rem 1rem 1.1rem 1rem;
     display: flex;
@@ -286,25 +349,19 @@
     text-align: center;
     transition: box-shadow 0.22s, transform 0.18s;
     border: 1px solid #e0e6f6;
-    
 }
 .recomendacion-card:hover, .recomendacion-card:focus-within {
-    .recomendaciones-row {
-        display: flex;
-        flex-direction: row;
-        gap: 1.2rem;
-        overflow-x: auto;
-        padding-bottom: 10px;
-        scroll-snap-type: x mandatory;
-        flex-wrap: nowrap;
-        align-items: stretch;
-        width: 100%;
-    }
-    height: auto;
+    box-shadow: 0 8px 32px #2c5a9140, 0 4px 18px #5fa8e930;
+    transform: translateY(-6px) scale(1.04);
+    border-color: #5fa8e9;
+    z-index: 2;
+}
+.recomendacion-img {
+    width: 90px;
+    height: 130px;
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 1rem;
-    margin-top: 0.5rem;
     box-shadow: 0 2px 8px #2c5a9140;
     background: #e6eafc;
 }
@@ -345,11 +402,12 @@
     display: flex;
     flex-direction: row;
     gap: 2.5rem;
-    overflow-x: scroll;
+    overflow-x: visible;
     overflow-y: visible;
     width: 100%;
     padding-bottom: 1rem;
     scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
     max-width: 100vw;
     margin-left: 0;
     margin-right: 0;
@@ -359,18 +417,10 @@
 .section-card {
     display: flex;
     z-index: auto;
-    min-width: 260px;
-    max-width: 260px;
-    min-height: 320px;
-    max-height: 320px;
-    box-sizing: border-box;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 .section-card:hover, .section-card:focus-within {
     align-items: center;
-    z-index: 99;
+    z-index: 100;
 }
 
 .profile-btn svg {
@@ -440,12 +490,9 @@
         padding: 1rem 0.5rem;
     }
 }
-
+/* --- Estilos para main.html inspirado en fce.com.ar/clubdelecturas/ --- */
 .main-header {
     display: flex;
-    position: sticky;
-    top: 0;
-    z-index: 100;
     align-items: center;
     justify-content: space-between;
     padding: 1.5rem 3rem 1rem 3rem;
@@ -514,7 +561,7 @@
     left: 0;
     right: 0;
     margin: auto;
-    z-index: 99;
+    z-index: 1000;
 }
 @media (max-width: 900px) {
     .club-card {
@@ -550,21 +597,19 @@
     align-items: center;
     text-align: center;
     margin-bottom: 1.5rem;
-    transition: box-shadow 0.32s cubic-bezier(.4,1.3,.6,1), transform 0.22s cubic-bezier(.4,1.3,.6,1), border-color 0.22s;
+    transition: box-shadow 0.32s cubic-bezier(.4,1.3,.6,1), transform 0.22s cubic-bezier(.4,1.3,.6,1), border-color 0.22s,;
     border: 1px solid #e0e6f6;
     position: relative;
     overflow: visible;
     will-change: transform, box-shadow;
     backface-visibility: hidden;
-    margin-top: 1rem;
 }
 
 .section-card:hover, .section-card:focus-within {
-    box-shadow: 0 8px 32px #224c8040, 0 4px 18px #5fa8e930;
-    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 16px 40px #2c5a9140, 0 6px 24px #5fa8e930;
+    transform: translateY(-10px) scale(1.06);
     border-color: #5fa8e9;
-    margin-top: 1rem;
-    
+    z-index: 10;
 }
 .section-card * {
     transition: none !important;
@@ -735,4 +780,3 @@
 .BooksyLogo{
     width: 100%;
 }
-
