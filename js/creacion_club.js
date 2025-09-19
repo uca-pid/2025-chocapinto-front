@@ -5,11 +5,19 @@ const API_URL = "http://127.0.0.1:5000";
         const name = document.getElementById("name").value.trim();
         const description = document.getElementById("description").value.trim();
         const ownerUsername = localStorage.getItem("username");
-        const msg = document.getElementById("crearClubMsg");
-        msg.textContent = "";
+    const msg = document.getElementById("crearClubMsg");
+    msg.textContent = "";
+    msg.style.display = "none";
 
         if (!ownerUsername) {
             msg.textContent = "Debes iniciar sesión primero";
+            msg.style.background = "#ffeaea";
+            msg.style.color = "#d63031";
+            msg.style.borderRadius = "8px";
+            msg.style.padding = "12px";
+            msg.style.margin = "16px 0";
+            msg.style.fontWeight = "bold";
+            msg.style.display = "block";
             return;
         }
 
@@ -23,15 +31,39 @@ const API_URL = "http://127.0.0.1:5000";
             const data = await res.json();
 
             if (data.success) {
-                msg.style.color = "#0984e3";
                 msg.textContent = "Club creado con éxito. Ahora eres moderador!";
-                setTimeout(() => window.location.href = "main.html", 1200);
+                msg.style.background = "#eaf6ff";
+                msg.style.color = "#0984e3";
+                msg.style.borderRadius = "8px";
+                msg.style.padding = "14px";
+                msg.style.margin = "18px 0";
+                msg.style.fontWeight = "bold";
+                msg.style.display = "block";
+                msg.style.boxShadow = "0 2px 12px #0984e340";
+                msg.style.transition = "all 0.3s";
+                setTimeout(() => window.location.href = "main.html", 1500);
             } else {
-                msg.style.color = "#d63031";
                 msg.textContent = data.message || "Error al crear club";
+                msg.style.background = "#ffeaea";
+                msg.style.color = "#d63031";
+                msg.style.borderRadius = "8px";
+                msg.style.padding = "12px";
+                msg.style.margin = "16px 0";
+                msg.style.fontWeight = "bold";
+                msg.style.display = "block";
+                msg.style.boxShadow = "0 2px 12px #d6303140";
+                msg.style.transition = "all 0.3s";
             }
         } catch (error) {
-            msg.style.color = "#d63031";
             msg.textContent = "Error de conexión con el servidor";
+            msg.style.background = "#ffeaea";
+            msg.style.color = "#d63031";
+            msg.style.borderRadius = "8px";
+            msg.style.padding = "12px";
+            msg.style.margin = "16px 0";
+            msg.style.fontWeight = "bold";
+            msg.style.display = "block";
+            msg.style.boxShadow = "0 2px 12px #d6303140";
+            msg.style.transition = "all 0.3s";
         }
     });

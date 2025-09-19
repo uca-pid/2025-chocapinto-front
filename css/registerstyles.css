@@ -95,7 +95,7 @@ button {
   width: 100%;
   height: 40px;
   color: #000;
-  background-color: #7a6c6c;
+  background-color: #fafafa;
   border-radius: 20px;
   outline: none;
   cursor: pointer;
@@ -105,7 +105,7 @@ button {
   transition: all 0.3s ease;
 }
 button:hover {
-  background-color: transparent;
+  background-color: rgba(119, 235, 206, 0.842);
   color: #000000;
 }
 .link {

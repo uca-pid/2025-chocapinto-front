@@ -1,3 +1,12 @@
+    <!-- Modal de confirmación para eliminar libro -->
+    <div id="modalEliminarLibro" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+        <div style="background:#fff; padding:2rem 1.5rem; border-radius:16px; box-shadow:0 4px 32px #0003; min-width:280px; max-width:90vw; text-align:center; position:relative;">
+            <span id="closeModalEliminar" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031;">&times;</span>
+            <div id="modalEliminarMsg" style="color:#2c5a91; font-size:1.15rem; margin-bottom:18px;">¿Seguro que querés eliminar este libro?</div>
+            <button id="confirmEliminarBtn" style="background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.7rem 1.5rem;font-weight:600;cursor:pointer;margin-right:10px;">Eliminar</button>
+            <button id="cancelEliminarBtn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.7rem 1.5rem;font-weight:600;cursor:pointer;">Cancelar</button>
+        </div>
+    </div>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -18,28 +27,43 @@
         <h2 id="club-name"></h2>
         <p id="club-description"></p>
     </div>
-    <div class="libros-leidos-container">
-        <h3 style="color:#2c5a91;margin-top:2rem;">Libros leídos</h3>
-        <ul id="libros-leidos-list" style="list-style:none;padding:0;"></ul>
+    <div class="libros-leidos-container" style="width:100vw;min-height:60vh;display:flex;flex-direction:column;align-items:center;">
+        <div style="display:flex;align-items:center;gap:1.5rem;margin-top:2rem;margin-bottom:0.5rem;width:90vw;max-width:1200px;">
+            <h3 style="color:#2c5a91;">Libros leídos</h3>
+            <button class="agregar-libro-btn" style="background:#0984e3;color:#fff;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #0984e340;cursor:pointer;transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
+            <button class="volver-btn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #2c5a9140;cursor:pointer;transition:background 0.2s;" onclick="window.location.href='main.html'">Volver</button>
+        </div>
+        <div id="libros-leidos-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;justify-items:center;width:90vw;max-width:1200px;margin:2rem auto 0 auto;"></div>
     </div>
-    <button class="agregar-libro-btn" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
-    <button class="volver-btn" onclick="window.location.href='main.html'">Volver</button>
+    <button class="agregar-libro-btn" style="background:#0984e3;color:#fff;border:none;border-radius:12px;padding:1rem 2.2rem;font-size:1.15rem;font-weight:700;box-shadow:0 2px 12px #0984e340;cursor:pointer;margin:2rem 1rem 1rem 0;transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
+    <button class="volver-btn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:12px;padding:1rem 2.2rem;font-size:1.15rem;font-weight:700;box-shadow:0 2px 12px #2c5a9140;cursor:pointer;margin:2rem 0 1rem 0;transition:background 0.2s;" onclick="window.location.href='main.html'">Volver</button>
 
     <!-- Modal para agregar libro -->
-    <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,90,145,0.18); z-index:100;">
-        <div style="background:#fff; max-width:350px; margin:8vh auto; padding:2rem 1.5rem; border-radius:12px; box-shadow:0 4px 24px #2c5a9140; position:relative;">
-            <h3 style="margin-bottom:1.2rem; color:#2c5a91;">Agregar libro</h3>
-            <form id="formLibro">
-                <label for="tituloLibro">Título</label>
-                <input type="text" id="tituloLibro" required style="width:100%;margin-bottom:1rem;">
-                <label for="autorLibro">Autor</label>
-                <input type="text" id="autorLibro" style="width:100%;margin-bottom:1rem;">
-                <button type="submit" style="background:#0984e3;color:#fff;border:none;border-radius:6px;padding:0.7rem 1.2rem;font-weight:600;cursor:pointer;width:100%;">Subir libro</button>
+    <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
+        <div id="modalLibroBox" style="background:#fff; max-width:370px; margin:8vh auto; padding:2.2rem 1.7rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column; align-items:center; opacity:0; transform:scale(0.95); animation:fadeInModal 0.5s forwards;">
+            <h3 style="margin-bottom:1.2rem; color:#2c5a91; font-size:1.4rem; font-weight:700; letter-spacing:0.5px;">Agregar libro</h3>
+            <form id="formLibro" style="width:100%;">
+                <label for="tituloLibro" style="font-weight:600; color:#2c5a91;">Título</label>
+                <input type="text" id="tituloLibro" required style="width:100%;margin-bottom:1rem;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;">
+                <label for="autorLibro" style="font-weight:600; color:#2c5a91;">Autor</label>
+                <input type="text" id="autorLibro" style="width:100%;margin-bottom:1rem;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;">
+                <button type="submit" style="background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.8rem 1.2rem;font-weight:700;cursor:pointer;width:100%;box-shadow:0 2px 12px #0984e340;transition:background 0.2s;">Subir libro</button>
             </form>
-            <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:1.5rem;color:#636e72;cursor:pointer;">&times;</button>
+            <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#d63031;cursor:pointer;">&times;</button>
             <div id="msgLibro" style="margin-top:1rem;text-align:center;color:#d63031;"></div>
         </div>
     </div>
+    <style>
+    @keyframes fadeInModal {
+        0% { opacity:0; transform:scale(0.95); }
+        80% { opacity:1; transform:scale(1.03); }
+        100% { opacity:1; transform:scale(1); }
+    }
+    @keyframes fadeInBg {
+        0% { opacity:0; }
+        100% { opacity:1; }
+    }
+    </style>
 
 </main>
    <script src="../js/club.js"></script>
