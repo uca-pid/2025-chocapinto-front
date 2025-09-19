@@ -2,26 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" href="images/desk.jpg">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <title>Registro</title>
-  <link rel="stylesheet" href="../css/registerstyles.css">
-</head>
+  
+  <link rel="stylesheet" href="../css/registerstyles.css"> 
+  </head>
+
 
 <body>
-  <div class="register-container">
-    <img src="../images/BooksyLogo.png" class="BooksyLogo" style="width: 100px; height: 50px;">
-    <h2>Registro</h2>
-    <form id="registerForm">
-      <input type="text" id="username" placeholder="Usuario" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-
-      <button type="submit">Registrarse</button>
-    </form>
-    <div class="register-link">
-            Tenes cuenta? <a href="login.html">Inicia sesión</a>
+  <p id="registerErrorMsg" style="color:red; display:none;">Error en el registro</p>
+      <p id="registerPasswordMsg" style="color:red; display:none;"></p>
+      <div id="modalError" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+        <div style="background:#fff; padding:2rem 1.5rem; border-radius:16px; box-shadow:0 4px 32px #0003; min-width:280px; max-width:90vw; text-align:center; position:relative;">
+          <span id="closeModalError" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031;">&times;</span>
+          <div id="modalErrorMsg" style="color:#d63031; font-size:1.15rem; margin-top:10px;"></div>
         </div>
-    <p id="message"></p>
+      </div>
+  <div class="register-box">
+    <form id="registerForm">
+      <img src="../images/BooksyLogo.png" class="BooksyLogo" style="display:block; margin:0 auto 10px auto; max-width:200px;">
+      <h1 style="color:#000; text-align:center; font-size:1.5rem; margin-bottom:10px;">Crea tu cuenta</h1>
+      
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-user"></i>
+        </span>
+        <input type="text" id="reg-username" name="reg-username" placeholder="Usuario" required>
+        <label for="reg-username">Usuario</label>
+      </div>
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-envelope"></i>
+        </span>
+        <input type="email" id="reg-email" name="reg-email" placeholder="Email" required>
+        <label for="reg-email">Email</label>
+      </div>
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-lock"></i>
+        </span>
+        <input type="password" id="reg-password" name="reg-password" placeholder="Contraseña" required>
+        <label for="reg-password">Contraseña</label>
+      </div>
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-lock"></i>
+        </span>
+        <input type="password" id="reg-password-repeat" name="reg-password-repeat" placeholder="Repetir contraseña" required>
+        <label for="reg-password-repeat">Repetir contraseña</label>
+      </div>
+      <button type="submit">Registrarse</button>
+      
+      <div class="link">
+        ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+      </div>
+    </form>
+    </div>
   </div>
 
+  
  <script src="../js/registro.js"></script>
 </body>
 
