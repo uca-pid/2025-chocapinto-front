@@ -13,6 +13,17 @@ if (registerForm) {
         document.getElementById("modalError").style.display = "none";
     };
 
+    function showModalSuccess(msg) {
+        const modal = document.getElementById("modalSuccess");
+        const modalMsg = document.getElementById("modalSuccessMsg");
+        modalMsg.textContent = msg;
+        modal.style.display = "flex";
+    }
+    document.getElementById("closeModalSuccess").onclick = function() {
+        document.getElementById("modalSuccess").style.display = "none";
+        window.location.href = '../html/login.html';
+    };
+
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
     const username = document.getElementById("reg-username").value;
@@ -42,8 +53,7 @@ if (registerForm) {
             });
             const result = await response.json();
             if (result.success) {
-                alert(result.message);
-                window.location.href = '../html/login.html';
+                showModalSuccess(result.message || "¡Usuario creado exitosamente!");
             } else {
                 showModalError(result.message || "Error en el registro");
             }
