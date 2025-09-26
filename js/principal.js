@@ -126,4 +126,54 @@ const API_URL = "http://127.0.0.1:5000";
                 grid.innerHTML = '<p style="color:#d63031;">Error al cargar libros.</p>';
             }
         }
-        
+        async function buscarLibrosGoogleBooks(event) {
+    event.preventDefault(); // Evita recarga
+    const query = document.getElementById("busquedaLibro").value.trim();
+    const resultadosDiv = document.getElementById("resultadosBusquedaLibros");
+    resultadosDiv.innerHTML = ""; // Limpia resultados previos
+
+    if (!query) return;
+
+    const libros = await buscarLibrosGoogleBooksAPI(query);
+
+    if (libros.length === 0) {
+        resultadosDiv.innerHTML = "<p style='color:#636e72;'>No se encontraron libros.</p>";
+        return;
+    }
+
+    libros.forEach(libro => {
+        const card = document.createElement("div");
+        card.className = "libro-busqueda-card";
+        card.innerHTML = `
+            <div style="display:flex;gap:12px;">
+                ${libro.thumbnail ? `<img src="${libro.thumbnail}" alt="Portada" style="width:60px;height:auto;border-radius:4px;">` : ""}
+                <div>
+                    <h4 style="margin:0 0 4px 0;">${libro.title}</h4>
+                    <p style="margin:0 0 4px 0;font-size:0.95em;color:#636e72;">${libro.author}</p>
+                    <p style="margin:0;font-size:0.9em;">${libro.description ? libro.description.substring(0, 120) + "..." : ""}</p>
+                </div>
+            </div>
+        `;
+        resultadosDiv.appendChild(card);
+    });
+}
+
+// Renombra tu función original para evitar conflicto de nombres
+async function buscarLibrosGoogleBooksAPI(query) {
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.items) return [];
+        const libros = data.items.map(item => ({
+            title: item.volumeInfo.title || "Sin título",
+            author: (item.volumeInfo.authors && item.volumeInfo.authors.join(", ")) || "Autor desconocido",
+            description: item.volumeInfo.description || "",
+            thumbnail: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ""
+        }));
+        return libros;
+    } catch (error) {
+        console.error("Error al buscar libros en Google Books:", error);
+        return [];
+    }
+}
