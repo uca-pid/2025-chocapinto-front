@@ -51,14 +51,21 @@ const API_URL = "http://127.0.0.1:5000";
 
                     if (!esMiembro) {
                         clubCard.querySelector(".unirme-btn").addEventListener("click", async () => {
-            const joinRes = await fetch(`${API_URL}/joinClub`, {
+            console.log('Unirme clickeado', { clubId: club.id, username });
+            // Crear solicitud de ingreso al club
+            const res = await fetch(`${API_URL}/clubSolicitud`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ clubId: club.id, username })
             });
-            const joinData = await joinRes.json();
-            if (joinData.success) cargarClubes();
-            else alert(joinData.message);
+            const data = await res.json();
+            console.log('Respuesta clubSolicitud:', data);
+            if (data.success) {
+                alert("Solicitud enviada. Espera la aprobación del moderador.");
+                cargarClubes();
+            } else {
+                alert(data.message || "No se pudo enviar la solicitud.");
+            }
         });
                     }
                     if (esCreador) {
@@ -94,6 +101,30 @@ const API_URL = "http://127.0.0.1:5000";
                 dropdownContent.addEventListener("mouseleave", () => { dropdownContent.style.display = "none"; });
                 dropdownContent.addEventListener("mouseenter", () => { dropdownContent.style.display = "block"; });
             }
+
+            // CAMBIO: Mostrar libros en tiempo real debajo del buscador
+            const input = document.getElementById("busquedaLibro");
+            const resultados = document.getElementById("resultadosBusquedaLibros");
+            let lastQuery = "";
+            input.addEventListener("input", async function () {
+                const query = input.value.trim();
+                resultados.innerHTML = "";
+                if (query.length < 2) return;
+                lastQuery = query;
+                const libros = await buscarLibrosGoogleBooksAPI(query);
+                // Si el usuario siguió escribiendo, no mostrar resultados viejos
+                if (lastQuery !== input.value.trim()) return;
+                if (libros.length === 0) {
+                    resultados.innerHTML = "<div style='padding:0.5rem;color:#636e72;'>No se encontraron libros.</div>";
+                    return;
+                }
+                libros.forEach(libro => {
+                    const div = document.createElement("div");
+                    div.className = "busqueda-libro-item";
+                    div.innerHTML = `<strong>${libro.title}</strong> <span style='color:#636e72;font-size:0.95em;'>${libro.author}</span>`;
+                    resultados.appendChild(div);
+                });
+            });
         });
 
         async function cargarLibrosRecomendados() {

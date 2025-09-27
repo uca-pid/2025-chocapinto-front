@@ -1,3 +1,24 @@
+/* --- CAMBIO: Estilos para resultados de búsqueda de libros en club_lectura --- */
+.busqueda-libro-item {
+    margin-bottom: 10px;
+    background: #eaf6ff;
+    border-radius: 12px;
+    border: 1.5px solid #5fa8e9;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: box-shadow 0.2s;
+    box-shadow: 0 2px 8px #2c5a9140;
+}
+.busqueda-libro-item:last-child {
+    margin-bottom: 0;
+}
+.busqueda-libro-item:hover {
+    box-shadow: 0 4px 16px #0984e340;
+    background: #d0e6ff;
+}
 body {
             font-family: 'Roboto', Arial, sans-serif;
             background: linear-gradient(120deg, #e6eafc 0%, #f5f6fa 100%);

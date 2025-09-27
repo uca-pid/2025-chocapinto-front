@@ -23,30 +23,47 @@
         </nav>
     </header>
    <main>
-    <div class="info">
-        <h2 id="club-name"></h2>
-        <p id="club-description"></p>
-    </div>
-    <div class="libros-leidos-container" style="width:100vw;min-height:60vh;display:flex;flex-direction:column;align-items:center;">
-        <div style="display:flex;align-items:center;gap:1.5rem;margin-top:2rem;margin-bottom:0.5rem;width:90vw;max-width:1200px;">
-            <h3 style="color:#2c5a91;">Libros leídos</h3>
-            <button class="agregar-libro-btn" style="background:#0984e3;color:#fff;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #0984e340;cursor:pointer;transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
-            <button class="volver-btn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #2c5a9140;cursor:pointer;transition:background 0.2s;" onclick="window.location.href='main.html'">Volver</button>
+    <div class="club-layout" style="display:flex;gap:2.5rem;justify-content:center;align-items:flex-start;width:100vw;max-width:1400px;margin:0 auto;">
+        <!-- Columna 1: Info club + integrantes -->
+        <div class="club-info-col" style="flex:1;min-width:260px;max-width:340px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
+            <h2 id="club-name"></h2>
+            <p id="club-description"></p>
+            <p id="club-owner" style="color:#636e72;font-size:1.05em;margin-top:0.5em;"></p>
+            <h3 style="margin-top:2rem;color:#2c5a91;">Integrantes</h3>
+            <ul id="club-members-list" style="list-style:none;padding:0;margin-top:1rem;"></ul>
         </div>
-        <div id="libros-leidos-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;justify-items:center;width:90vw;max-width:1200px;margin:2rem auto 0 auto;"></div>
+        <!-- Columna 2: Libros -->
+        <div class="club-libros-col" style="flex:2;min-width:340px;max-width:700px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
+            <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;">
+                <h3 style="color:#2c5a91;">Libros leídos</h3>
+                <button class="agregar-libro-btn" style="background:#0984e3;color:#fff;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #0984e340;cursor:pointer;transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
+                <button class="volver-btn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #2c5a9140;cursor:pointer;transition:background 0.2s;" onclick="window.location.href='main.html'">Volver</button>
+            </div>
+            <div id="libros-leidos-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;justify-items:center;width:100%;margin:2rem auto 0 auto;"></div>
+        </div>
+        <!-- Columna 3: Extra -->
+        <div class="club-extra-col" style="flex:1;min-width:220px;max-width:340px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
+            <!-- SOLO PARA EL OWNER: Lista de solicitudes de ingreso -->
+            <div id="solicitudes-container" style="display:none;margin-bottom:2rem;background:#fff;border-radius:16px;box-shadow:0 2px 16px #2c5a9140;padding:1.5rem;">
+                <h3 style="color:#d63031;margin-bottom:1rem;">Solicitudes de ingreso</h3>
+                <div id="solicitudes-list" style="display:flex;flex-direction:column;gap:1rem;"></div>
+            </div>
+            <!-- Aquí puedes agregar contenido extra -->
+        </div>
     </div>
-    <button class="agregar-libro-btn" style="background:#0984e3;color:#fff;border:none;border-radius:12px;padding:1rem 2.2rem;font-size:1.15rem;font-weight:700;box-shadow:0 2px 12px #0984e340;cursor:pointer;margin:2rem 1rem 1rem 0;transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
-    <button class="volver-btn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:12px;padding:1rem 2.2rem;font-size:1.15rem;font-weight:700;box-shadow:0 2px 12px #2c5a9140;cursor:pointer;margin:2rem 0 1rem 0;transition:background 0.2s;" onclick="window.location.href='main.html'">Volver</button>
-
+    
     <!-- Modal para agregar libro -->
     <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
         <div id="modalLibroBox" style="background:#fff; max-width:370px; margin:8vh auto; padding:2.2rem 1.7rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column; align-items:center; opacity:0; transform:scale(0.95); animation:fadeInModal 0.5s forwards;">
             <h3 style="margin-bottom:1.2rem; color:#2c5a91; font-size:1.4rem; font-weight:700; letter-spacing:0.5px;">Agregar libro</h3>
             <form id="formLibro" style="width:100%;">
-                <label for="tituloLibro" style="font-weight:600; color:#2c5a91;">Título</label>
-                <input type="text" id="tituloLibro" required style="width:100%;margin-bottom:1rem;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;">
-                <label for="autorLibro" style="font-weight:600; color:#2c5a91;">Autor</label>
-                <input type="text" id="autorLibro" style="width:100%;margin-bottom:1rem;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;">
+                <label for="buscadorLibro" style="font-weight:600; color:#2c5a91;">Buscar libro</label>
+                <input type="text" id="buscadorLibro" autocomplete="off" placeholder="Título, autor..." style="width:100%;margin-bottom:1rem;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;">
+                <div id="resultadosBusquedaLibro" style="width:100%;max-height:180px;overflow-y:auto;margin-bottom:1rem;"></div>
+                <input type="hidden" id="tituloLibro">
+                <input type="hidden" id="autorLibro">
+                <input type="hidden" id="portadaLibro">
+                <input type="hidden" id="idApiLibro">
                 <button type="submit" style="background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.8rem 1.2rem;font-weight:700;cursor:pointer;width:100%;box-shadow:0 2px 12px #0984e340;transition:background 0.2s;">Subir libro</button>
             </form>
             <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#d63031;cursor:pointer;">&times;</button>
