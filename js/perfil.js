@@ -3,7 +3,7 @@ const API_URL = "http://127.0.0.1:5000";
 document.addEventListener("DOMContentLoaded", () => {
     const currentUsername = localStorage.getItem("username");
     if (!currentUsername) {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
     document.getElementById("username").value = currentUsername;
@@ -99,7 +99,7 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
             alert("Cuenta eliminada correctamente");
             localStorage.removeItem("username");
             localStorage.removeItem("role");
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         } else {
             alert(data.message || "No se pudo eliminar la cuenta");
         }

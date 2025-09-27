@@ -21,7 +21,7 @@ if (registerForm) {
     }
     document.getElementById("closeModalSuccess").onclick = function() {
         document.getElementById("modalSuccess").style.display = "none";
-        window.location.href = '../html/login.html';
+        window.location.href = '../html/index.html';
     };
 
     registerForm.addEventListener("submit", async (e) => {
