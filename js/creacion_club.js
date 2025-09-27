@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:5000";
+import { API_URL } from "./env.js";
 
     document.getElementById("crearClubForm").addEventListener("submit", async (e) => {
         e.preventDefault();
