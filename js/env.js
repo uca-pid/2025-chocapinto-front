@@ -1,1 +1,1 @@
-export const API_URL = "https://two025-chocapinto-back.onrender.com";
+window.API_URL = "https://two025-chocapinto-back.onrender.com";
