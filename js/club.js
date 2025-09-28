@@ -1,3 +1,4 @@
+const API_URL = "http://127.0.0.1:5000";
 // Gestionar solicitud: aceptar o rechazar
 async function gestionarSolicitud(solicitudId, aceptar) {
     const clubId = getClubId();
@@ -18,6 +19,7 @@ async function gestionarSolicitud(solicitudId, aceptar) {
         alert("Error de conexión al gestionar solicitud");
     }
 }
+
 async function eliminarUsuarioDelClub(userId, clubId) {
     if (!confirm("¿Seguro que quieres eliminar este usuario del club?")) return;
     try {
@@ -35,6 +37,7 @@ async function eliminarUsuarioDelClub(userId, clubId) {
         alert("Error de conexión");
     }
 }
+
 async function obtenerDatosOwner(id_owner){
     try {
         const res = await fetch(`${API_URL}/user/${id_owner}`);
@@ -48,7 +51,413 @@ async function obtenerDatosOwner(id_owner){
         document.getElementById('club-owner').textContent = "Moderador: error de datos";
     }
 }
-// --- AGREGAR LIBRO ---
+async function cargarCategorias() {
+    try {
+        const res = await fetch(`${API_URL}/categorias`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.categorias)) {
+            categoriasDisponibles = data.categorias;
+            renderCategoriasCheckboxes();
+        }
+    } catch (error) {
+        categoriasContainer.innerHTML = '<span style="color:#d63031;">Error al cargar categorías</span>';
+    }
+}
+function renderCategoriasCheckboxes() {
+    categoriasContainer.innerHTML = '';
+    if (categoriasDisponibles.length === 0) {
+        categoriasContainer.innerHTML = '<span style="color:#636e72;">No hay categorías aún.</span>';
+        return;
+    }
+    categoriasDisponibles.forEach(cat => {
+        const label = document.createElement('label');
+        label.style.marginRight = '12px';
+        label.style.fontWeight = '500';
+        label.style.color = '#2c5a91';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = cat.id;
+        checkbox.className = 'categoria-checkbox';
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(' ' + cat.nombre));
+        categoriasContainer.appendChild(label);
+    });
+}
+// --- Función para buscar libros en Google Books ---
+async function buscarLibrosGoogleBooksAPI(query) {
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!data.items) return [];
+        const libros = data.items.map(item => ({
+            title: item.volumeInfo.title || "Sin título",
+            author: (item.volumeInfo.authors && item.volumeInfo.authors.join(", ")) || "Autor desconocido",
+            thumbnail: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ""
+        }));
+        return libros;
+    } catch (error) {
+        return [];
+    }
+}
+function getClubId() {
+        const params = new URLSearchParams(window.location.search);
+        return params.get('clubId');
+    }
+async function renderClub() {
+    const clubId = getClubId();
+    if (!clubId) {
+        mostrarClubNoEncontrado("No se especificó el club.");
+        return;
+    }
+    try {
+        const res = await fetch(`${API_URL}/club/${clubId}`);
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            mostrarClubNoEncontrado(data.message || "No existe el club.");
+            return;
+        }
+        mostrarDatosClub(data.club);
+        mostrarIntegrantes(data.club);
+        mostrarSolicitudes(data.club);
+
+        // --- FILTRO POR CATEGORÍA ---
+        const filtroContainerId = "filtro-categorias-leidos";
+        let filtroContainer = document.getElementById(filtroContainerId);
+        if (!filtroContainer) {
+            filtroContainer = document.createElement("div");
+            filtroContainer.id = filtroContainerId;
+            filtroContainer.style.margin = "18px 0 8px 0";
+            filtroContainer.style.display = "flex";
+            filtroContainer.style.alignItems = "center";
+            filtroContainer.style.gap = "10px";
+            const label = document.createElement("label");
+            label.textContent = "Filtrar por categoría:";
+            label.style.fontWeight = "500";
+            label.style.color = "#2c5a91";
+            filtroContainer.appendChild(label);
+
+            const select = document.createElement("select");
+            select.id = "selectFiltroCategoria";
+            select.style.padding = "6px 12px";
+            select.style.borderRadius = "8px";
+            select.style.border = "1px solid #eaf6ff";
+            select.style.background = "#fff";
+            select.style.fontWeight = "500";
+            select.style.color = "#2c5a91";
+            filtroContainer.appendChild(select);
+
+            // Insertar antes de la lista de libros leídos
+            const librosList = document.getElementById('libros-leidos-list');
+            librosList.parentNode.insertBefore(filtroContainer, librosList);
+        }
+
+        // Actualizar opciones del select
+        const select = document.getElementById("selectFiltroCategoria");
+        select.innerHTML = "";
+        const todasCategorias = [];
+        if (data.club.readBooks && data.club.readBooks.length > 0) {
+            data.club.readBooks.forEach(libro => {
+                libro.categorias.forEach(cat => {
+                    if (!todasCategorias.some(c => c.id === cat.id)) {
+                        todasCategorias.push(cat);
+                    }
+                });
+            });
+        }
+        // Opción "Todas"
+        const optionTodas = document.createElement("option");
+        optionTodas.value = "";
+        optionTodas.textContent = "Todas";
+        select.appendChild(optionTodas);
+        todasCategorias.forEach(cat => {
+            const opt = document.createElement("option");
+            opt.value = cat.id;
+            opt.textContent = cat.nombre;
+            select.appendChild(opt);
+        });
+
+        // Guardar filtro seleccionado en variable
+        let filtroCategoriaId = select.value;
+        select.onchange = function () {
+            filtroCategoriaId = select.value;
+            mostrarLibrosLeidosFiltrados(data.club, filtroCategoriaId);
+        };
+
+        // Mostrar libros filtrados
+        mostrarLibrosLeidosFiltrados(data.club, filtroCategoriaId);
+
+    } catch (error) {
+        mostrarClubNoEncontrado("No se pudo cargar el club.");
+    }
+}
+
+// Nueva función para mostrar libros filtrados
+function mostrarLibrosLeidosFiltrados(club, filtroCategoriaId) {
+    const librosList = document.getElementById('libros-leidos-list');
+    librosList.innerHTML = "";
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    let libros = club.readBooks || [];
+    if (filtroCategoriaId) {
+        libros = libros.filter(libro =>
+            libro.categorias.some(cat => String(cat.id) === String(filtroCategoriaId))
+        );
+    }
+    if (libros.length > 0) {
+        libros.forEach(libro => {
+            const card = document.createElement('div');
+            card.className = 'libro-card';
+            card.style.background = '#fff';
+            card.style.borderRadius = '16px';
+            card.style.boxShadow = '0 2px 16px #2c5a9140';
+            card.style.padding = '1.2rem 1.2rem';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'flex-start';
+            card.style.justifyContent = 'flex-start';
+            card.style.border = '1px solid #eaf6ff';
+            card.style.width = '100%';
+            card.style.maxWidth = '260px';
+            card.style.minHeight = '120px';
+            card.style.position = 'relative';
+            const categoriasHTML = libro.categorias
+                .map(cat => `<span style="background:#eaf6ff;color:#2c5a91;padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;">${cat.nombre}</span>`)
+                .join(" ");
+            card.innerHTML = `
+                <div style='width:100%;display:flex;align-items:center;gap:10px;'>
+                    ${libro.portada ? `<img src='${libro.portada}' style='width:48px;height:auto;border-radius:6px;'>` : ` ... `}
+                    <div>
+                        <strong style='color:#2c5a91;font-size:1.15rem;'>${libro.title}</strong>
+                        ${libro.author ? '<br><span style="color:#636e72;">de ' + libro.author + '</span>' : ''}
+                        <div style="margin-top:6px;">${categoriasHTML}</div>
+                    </div>
+                </div>
+            `;
+            if (isOwner) {
+                agregarBotonEliminarLibro(card, libro.id);
+            }
+            librosList.appendChild(card);
+        });
+    } else {
+        librosList.innerHTML = '<div style="color:#636e72;">No hay libros leídos en esta categoría.</div>';
+    }
+}
+
+// Helpers
+
+function mostrarClubNoEncontrado(msg) {
+    document.getElementById('club-name').textContent = "Club no encontrado";
+    document.getElementById('club-description').textContent = msg;
+}
+
+function mostrarDatosClub(club) {
+    document.getElementById('club-name').textContent = club.name;
+    document.getElementById('club-description').textContent = club.description;
+    obtenerDatosOwner(club.id_owner);
+}
+
+function mostrarIntegrantes(club) {
+    const membersList = document.getElementById('club-members-list');
+    membersList.innerHTML = "";
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    if (club.members && club.members.length > 0) {
+        club.members.forEach(m => {
+            const li = document.createElement('li');
+            li.textContent = m.username;
+            li.style.cssText = 'padding:0.5em 0;color:#2c5a91;font-weight:500;border-bottom:1px solid #eaf6ff;';
+            if (isOwner && m.id != userId) {
+                const btn = document.createElement('button');
+                btn.textContent = 'Eliminar';
+                btn.style.cssText = 'margin-left:10px;background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.3rem 0.8rem;font-weight:600;cursor:pointer;';
+                btn.onclick = async () => { await eliminarUsuarioDelClub(m.id, club.id); };
+                li.appendChild(btn);
+            }
+            membersList.appendChild(li);
+        });
+    } else {
+        membersList.innerHTML = '<li style="color:#636e72;">No hay integrantes aún.</li>';
+    }
+}
+
+function mostrarSolicitudes(club) {
+    const solicitudesContainer = document.getElementById('solicitudes-container');
+    const solicitudesList = document.getElementById('solicitudes-list');
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    if (isOwner && club.solicitudes && club.solicitudes.length > 0) {
+        const pendientes = club.solicitudes.filter(s => s.estado === "pendiente");
+        if (pendientes.length > 0) {
+            solicitudesContainer.style.display = 'block';
+            solicitudesList.innerHTML = '';
+            pendientes.forEach(solicitud => {
+                const item = document.createElement('div');
+                item.style.cssText = 'background:#eaf6ff;padding:1rem 1.2rem;border-radius:10px;display:flex;align-items:center;justify-content:space-between;';
+                item.innerHTML = `<span style='color:#2c5a91;font-weight:600;'>${solicitud.username}</span> <span style='color:#636e72;'>quiere unirse</span>`;
+                const btns = document.createElement('div');
+                btns.style.display = 'flex';
+                btns.style.gap = '10px';
+                const aceptarBtn = document.createElement('button');
+                aceptarBtn.textContent = 'Aceptar';
+                aceptarBtn.style.cssText = 'background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.2rem;font-weight:600;cursor:pointer;';
+                aceptarBtn.onclick = async () => { await gestionarSolicitud(solicitud.id, true); };
+                const rechazarBtn = document.createElement('button');
+                rechazarBtn.textContent = 'Rechazar';
+                rechazarBtn.style.cssText = 'background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.2rem;font-weight:600;cursor:pointer;';
+                rechazarBtn.onclick = async () => { await gestionarSolicitud(solicitud.id, false); };
+                btns.appendChild(aceptarBtn);
+                btns.appendChild(rechazarBtn);
+                item.appendChild(btns);
+                solicitudesList.appendChild(item);
+            });
+        } else {
+            solicitudesContainer.style.display = 'none';
+        }
+    } else if (solicitudesContainer) {
+        solicitudesContainer.style.display = 'none';
+    }
+}
+
+function mostrarLibrosLeidos(club) {
+    const librosList = document.getElementById('libros-leidos-list');
+    librosList.innerHTML = "";
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    if (club.readBooks && club.readBooks.length > 0) {
+        club.readBooks.forEach(libro => {
+            const card = document.createElement('div');
+            card.className = 'libro-card';
+            card.style.background = '#fff';
+            card.style.borderRadius = '16px';
+            card.style.boxShadow = '0 2px 16px #2c5a9140';
+            card.style.padding = '1.2rem 1.2rem';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'flex-start';
+            card.style.justifyContent = 'flex-start';
+            card.style.border = '1px solid #eaf6ff';
+            card.style.width = '100%';
+            card.style.maxWidth = '260px';
+            card.style.minHeight = '120px';
+            card.style.position = 'relative';
+            const categoriasHTML = libro.categorias
+                .map(cat => `<span style="background:#eaf6ff;color:#2c5a91;padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;">${cat.nombre}</span>`)
+                .join(" ");
+            card.innerHTML = `
+                <div style='width:100%;display:flex;align-items:center;gap:10px;'>
+                    ${libro.portada ? `<img src='${libro.portada}' style='width:48px;height:auto;border-radius:6px;'>` : ` ... `}
+                    <div>
+                        <strong style='color:#2c5a91;font-size:1.15rem;'>${libro.title}</strong>
+                        ${libro.author ? '<br><span style="color:#636e72;">de ' + libro.author + '</span>' : ''}
+                        <div style="margin-top:6px;">${categoriasHTML}</div>
+                    </div>
+                </div>
+            `;
+            if (isOwner) {
+                agregarBotonEliminarLibro(card, libro.id);
+            }
+            librosList.appendChild(card);
+        });
+    } else {
+        librosList.innerHTML = '<div style="color:#636e72;">No hay libros leídos aún.</div>';
+    }
+}
+
+function agregarBotonEliminarLibro(card, bookId) {
+    const deleteBtn = document.createElement('span');
+    deleteBtn.textContent = '❌';
+    deleteBtn.style.cssText = 'color:#d63031;cursor:pointer;font-size:1.3rem;position:absolute;top:10px;right:14px;';
+    deleteBtn.title = 'Eliminar libro';
+    deleteBtn.onclick = () => {
+        const modal = document.getElementById('modalEliminarLibro');
+        modal.style.display = 'flex';
+        modal.dataset.bookId = bookId;
+    };
+    card.appendChild(deleteBtn);
+
+    // Modal de confirmación para eliminar libro
+    const modalEliminar = document.getElementById('modalEliminarLibro');
+    const closeModalEliminar = document.getElementById('closeModalEliminar');
+    const confirmEliminarBtn = document.getElementById('confirmEliminarBtn');
+    const cancelEliminarBtn = document.getElementById('cancelEliminarBtn');
+
+    if (closeModalEliminar) closeModalEliminar.onclick = () => { modalEliminar.style.display = 'none'; };
+    if (cancelEliminarBtn) cancelEliminarBtn.onclick = () => { modalEliminar.style.display = 'none'; };
+    if (confirmEliminarBtn) confirmEliminarBtn.onclick = async () => {
+        const clubId = getClubId();
+        const username = localStorage.getItem("username");
+        const bookId = modalEliminar.dataset.bookId;
+        if (bookId) {
+            await eliminarLibro(bookId, clubId, username);
+            modalEliminar.style.display = 'none';
+            renderClub();
+        }
+    };
+}
+
+async function eliminarLibro(bookId, clubId, username) {
+    try {
+        const res = await fetch(`${API_URL}/club/${clubId}/deleteBook/${bookId}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+            alert(data.message || "Error al eliminar libro");
+        }
+    } catch (error) {
+        alert("Error de conexión al eliminar libro");
+    }
+}
+
+
+// --- CATEGORÍAS ---
+let categoriasDisponibles = [];
+const categoriasContainer = document.getElementById("categoriasContainer");
+const nuevaCategoriaInput = document.getElementById("nuevaCategoriaInput");
+const agregarCategoriaBtn = document.getElementById("agregarCategoriaBtn");
+
+agregarCategoriaBtn.addEventListener('click', async () => {
+    const nombre = nuevaCategoriaInput.value.trim();
+    if (!nombre) return;
+    // Evitar duplicados
+    if (categoriasDisponibles.some(cat => cat.nombre.toLowerCase() === nombre.toLowerCase())) {
+        alert("La categoría ya existe");
+        return;
+    }
+    try {
+        const res = await fetch(`${API_URL}/categorias`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre })
+        });
+        const data = await res.json();
+        if (data.success && data.categoria) {
+            categoriasDisponibles.push(data.categoria);
+            renderCategoriasCheckboxes();
+            nuevaCategoriaInput.value = '';
+        }
+    } catch (error) {
+        alert("Error al crear categoría");
+    }
+});
+
+// Cargar categorías al abrir modal
+document.querySelector('.agregar-libro-btn').addEventListener('click', () => {
+        document.getElementById('modalLibro').style.display = 'block';
+        cargarCategorias();
+        // Mostrar input de crear categoría solo si es owner
+        const clubId = getClubId();
+        fetch(`${API_URL}/club/${clubId}`)
+            .then(res => res.json())
+            .then(data => {
+                const userId = localStorage.getItem("userId");
+                const isOwner = data.club && data.club.id_owner == userId;
+                document.getElementById('crearCategoriaBox').style.display = isOwner ? 'block' : 'none';
+            });
+});
 // --- CAMBIO: Buscador Google Books y guardar libro seleccionado ---
 const buscadorLibro = document.getElementById("buscadorLibro");
 const resultadosBusquedaLibro = document.getElementById("resultadosBusquedaLibro");
@@ -102,11 +511,20 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
         msg.style.display = "block";
         return;
     }
+    // Obtener categorías seleccionadas
+    const categoriasSeleccionadas = Array.from(document.querySelectorAll('.categoria-checkbox:checked')).map(cb => cb.value);
+    if (categoriasSeleccionadas.length === 0) {
+        msg.textContent = "Seleccioná al menos una categoría";
+        msg.style.background = "#ffeaea";
+        msg.style.color = "#d63031";
+        msg.style.display = "block";
+        return;
+    }
     try {
         const res = await fetch(`${API_URL}/club/${clubId}/addBook`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, author, thumbnail, id_api })
+            body: JSON.stringify({ title, author, thumbnail, id_api, categorias: categoriasSeleccionadas })
         });
         const data = await res.json();
         if (res.ok && data.success) {
@@ -129,217 +547,4 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
     }
 });
 
-// --- Función para buscar libros en Google Books ---
-async function buscarLibrosGoogleBooksAPI(query) {
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
-    try {
-        const res = await fetch(url);
-        const data = await res.json();
-        if (!data.items) return [];
-        const libros = data.items.map(item => ({
-            title: item.volumeInfo.title || "Sin título",
-            author: (item.volumeInfo.authors && item.volumeInfo.authors.join(", ")) || "Autor desconocido",
-            thumbnail: item.volumeInfo.imageLinks ? item.volumeInfo.imageLinks.thumbnail : ""
-        }));
-        return libros;
-    } catch (error) {
-        return [];
-    }
-}
-const API_URL = "http://127.0.0.1:5000";
-    function getClubId() {
-        const params = new URLSearchParams(window.location.search);
-        return params.get('clubId');
-    }
-async function renderClub() {
-    const clubId = getClubId();
-    
-    if (!clubId) {
-        document.getElementById('club-name').textContent = "Club no encontrado";
-        document.getElementById('club-description').textContent = "No se especificó el club.";
-        return;
-    }
-    try {
-        const res = await fetch(`${API_URL}/club/${clubId}`);
-        
-        const data = await res.json();
-
-        
-        if (res.ok && data.success) {
-            
-
-           
-            
-            
-            document.getElementById('club-name').textContent = data.club.name;
-            document.getElementById('club-description').textContent = data.club.description;
-            obtenerDatosOwner(data.club.id_owner);
-            
-            
-            
-            // Mostrar integrantes
-            const membersList = document.getElementById('club-members-list');
-            membersList.innerHTML = "";
-            if (data.club.members && data.club.members.length > 0) {
-                // Ensure userId and isOwner are defined
-                const userId = localStorage.getItem("userId");
-                const isOwner = data.club.id_owner == userId;
-                data.club.members.forEach(m => {
-                    const li = document.createElement('li');
-                    li.textContent = m.username;
-                    li.style.cssText = 'padding:0.5em 0;color:#2c5a91;font-weight:500;border-bottom:1px solid #eaf6ff;';
-                    if (isOwner && m.id != userId) {
-                        const btn= document.createElement('button');
-                        btn.textContent = 'Eliminar';
-                        btn.style.cssText = 'margin-left:10px;background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.3rem 0.8rem;font-weight:600;cursor:pointer;';
-                        btn.onclick = async () => { await eliminarUsuarioDelClub(m.id, clubId); };
-                        li.appendChild(btn);
-                    }
-                    membersList.appendChild(li);
-                });
-            } else {
-                membersList.innerHTML = '<li style="color:#636e72;">No hay integrantes aún.</li>';
-            }
-            // Mostrar libros leídos
-            const librosList = document.getElementById('libros-leidos-list');
-            librosList.innerHTML = "";
-            const username = localStorage.getItem("username");
-            const userId = localStorage.getItem("userId");
-            const isOwner = data.club.id_owner == userId;
-            // Mostrar solicitudes solo si es owner
-            const solicitudesContainer = document.getElementById('solicitudes-container');
-            const solicitudesList = document.getElementById('solicitudes-list');
-            
-            if (isOwner && data.club.solicitudes && data.club.solicitudes.length > 0) {
-                const pendientes = data.club.solicitudes.filter(s => s.estado === "pendiente");
-                if (pendientes.length > 0) {
-                    solicitudesContainer.style.display = 'block';
-                    solicitudesList.innerHTML = '';
-                    pendientes.forEach(solicitud => {
-                        console.log('Solicitud:', solicitud);
-                        const item = document.createElement('div');
-                        item.style.cssText = 'background:#eaf6ff;padding:1rem 1.2rem;border-radius:10px;display:flex;align-items:center;justify-content:space-between;';
-                        item.innerHTML = `<span style='color:#2c5a91;font-weight:600;'>${solicitud.username}</span> <span style='color:#636e72;'>quiere unirse</span>`;
-                        // Botones aceptar/rechazar
-                        const btns = document.createElement('div');
-                        btns.style.display = 'flex';
-                        btns.style.gap = '10px';
-                        const aceptarBtn = document.createElement('button');
-                        aceptarBtn.textContent = 'Aceptar';
-                        aceptarBtn.style.cssText = 'background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.2rem;font-weight:600;cursor:pointer;';
-                        aceptarBtn.onclick = async () => {
-                            await gestionarSolicitud(solicitud.id, true);
-                        };
-                        const rechazarBtn = document.createElement('button');
-                        rechazarBtn.textContent = 'Rechazar';
-                        rechazarBtn.style.cssText = 'background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.2rem;font-weight:600;cursor:pointer;';
-                        rechazarBtn.onclick = async () => {
-                            await gestionarSolicitud(solicitud.id, false);
-                        };
-                        btns.appendChild(aceptarBtn);
-                        btns.appendChild(rechazarBtn);
-                        item.appendChild(btns);
-                        solicitudesList.appendChild(item);
-                    });
-                } else {
-                    solicitudesContainer.style.display = 'none';
-                }
-            } else if (solicitudesContainer) {
-                solicitudesContainer.style.display = 'none';
-            }
-            if (data.club.readBooks && data.club.readBooks.length > 0) {
-                librosList.innerHTML = "";
-                data.club.readBooks.forEach(libro => {
-                    const card = document.createElement('div');
-                    card.className = 'libro-card';
-                    card.style.background = '#fff';
-                    card.style.borderRadius = '16px';
-                    card.style.boxShadow = '0 2px 16px #2c5a9140';
-                    card.style.padding = '1.2rem 1.2rem';
-                    card.style.display = 'flex';
-                    card.style.flexDirection = 'column';
-                    card.style.alignItems = 'flex-start';
-                    card.style.justifyContent = 'flex-start';
-                    card.style.border = '1px solid #eaf6ff';
-                    card.style.width = '100%';
-                    card.style.maxWidth = '260px';
-                    card.style.minHeight = '120px';
-                    card.style.position = 'relative';
-                    card.innerHTML = `
-                        <div style='width:100%;display:flex;align-items:center;gap:10px;'>
-                            ${libro.portada ? `<img src='${libro.portada}' style='width:48px;height:auto;border-radius:6px;'>` : `
-                                <svg width='48' height='48' viewBox='0 0 48 48' fill='none'>
-                                    <rect x='8' y='12' width='16' height='28' rx='4' fill='#2c5a91'/>
-                                    <rect x='28' y='12' width='12' height='28' rx='4' fill='#5fa8e9'/>
-                                    <rect x='24' y='12' width='4' height='28' fill='#e6eafc'/>
-                                </svg>
-                            `}
-                            <div>
-                                <strong style='color:#2c5a91;font-size:1.15rem;'>${libro.title}</strong>
-                                ${libro.author ? '<br><span style="color:#636e72;">de ' + libro.author + '</span>' : ''}
-                            </div>
-                        </div>
-                    `;
-                    if (isOwner) {
-                        const deleteBtn = document.createElement('span');
-                        deleteBtn.textContent = '❌';
-                        deleteBtn.style.cssText = 'color:#d63031;cursor:pointer;font-size:1.3rem;position:absolute;top:10px;right:14px;';
-                        deleteBtn.title = 'Eliminar libro';
-                        deleteBtn.onclick = () => {
-                            // Mostrar modal de confirmación
-                            const modal = document.getElementById('modalEliminarLibro');
-                            modal.style.display = 'flex';
-                            // Guardar id del libro a eliminar
-                            modal.dataset.bookId = libro.id;
-                        };
-                        card.appendChild(deleteBtn);
-                    }
-// Modal de confirmación para eliminar libro
-const modalEliminar = document.getElementById('modalEliminarLibro');
-const closeModalEliminar = document.getElementById('closeModalEliminar');
-const confirmEliminarBtn = document.getElementById('confirmEliminarBtn');
-const cancelEliminarBtn = document.getElementById('cancelEliminarBtn');
-
-if (closeModalEliminar) closeModalEliminar.onclick = () => { modalEliminar.style.display = 'none'; };
-if (cancelEliminarBtn) cancelEliminarBtn.onclick = () => { modalEliminar.style.display = 'none'; };
-if (confirmEliminarBtn) confirmEliminarBtn.onclick = async () => {
-    const clubId = getClubId();
-    const username = localStorage.getItem("username");
-    const bookId = modalEliminar.dataset.bookId;
-    if (bookId) {
-        await eliminarLibro(bookId, clubId, username);
-        modalEliminar.style.display = 'none';
-        renderClub();
-    }
-};
-                    librosList.appendChild(card);
-                });
-            } else {
-                librosList.innerHTML = '<div style="color:#636e72;">No hay libros leídos aún.</div>';
-            }
-        } else {
-            document.getElementById('club-name').textContent = "Club no encontrado";
-            document.getElementById('club-description').textContent = data.message || "No existe el club.";
-        }
-    } catch (error) {
-        document.getElementById('club-name').textContent = "Error de conexión";
-        document.getElementById('club-description').textContent = "No se pudo cargar el club.";
-    }
-}
-
-async function eliminarLibro(bookId, clubId, username) {
-    try {
-        const res = await fetch(`${API_URL}/club/${clubId}/deleteBook/${bookId}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username })
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-            alert(data.message || "Error al eliminar libro");
-        }
-    } catch (error) {
-        alert("Error de conexión al eliminar libro");
-    }
-}
 renderClub();
