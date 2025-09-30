@@ -21,21 +21,18 @@ const API_URL = "http://127.0.0.1:5000";
 
                 data.clubs.forEach(club => {
                     const esMiembro = club.members.some(m => m.username === username);
+                    const img= club.imagen || '../images/BooksyLogo.png';
                      const esCreador = club.ownerUsername === username; // <-- compara con el creador
                     const clubCard = document.createElement("div");
                     clubCard.className = "section-card club-card";
-                      clubCard.innerHTML = `<div class="club-logo club-logo-default">
-            <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
-                <rect x="4" y="8" width="13" height="22" rx="3" fill="#2c5a91"/>
-                <rect x="21" y="8" width="13" height="22" rx="3" fill="#5fa8e9"/>
-                            <rect x="18" y="8" width="2" height="22" fill="#e6eafc"/>
-                        </svg>
+                    clubCard.innerHTML = `<div class="club-logo club-logo-default" style="width:70px;height:70px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f5f6fa;border-radius:50%;margin:0 auto 10px auto;">
+                        <img src="${img}" alt="Logo del club" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;">
                     </div>
                     <h3>${club.name}</h3>
                     <p>${club.description}</p>
                     ${esMiembro ? '<span style="color:#0984e3;font-weight:700;">Ya eres miembro</span>' : '<button class="unirme-btn">Unirme</button>'}
                     ${esCreador ? '<button class="editar-btn">Editar</button>' : ''}
-                `;
+                    `;
                     if (esMiembro) {
         document.querySelector(".mis-clubes-grid").appendChild(clubCard);
         // 👉 si soy miembro, al hacer click en toda la tarjeta voy al club
@@ -139,14 +136,11 @@ const API_URL = "http://127.0.0.1:5000";
                 }
                 data.books.forEach(libro => {
                     const card = document.createElement("div");
+                    
                     card.className = "recomendacion-card";
                     card.innerHTML = `
                         <div style="width:100%;display:flex;justify-content:center;margin-bottom:10px;">
-                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                                <rect x="8" y="12" width="16" height="28" rx="4" fill="#2c5a91"/>
-                                <rect x="28" y="12" width="12" height="28" rx="4" fill="#5fa8e9"/>
-                                <rect x="24" y="12" width="4" height="28" fill="#e6eafc"/>
-                            </svg>
+                            <img src="${libro.portada ? libro.portada : '../images/BooksyLogo.png'}" alt="Portada del libro" style="width:100px;height:auto;object-fit:contain;object-position:center;border-radius:4px;">
                         </div>
                         <h4>${libro.title}</h4>
                         <p>${libro.author ? libro.author : "Autor desconocido"}</p>

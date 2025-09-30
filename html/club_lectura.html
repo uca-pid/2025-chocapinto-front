@@ -1,5 +1,5 @@
-    <!-- Modal de confirmación para eliminar libro -->
-    <div id="modalEliminarLibro" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+<!-- Modal de confirmación para eliminar libro -->
+    <div id="modalEliminarLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
         <div style="background:#fff; padding:2rem 1.5rem; border-radius:16px; box-shadow:0 4px 32px #0003; min-width:280px; max-width:90vw; text-align:center; position:relative;">
             <span id="closeModalEliminar" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031;">&times;</span>
             <div id="modalEliminarMsg" style="color:#2c5a91; font-size:1.15rem; margin-bottom:18px;">¿Seguro que querés eliminar este libro?</div>
@@ -7,6 +7,17 @@
             <button id="cancelEliminarBtn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.7rem 1.5rem;font-weight:600;cursor:pointer;">Cancelar</button>
         </div>
     </div>
+    <!-- Modal de comentarios -->
+<div id="modalComentarios" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+  <div style="background:#fff; padding:2rem 1.5rem; border-radius:16px; box-shadow:0 4px 32px #0003; min-width:300px; max-width:90vw; max-height:80vh; overflow-y:auto; position:relative;">
+    <span id="closeModalComentarios" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031;">&times;</span>
+    <h3 style="color:#2c5a91;margin-bottom:1rem;">Comentarios</h3>
+    <div id="comentariosList" style="margin-bottom:1rem; display:flex; flex-direction:column; gap:0.8rem;"></div>
+    <textarea id="nuevoComentario" placeholder="Escribí un comentario..." style="width:100%;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;resize:none;min-height:60px;"></textarea>
+    <button id="enviarComentarioBtn" style="margin-top:1rem;background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.6rem 1.2rem;font-weight:600;cursor:pointer;">Enviar</button>
+  </div>
+</div>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -26,7 +37,9 @@
     <div class="club-layout" style="display:flex;gap:2.5rem;justify-content:center;align-items:flex-start;width:100vw;max-width:1400px;margin:0 auto;">
         <!-- Columna 1: Info club + integrantes -->
         <div class="club-info-col" style="flex:1;min-width:260px;max-width:340px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
+            <img id="club-imagen" src="" alt="Imagen del club" style="width:100%; border-radius:12px; margin:1rem 0;">
             <h2 id="club-name"></h2>
+            
             <p id="club-description"></p>
             <p id="club-owner" style="color:#636e72;font-size:1.05em;margin-top:0.5em;"></p>
             <h3 style="margin-top:2rem;color:#2c5a91;">Integrantes</h3>
@@ -43,41 +56,51 @@
            <div id="libros-leidos-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;justify-items:center;width:100%;margin:2rem auto 0 auto;"></div>
         </div>
         <!-- Columna 3: Extra -->
-        <div class="club-extra-col" style="flex:1;min-width:220px;max-width:340px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
-            <button class="agregar-libro-btn" style="background:#0984e3;color:#fff;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #0984e340;cursor:pointer;transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
-                <button class="volver-btn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:12px;padding:0.7rem 1.5rem;font-size:1rem;font-weight:700;box-shadow:0 2px 12px #2c5a9140;cursor:pointer;transition:background 0.2s;" onclick="window.location.href='main.html'">Volver</button>
-            <!-- SOLO PARA EL OWNER: Lista de solicitudes de ingreso -->
-            <div id="solicitudes-container" style="display:none;margin-bottom:2rem;background:#fff;border-radius:16px;box-shadow:0 2px 16px #2c5a9140;padding:1.5rem;">
-                <h3 style="color:#d63031;margin-bottom:1rem;">Solicitudes de ingreso</h3>
-                <div id="solicitudes-list" style="display:flex;flex-direction:column;gap:1rem;"></div>
-            </div>
-            <!-- Aquí puedes agregar contenido extra -->
-        </div>
+        <div class="club-extra-col" style="flex:1; min-width:220px; max-width:340px; background:#fff; border-radius:18px; box-shadow:0 2px 16px #2c5a9140; padding:2rem 1.5rem; display:flex; flex-direction:column; gap:1.5rem;">
+  <button class="agregar-libro-btn" style="background:#0984e3; color:#fff; border:none; border-radius:12px; padding:0.7rem 1.5rem; font-size:1rem; font-weight:700; box-shadow:0 2px 12px #0984e340; cursor:pointer; transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
+  <button class="volver-btn" style="background:#eaf6ff; color:#2c5a91; border:none; border-radius:12px; padding:0.7rem 1.5rem; font-size:1rem; font-weight:700; box-shadow:0 2px 12px #2c5a9140; cursor:pointer; transition:background 0.2s;"onclick="window.location.href='main.html'">Volver</button>
+
+  <!-- SOLO PARA EL OWNER: Lista de solicitudes de ingreso -->
+  <div id="solicitudes-container" style="display:none; background:#fff; border-radius:16px; box-shadow:0 2px 16px #2c5a9140; padding:1.5rem;">
+    <h3 style="color:#d63031; margin-bottom:1rem;">Solicitudes de ingreso</h3>
+    <div id="solicitudes-list" style="display:flex; flex-direction:column; gap:1rem;"></div>
+  </div>
+
+  <!-- Contenido adicional -->
+  <div id="contenido-extra" style="margin-top:auto;">
+    <p style="color:#636e72; font-size:0.9rem; text-align:center;">Aquí puedes agregar contenido adicional.</p>
+  </div>
+</div>
     </div>
     
     <!-- Modal para agregar libro -->
-    <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
-        <div id="modalLibroBox" style="background:#fff; max-width:370px; margin:8vh auto; padding:2.2rem 1.7rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column; align-items:center; opacity:0; transform:scale(0.95); animation:fadeInModal 0.5s forwards;">
-            <h3 style="margin-bottom:1.2rem; color:#2c5a91; font-size:1.4rem; font-weight:700; letter-spacing:0.5px;">Agregar libro</h3>
-            <form id="formLibro" style="width:100%;">
-                                <label for="buscadorLibro" style="font-weight:600; color:#2c5a91;">Buscar libro</label>
-                                <input type="text" id="buscadorLibro" autocomplete="off" placeholder="Título, autor..." style="width:100%;margin-bottom:1rem;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;">
-                                <div id="resultadosBusquedaLibro" style="width:100%;max-height:180px;overflow-y:auto;margin-bottom:1rem;"></div>
-                                <input type="hidden" id="tituloLibro">
-                                <input type="hidden" id="autorLibro">
-                                <input type="hidden" id="portadaLibro">
-                                <input type="hidden" id="idApiLibro">
-                                <div id="categoriasContainer" style="margin-bottom:1rem;"></div>
-                                <div id="crearCategoriaBox" style="margin-bottom:1rem;display:none;">
-                                    <input type="text" id="nuevaCategoriaInput" placeholder="Nueva categoría..." style="width:70%;border-radius:8px;border:1px solid #eaf6ff;padding:0.5rem;">
-                                    <button type="button" id="agregarCategoriaBtn" style="background:#5fa8e9;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-weight:600;cursor:pointer;">Agregar</button>
-                                </div>
-                                <button type="submit" style="background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.8rem 1.2rem;font-weight:700;cursor:pointer;width:100%;box-shadow:0 2px 12px #0984e340;transition:background 0.2s;">Subir libro</button>
-            </form>
-            <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:2rem;color:#d63031;cursor:pointer;">&times;</button>
-            <div id="msgLibro" style="margin-top:1rem;text-align:center;color:#d63031;"></div>
+    <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
+  <div id="modalLibroBox" style="background:#fff; max-width:500px; margin:8vh auto; padding:2.5rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column;">
+    <h3 style="margin-bottom:1.5rem; color:#2c5a91; font-size:1.6rem; font-weight:700; text-align:center;">Agregar libro</h3>
+    <form id="formLibro" style="width:100%; display:flex; flex-direction:column; gap:1.5rem;">
+      <div>
+        <label for="buscadorLibro" style="font-weight:600; color:#2c5a91;">Buscar libro</label>
+        <input type="text" id="buscadorLibro" autocomplete="off" placeholder="Título, autor..." style="width:100%; border-radius:8px; border:1px solid #eaf6ff; padding:0.7rem;">
+        <div id="resultadosBusquedaLibro" style="width:100%; max-height:180px; overflow-y:auto; margin-top:0.5rem; border:1px solid #eaf6ff; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:0.5rem;"></div>
+      </div>
+      <div>
+        <label style="font-weight:600; color:#2c5a91;">Categorías</label>
+        <div id="categoriasContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.5rem; max-height:150px; overflow-y:auto; border:1px solid #eaf6ff; border-radius:8px; padding:0.5rem; background:#f9f9f9;"></div>
+        <div id="crearCategoriaBox" style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+          <input type="text" id="nuevaCategoriaInput" placeholder="Nueva categoría..." style="flex:1; border-radius:8px; border:1px solid #eaf6ff; padding:0.5rem;">
+           <input type="hidden" id="tituloLibro">
+            <input type="hidden" id="autorLibro">
+            <input type="hidden" id="portadaLibro">
+            <input type="hidden" id="idApiLibro">
+          <button type="button" id="agregarCategoriaBtn" style="background:#5fa8e9; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600; cursor:pointer;">Agregar</button>
         </div>
-    </div>
+      </div>
+      <button type="submit"  style="background:#0984e3; color:#fff; border:none; border-radius:8px; padding:0.8rem 1.2rem; font-weight:700; cursor:pointer; width:100%; box-shadow:0 2px 12px #0984e340; transition:background 0.2s;">Subir libro</button>
+    </form>
+    <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:2rem; color:#d63031; cursor:pointer;">&times;</button>
+    <div id="msgLibro" style="margin-top:1rem; text-align:center; color:#d63031;"></div>
+  </div>
+</div>
     <style>
     @keyframes fadeInModal {
         0% { opacity:0; transform:scale(0.95); }

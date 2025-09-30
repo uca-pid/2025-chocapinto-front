@@ -64,25 +64,104 @@ async function cargarCategorias() {
     }
 }
 function renderCategoriasCheckboxes() {
-    categoriasContainer.innerHTML = '';
-    if (categoriasDisponibles.length === 0) {
-        categoriasContainer.innerHTML = '<span style="color:#636e72;">No hay categorías aún.</span>';
-        return;
-    }
-    categoriasDisponibles.forEach(cat => {
+  categoriasContainer.innerHTML = '';
+  if (categoriasDisponibles.length === 0) {
+    categoriasContainer.innerHTML = '<span style="color:#636e72;">No hay categorías aún.</span>';
+    return;
+  }
+
+  const userId = localStorage.getItem("userId");
+  const clubId = getClubId();
+
+  fetch(`${API_URL}/club/${clubId}`)
+    .then(res => res.json())
+    .then(data => {
+      const isOwner = data.club && data.club.id_owner == userId;
+
+      categoriasDisponibles.forEach(cat => {
         const label = document.createElement('label');
         label.style.marginRight = '12px';
         label.style.fontWeight = '500';
         label.style.color = '#2c5a91';
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.value = cat.id;
         checkbox.className = 'categoria-checkbox';
+
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(' ' + cat.nombre));
+
+        // Si sos moderador, mostrar icono editar
+        if (isOwner) {
+            const editBtn = document.createElement("span");
+            editBtn.textContent = " ✏️";
+            editBtn.style.cursor = "pointer";
+            editBtn.title = "Editar categoría";
+            editBtn.onclick = () => editarCategoria(cat.id, cat.nombre);
+            label.appendChild(editBtn);
+
+            const deleteBtn = document.createElement("span");
+            deleteBtn.textContent = " 🗑️";
+            deleteBtn.style.cursor = "pointer";
+            deleteBtn.title = "Eliminar categoría";
+            deleteBtn.onclick = () => eliminarCategoria(cat.id);
+            label.appendChild(deleteBtn);
+    }
+
         categoriasContainer.appendChild(label);
+      });
     });
 }
+function eliminarCategoria(categoriaId) {
+  if (!confirm("¿Seguro que querés eliminar esta categoría?")) return;
+
+  fetch(`${API_URL}/categorias/${categoriaId}`, {
+    method: "DELETE"
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // quitar de la lista en memoria y volver a renderizar
+        categoriasDisponibles = categoriasDisponibles.filter(c => c.id !== categoriaId);
+        renderCategoriasCheckboxes();
+      } else {
+        alert(data.message || "Error al eliminar categoría");
+      }
+    })
+    .catch(() => {
+      alert("Error de conexión al eliminar categoría");
+    });
+}
+
+
+function editarCategoria(categoriaId, nombreActual) {
+  const nuevoNombre = prompt("Nuevo nombre para la categoría:", nombreActual);
+  if (!nuevoNombre || nuevoNombre.trim() === "") return;
+
+  fetch(`${API_URL}/categorias/${categoriaId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre: nuevoNombre.trim() })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // actualizar lista en memoria y volver a renderizar
+        const index = categoriasDisponibles.findIndex(c => c.id === categoriaId);
+        if (index !== -1) {
+          categoriasDisponibles[index].nombre = data.categoria.nombre;
+        }
+        renderCategoriasCheckboxes();
+      } else {
+        alert(data.message || "Error al editar categoría");
+      }
+    })
+    .catch(() => {
+      alert("Error de conexión al editar categoría");
+    });
+}
+
 // --- Función para buscar libros en Google Books ---
 async function buscarLibrosGoogleBooksAPI(query) {
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
@@ -210,33 +289,38 @@ function mostrarLibrosLeidosFiltrados(club, filtroCategoriaId) {
             card.className = 'libro-card';
             card.style.background = '#fff';
             card.style.borderRadius = '16px';
-            card.style.boxShadow = '0 2px 16px #2c5a9140';
-            card.style.padding = '1.2rem 1.2rem';
+            card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+            card.style.padding = '1rem';
             card.style.display = 'flex';
             card.style.flexDirection = 'column';
-            card.style.alignItems = 'flex-start';
+            card.style.alignItems = 'center';
             card.style.justifyContent = 'flex-start';
             card.style.border = '1px solid #eaf6ff';
             card.style.width = '100%';
-            card.style.maxWidth = '260px';
-            card.style.minHeight = '120px';
+            card.style.maxWidth = '200px';
+            card.style.minHeight = '320px';
             card.style.position = 'relative';
+
             const categoriasHTML = libro.categorias
                 .map(cat => `<span style="background:#eaf6ff;color:#2c5a91;padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;">${cat.nombre}</span>`)
                 .join(" ");
+
             card.innerHTML = `
-                <div style='width:100%;display:flex;align-items:center;gap:10px;'>
-                    ${libro.portada ? `<img src='${libro.portada}' style='width:48px;height:auto;border-radius:6px;'>` : ` ... `}
-                    <div>
-                        <strong style='color:#2c5a91;font-size:1.15rem;'>${libro.title}</strong>
-                        ${libro.author ? '<br><span style="color:#636e72;">de ' + libro.author + '</span>' : ''}
+                <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
+                    ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;'></div>`}
+                    <div style='text-align:center;'>
+                        <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
+                        ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
                         <div style="margin-top:6px;">${categoriasHTML}</div>
+                        <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
                     </div>
                 </div>
             `;
+
             if (isOwner) {
                 agregarBotonEliminarLibro(card, libro.id);
             }
+
             librosList.appendChild(card);
         });
     } else {
@@ -253,6 +337,7 @@ function mostrarClubNoEncontrado(msg) {
 
 function mostrarDatosClub(club) {
     document.getElementById('club-name').textContent = club.name;
+    document.getElementById('club-imagen').src = club.imagen || '../images/BooksyLogo.png'; // Imagen por defecto
     document.getElementById('club-description').textContent = club.description;
     obtenerDatosOwner(club.id_owner);
 }
@@ -350,6 +435,10 @@ function mostrarLibrosLeidos(club) {
                     <div>
                         <strong style='color:#2c5a91;font-size:1.15rem;'>${libro.title}</strong>
                         ${libro.author ? '<br><span style="color:#636e72;">de ' + libro.author + '</span>' : ''}
+                        <div style="margin-top:10px;">
+   <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;">💬 Comentarios</button>
+</div>
+
                         <div style="margin-top:6px;">${categoriasHTML}</div>
                     </div>
                 </div>
@@ -483,7 +572,22 @@ buscadorLibro.addEventListener("input", async function () {
         div.style.border = "2px solid #5fa8e9";
         div.style.background = "#eaf6ff";
         div.style.padding = "10px 14px";
+        console.log(libro);
         div.onclick = () => {
+            // Restablecer el estilo de todos los elementos
+            document.querySelectorAll(".busqueda-libro-item").forEach(item => {
+                item.style.background = "#eaf6ff";
+                item.style.border = "2px solid #5fa8e9";
+            });
+
+            // Resaltar el libro seleccionado
+            div.style.background = "#d1e7ff";
+            div.style.border = "2px solid #0984e3";
+
+            // Mostrar datos del libro seleccionado en la consola
+            console.log("Libro seleccionado:", libro);
+
+            // Actualizar los valores del formulario
             tituloLibro.value = libro.title;
             autorLibro.value = libro.author;
             portadaLibro.value = libro.thumbnail || "";
@@ -546,5 +650,112 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
         msg.style.display = "block";
     }
 });
+
+// --- COMENTARIOS ---
+const modalComentarios = document.getElementById("modalComentarios");
+const closeModalComentarios = document.getElementById("closeModalComentarios");
+const comentariosList = document.getElementById("comentariosList");
+const nuevoComentario = document.getElementById("nuevoComentario");
+const enviarComentarioBtn = document.getElementById("enviarComentarioBtn");
+let currentBookId = null;
+
+closeModalComentarios.onclick = () => { modalComentarios.style.display = "none"; };
+
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("btn-comentarios")) {
+    currentBookId = e.target.dataset.bookid;
+    const clubId = getClubId();
+    modalComentarios.style.display = "flex";
+    await cargarComentarios(currentBookId, clubId);
+  }
+});
+
+async function cargarComentarios(bookId, clubId) {
+  comentariosList.innerHTML = "<span style='color:#636e72;'>Cargando comentarios...</span>";
+  try {
+    const res = await fetch(`${API_URL}/comentario/book/${bookId}/club/${clubId}`);
+    const data = await res.json();
+
+    if (data.success && Array.isArray(data.comentarios)) {
+      if (data.comentarios.length === 0) {
+        comentariosList.innerHTML = "<span style='color:#636e72;'>No hay comentarios aún.</span>";
+      } else {
+        comentariosList.innerHTML = "";
+
+        const userId = Number(localStorage.getItem("userId"));
+        const clubRes = await fetch(`${API_URL}/club/${clubId}`);
+        const clubData = await clubRes.json();
+        const isOwner = clubData.club && clubData.club.id_owner == userId;
+
+        data.comentarios.forEach(c => {
+          const div = document.createElement("div");
+          div.style.cssText = "background:#f5f9ff;padding:0.6rem;border-radius:8px;color:#2c5a91;position:relative;";
+
+          div.innerHTML = `<strong>${c.user.username}</strong>: ${c.content}`;
+
+          // Mostrar ❌ si sos dueño del comentario o moderador
+          if (isOwner || c.userId === userId) {
+            const deleteBtn = document.createElement("span");
+            deleteBtn.textContent = "❌";
+            deleteBtn.title = "Eliminar comentario";
+            deleteBtn.style.cssText = "position:absolute;top:6px;right:8px;cursor:pointer;color:#d63031;font-size:1rem;";
+            deleteBtn.onclick = async () => {
+              if (confirm("¿Eliminar este comentario?")) {
+                await eliminarComentario(c.id, bookId, clubId);
+              }
+            };
+            div.appendChild(deleteBtn);
+          }
+
+          comentariosList.appendChild(div);
+        });
+      }
+    } else {
+      comentariosList.innerHTML = "<span style='color:#d63031;'>Error al cargar comentarios</span>";
+    }
+  } catch {
+    comentariosList.innerHTML = "<span style='color:#d63031;'>Error de conexión</span>";
+  }
+}
+async function eliminarComentario(comentarioId, bookId, clubId) {
+  try {
+    const res = await fetch(`${API_URL}/comentario/${comentarioId}`, {
+      method: "DELETE"
+    });
+    const data = await res.json();
+    if (data.success) {
+      await cargarComentarios(bookId, clubId);
+    } else {
+      alert(data.message || "No se pudo eliminar el comentario");
+    }
+  } catch {
+    alert("Error de conexión al eliminar comentario");
+  }
+}
+
+
+enviarComentarioBtn.onclick = async () => {
+  const texto = nuevoComentario.value.trim();
+  if (!texto) return;
+  try {
+    const userId = localStorage.getItem("userId");
+    const clubId = getClubId();
+    const res = await fetch(`${API_URL}/comentario`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, bookId: currentBookId, clubId, content: texto })
+    });
+    const data = await res.json();
+    if (data.success) {
+      nuevoComentario.value = "";
+      await cargarComentarios(currentBookId, clubId);
+    } else {
+      alert(data.message || "No se pudo enviar el comentario");
+    }
+  } catch {
+    alert("Error de conexión");
+  }
+};
+
 
 renderClub();

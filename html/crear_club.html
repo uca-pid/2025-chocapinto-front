@@ -14,10 +14,16 @@
     <div class="crear-club-container">
         <h2>Crear Club de Lectura</h2>
         <form id="crearClubForm">
-            <input type="text" id="name" placeholder="Nombre del club" required maxlength="50">
-            <textarea id="description" placeholder="Descripción del club" required maxlength="255"></textarea>
-            <button type="submit">Crear club</button>
-        </form>
+  <input type="text" id="name" placeholder="Nombre del club" required maxlength="50">
+  <textarea id="description" placeholder="Descripción del club" required maxlength="255"></textarea>
+  
+  <label style="font-weight:600; color:#2c5a91;">Foto del club</label>
+  <input type="file" id="imagenClubInput" accept="image/*">
+  <img id="previewClubImg" src="https://img.lovepik.com/png/20231109/book-cartoon-illustration-school-start-reading-reading-book_539915_wh860.png" alt="Vista previa" style="max-width:200px; margin-top:10px; border-radius:12px; display:block;">
+  
+  <button type="submit">Crear club</button>
+</form>
+
     <div id="crearClubMsg" style="display:none;"></div>
         <button onclick="window.location.href='main.html'" style="margin-top:1rem;">Volver</button>
     </div>

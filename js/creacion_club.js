@@ -1,5 +1,17 @@
 const API_URL = "http://127.0.0.1:5000";
 
+const fileInput = document.getElementById("imagenClubInput");
+const previewImg = document.getElementById("previewClubImg");
+fileInput.addEventListener("change", () => {
+  const file = fileInput.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+});
     document.getElementById("crearClubForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const name = document.getElementById("name").value.trim();
