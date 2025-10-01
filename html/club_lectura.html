@@ -38,10 +38,13 @@
         <!-- Columna 1: Info club + integrantes -->
         <div class="club-info-col" style="flex:1;min-width:260px;max-width:340px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
             <img id="club-imagen" src="" alt="Imagen del club" style="width:100%; border-radius:12px; margin:1rem 0;">
-            <h2 id="club-name"></h2>
-            
+            <h2 id="club-name"></h2>            
             <p id="club-description"></p>
             <p id="club-owner" style="color:#636e72;font-size:1.05em;margin-top:0.5em;"></p>
+
+            <button id="eliminarClubBtn" style="display:none; background:#d63031; color:#fff; border:none; border-radius:8px; padding:0.6rem 1.2rem; font-weight:600; cursor:pointer; margin-top:1rem;" onclick="eliminarClub()">Eliminar club</button>
+            <button id="salirClubBtn" style="display:none; background:#636e72; color:#fff; border:none; border-radius:8px; padding:0.6rem 1.2rem; font-weight:600; cursor:pointer; margin-top:1rem;" onclick="salirDelClub()">Salir del club</button>
+
             <h3 style="margin-top:2rem;color:#2c5a91;">Integrantes</h3>
             <ul id="club-members-list" style="list-style:none;padding:0;margin-top:1rem;"></ul>
         </div>

@@ -340,6 +340,18 @@ function mostrarDatosClub(club) {
     document.getElementById('club-imagen').src = club.imagen || '../images/BooksyLogo.png'; // Imagen por defecto
     document.getElementById('club-description').textContent = club.description;
     obtenerDatosOwner(club.id_owner);
+    mostrarBotonesAccion(club);
+}
+
+function mostrarBotonesAccion(club) {
+    const userId = localStorage.getItem("userId");
+    const eliminarBtn = document.getElementById("eliminarClubBtn");
+    const salirBtn = document.getElementById("salirClubBtn");
+    if (club.id_owner == userId) {
+        eliminarBtn.style.display = "inline-block";
+    } else {
+        salirBtn.style.display = "inline-block";
+    }
 }
 
 function mostrarIntegrantes(club) {
@@ -651,6 +663,12 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
     }
 });
 
+
+
+
+
+
+
 // --- COMENTARIOS ---
 const modalComentarios = document.getElementById("modalComentarios");
 const closeModalComentarios = document.getElementById("closeModalComentarios");
@@ -717,6 +735,7 @@ async function cargarComentarios(bookId, clubId) {
     comentariosList.innerHTML = "<span style='color:#d63031;'>Error de conexión</span>";
   }
 }
+
 async function eliminarComentario(comentarioId, bookId, clubId) {
   try {
     const res = await fetch(`${API_URL}/comentario/${comentarioId}`, {
@@ -732,6 +751,7 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
     alert("Error de conexión al eliminar comentario");
   }
 }
+
 
 
 enviarComentarioBtn.onclick = async () => {
@@ -756,6 +776,26 @@ enviarComentarioBtn.onclick = async () => {
     alert("Error de conexión");
   }
 };
+
+async function eliminarClub(){
+    if(!confirm("¿Seguro que querés eliminar este club? Esta acción no se puede deshacer.")) return;
+    const clubId = getClubId();
+    try {
+        const res = await fetch(`${API_URL}/deleteClub/${clubId}`, {
+            method: "DELETE"
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert("Club eliminado con éxito");
+            window.location.href = "main.html";
+        } else {
+            alert(data.message || "No se pudo eliminar el club");
+        }
+    } catch {
+        alert("Error de conexión");
+    }
+}
+
 
 
 renderClub();

@@ -1,15 +1,11 @@
 const API_URL = "http://127.0.0.1:5000";
 
-const fileInput = document.getElementById("imagenClubInput");
+const fileInput = document.getElementById("imagenClubUrl");
 const previewImg = document.getElementById("previewClubImg");
 fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      previewImg.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+  const url = fileInput.value.trim();
+  if (url) {
+    previewImg.src = url;
   }
 });
     document.getElementById("crearClubForm").addEventListener("submit", async (e) => {
@@ -17,9 +13,10 @@ fileInput.addEventListener("change", () => {
         const name = document.getElementById("name").value.trim();
         const description = document.getElementById("description").value.trim();
         const ownerUsername = localStorage.getItem("username");
-    const msg = document.getElementById("crearClubMsg");
-    msg.textContent = "";
-    msg.style.display = "none";
+        const imagen = document.getElementById("imagenClubUrl").value.trim();
+        const msg = document.getElementById("crearClubMsg");
+        msg.textContent = "";
+        msg.style.display = "none";
 
         if (!ownerUsername) {
             msg.textContent = "Debes iniciar sesión primero";
@@ -34,10 +31,13 @@ fileInput.addEventListener("change", () => {
         }
 
         try {
+            const body = { name, description, ownerUsername, imagen };
+            
+
             const res = await fetch(`${API_URL}/createClub`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, description, ownerUsername })
+                body: JSON.stringify(body)
             });
 
             const data = await res.json();
