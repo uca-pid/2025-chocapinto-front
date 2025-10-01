@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:5000";
+import { API_URL } from "./env.js";
 
 // --- 1. FUNCIONES Y MANEJADORES DE MODALES (CORREGIDOS Y GLOBALES) ---
 
@@ -71,7 +71,7 @@ document.getElementById('cancelPasswordBtn').addEventListener('click', () => swi
 document.addEventListener("DOMContentLoaded", () => {
     const currentUsername = localStorage.getItem("username");
     if (!currentUsername) {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
     
@@ -205,7 +205,7 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
             alert("Cuenta eliminada correctamente");
             localStorage.removeItem("username");
             localStorage.removeItem("role");
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         } else {
             alert(data.message || "No se pudo eliminar la cuenta");
         }

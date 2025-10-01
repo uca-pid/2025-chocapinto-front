@@ -746,6 +746,7 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
       await cargarComentarios(bookId, clubId);
     } else {
       alert(data.message || "No se pudo eliminar el comentario");
+
     }
   } catch {
     alert("Error de conexión al eliminar comentario");

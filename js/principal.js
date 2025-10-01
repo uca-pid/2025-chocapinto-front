@@ -1,9 +1,9 @@
-const API_URL = "http://127.0.0.1:5000";
+import { API_URL } from "./env.js";
 
         function logout() {
             localStorage.removeItem("username");
             localStorage.removeItem("role");
-            window.location.href = "login.html";
+            window.location.href = "index.html";
         }
 
         async function cargarClubes() {
@@ -83,7 +83,7 @@ const API_URL = "http://127.0.0.1:5000";
             if (username && usernameDisplay) {
                 usernameDisplay.textContent = username;
             } else {
-                window.location.href = "login.html";
+                window.location.href = "index.html";
             }
 
             cargarClubes();

@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:5000"; // Express + Prisma (tu server.js)
+import { API_URL } from "./env.js"; // Express + Prisma (tu server.js)
 
 const registerForm = document.getElementById("registerForm");
 if (registerForm) {
@@ -21,7 +21,7 @@ if (registerForm) {
     }
     document.getElementById("closeModalSuccess").onclick = function() {
         document.getElementById("modalSuccess").style.display = "none";
-        window.location.href = '../html/login.html';
+        window.location.href = '../html/index.html';
     };
 
     registerForm.addEventListener("submit", async (e) => {
