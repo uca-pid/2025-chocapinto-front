@@ -1,10 +1,13 @@
 import { API_URL } from "./env.js";
 
-        function logout() {
+function logout() {
             localStorage.removeItem("username");
             localStorage.removeItem("role");
             window.location.href = "index.html";
-        }
+}
+
+// Exponer la función al ámbito global
+window.logout = logout;
 
         async function cargarClubes() {
             const username = localStorage.getItem("username");
