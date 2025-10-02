@@ -802,3 +802,105 @@ body {
 .BooksyLogo{
     width: 100%;
 }
+
+/* === Estilos para solicitudes de ingreso === */
+.solicitud-item {
+    background: #f8f9fb;
+    border: 1px solid #eaf6ff;
+    border-radius: 12px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+    position: relative;
+    min-height: 80px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.solicitud-item:hover {
+    box-shadow: 0 4px 12px rgba(44, 90, 145, 0.15);
+    transform: translateY(-2px);
+}
+
+.solicitud-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.solicitud-username {
+    font-weight: 600;
+    color: #2c5a91;
+    font-size: clamp(0.95rem, 3vw, 1.1rem);
+}
+
+.solicitud-fecha {
+    color: #636e72;
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+}
+
+.solicitud-acciones {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.solicitud-btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+    transition: transform 0.2s, box-shadow 0.2s;
+    min-width: 90px;
+    white-space: nowrap;
+}
+
+.solicitud-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.solicitud-btn.aceptar {
+    background: #00b894;
+    color: #fff;
+}
+
+.solicitud-btn.rechazar {
+    background: #d63031;
+    color: #fff;
+}
+
+/* Responsive para solicitudes */
+@media (max-width: 768px) {
+    .solicitud-item {
+        padding: 0.8rem;
+    }
+    
+    .solicitud-acciones {
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+    
+    .solicitud-btn {
+        flex: 1;
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .solicitud-acciones {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .solicitud-btn {
+        width: 100%;
+        max-width: none;
+    }
+}

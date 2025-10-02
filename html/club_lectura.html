@@ -64,9 +64,9 @@
   <button class="volver-btn" style="background:#eaf6ff; color:#2c5a91; border:none; border-radius:12px; padding:0.7rem 1.5rem; font-size:1rem; font-weight:700; box-shadow:0 2px 12px #2c5a9140; cursor:pointer; transition:background 0.2s;"onclick="window.location.href='main.html'">Volver</button>
 
   <!-- SOLO PARA EL OWNER: Lista de solicitudes de ingreso -->
-  <div id="solicitudes-container" style="display:none; background:#fff; border-radius:16px; box-shadow:0 2px 16px #2c5a9140; padding:1.5rem;">
-    <h3 style="color:#d63031; margin-bottom:1rem;">Solicitudes de ingreso</h3>
-    <div id="solicitudes-list" style="display:flex; flex-direction:column; gap:1rem;"></div>
+  <div id="solicitudes-container" style="display:none; background:#fff; border-radius:16px; box-shadow:0 2px 16px #2c5a9140; padding:1.5rem; margin-top:1rem;">
+    <h3 style="color:#d63031; margin-bottom:1rem; font-size:clamp(1rem, 4vw, 1.2rem);">Solicitudes de ingreso</h3>
+    <div id="solicitudes-list" style="display:flex; flex-direction:column; gap:1rem; max-height:400px; overflow-y:auto; min-height:60px;"></div>
   </div>
 
   <!-- Contenido adicional -->
