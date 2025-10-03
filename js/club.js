@@ -65,6 +65,18 @@ async function cargarCategorias() {
         categoriasContainer.innerHTML = '<span style="color:#d63031;">Error al cargar categorías</span>';
     }
 }
+// Función para determinar si una categoría es predeterminada
+function esCategoriasPredeterminada(nombreCategoria) {
+    const categoriasPredeterminadas = [
+        'Ficción',
+        'No Ficción', 
+        'Ciencia Ficción',
+        'Fantasía',
+        'Ensayo',
+    ];
+    return categoriasPredeterminadas.includes(nombreCategoria);
+}
+
 function renderCategoriasCheckboxes() {
   categoriasContainer.innerHTML = '';
   if (categoriasDisponibles.length === 0) {
@@ -94,8 +106,8 @@ function renderCategoriasCheckboxes() {
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(' ' + cat.nombre));
 
-        // Si sos moderador, mostrar icono editar
-        if (isOwner) {
+        // Si sos moderador y la categoría NO es predeterminada, mostrar opciones de editar/eliminar
+        if (isOwner && !esCategoriasPredeterminada(cat.nombre)) {
             const editBtn = document.createElement("span");
             editBtn.textContent = " ✏️";
             editBtn.style.cursor = "pointer";
@@ -109,7 +121,7 @@ function renderCategoriasCheckboxes() {
             deleteBtn.title = "Eliminar categoría";
             deleteBtn.onclick = () => eliminarCategoria(cat.id);
             label.appendChild(deleteBtn);
-    }
+        }
 
         categoriasContainer.appendChild(label);
       });
@@ -202,21 +214,31 @@ async function renderClub() {
         mostrarIntegrantes(data.club);
         mostrarSolicitudes(data.club);
 
-        // --- FILTRO POR CATEGORÍA ---
+        // --- FILTRO MÚLTIPLE POR CATEGORÍAS ---
         const filtroContainerId = "filtro-categorias-leidos";
         let filtroContainer = document.getElementById(filtroContainerId);
         if (!filtroContainer) {
             filtroContainer = document.createElement("div");
             filtroContainer.id = filtroContainerId;
             filtroContainer.style.margin = "18px 0 8px 0";
-            filtroContainer.style.display = "flex";
-            filtroContainer.style.alignItems = "center";
-            filtroContainer.style.gap = "10px";
+            
+            // Container principal del filtro
+            const filtroMainContainer = document.createElement("div");
+            filtroMainContainer.style.display = "flex";
+            filtroMainContainer.style.flexDirection = "column";
+            filtroMainContainer.style.gap = "10px";
+            
+            // Primera fila: selector
+            const selectorRow = document.createElement("div");
+            selectorRow.style.display = "flex";
+            selectorRow.style.alignItems = "center";
+            selectorRow.style.gap = "10px";
+            
             const label = document.createElement("label");
-            label.textContent = "Filtrar por categoría:";
+            label.textContent = "Filtrar por categorías:";
             label.style.fontWeight = "500";
             label.style.color = "#2c5a91";
-            filtroContainer.appendChild(label);
+            selectorRow.appendChild(label);
 
             const select = document.createElement("select");
             select.id = "selectFiltroCategoria";
@@ -226,16 +248,28 @@ async function renderClub() {
             select.style.background = "#fff";
             select.style.fontWeight = "500";
             select.style.color = "#2c5a91";
-            filtroContainer.appendChild(select);
+            selectorRow.appendChild(select);
+            
+            // Segunda fila: chips de categorías seleccionadas
+            const chipsContainer = document.createElement("div");
+            chipsContainer.id = "categoriasChipsContainer";
+            chipsContainer.style.display = "flex";
+            chipsContainer.style.flexWrap = "wrap";
+            chipsContainer.style.gap = "8px";
+            chipsContainer.style.minHeight = "24px";
+            
+            filtroMainContainer.appendChild(selectorRow);
+            filtroMainContainer.appendChild(chipsContainer);
+            filtroContainer.appendChild(filtroMainContainer);
 
             // Insertar antes de la lista de libros leídos
             const librosList = document.getElementById('libros-leidos-list');
             librosList.parentNode.insertBefore(filtroContainer, librosList);
         }
 
-        // Actualizar opciones del select
+        // Obtener todas las categorías disponibles
         const select = document.getElementById("selectFiltroCategoria");
-        select.innerHTML = "";
+        const chipsContainer = document.getElementById("categoriasChipsContainer");
         const todasCategorias = [];
         if (data.club.readBooks && data.club.readBooks.length > 0) {
             data.club.readBooks.forEach(libro => {
@@ -246,27 +280,89 @@ async function renderClub() {
                 });
             });
         }
-        // Opción "Todas"
-        const optionTodas = document.createElement("option");
-        optionTodas.value = "";
-        optionTodas.textContent = "Todas";
-        select.appendChild(optionTodas);
-        todasCategorias.forEach(cat => {
-            const opt = document.createElement("option");
-            opt.value = cat.id;
-            opt.textContent = cat.nombre;
-            select.appendChild(opt);
-        });
 
-        // Guardar filtro seleccionado en variable
-        let filtroCategoriaId = select.value;
-        select.onchange = function () {
-            filtroCategoriaId = select.value;
-            mostrarLibrosLeidosFiltrados(data.club, filtroCategoriaId);
+        // Array para almacenar categorías seleccionadas
+        let categoriasSeleccionadas = [];
+
+        // Función para actualizar el select
+        function actualizarSelect() {
+            select.innerHTML = "";
+            const optionDefault = document.createElement("option");
+            optionDefault.value = "";
+            optionDefault.textContent = "Seleccionar categoría...";
+            select.appendChild(optionDefault);
+            
+            todasCategorias.forEach(cat => {
+                // Solo mostrar categorías que no estén ya seleccionadas
+                if (!categoriasSeleccionadas.some(sel => sel.id === cat.id)) {
+                    const opt = document.createElement("option");
+                    opt.value = cat.id;
+                    opt.textContent = cat.nombre;
+                    select.appendChild(opt);
+                }
+            });
+        }
+
+        // Función para crear un chip de categoría
+        function crearChipCategoria(categoria) {
+            const chip = document.createElement("div");
+            chip.style.cssText = "background:#eaf6ff;color:#2c5a91;padding:4px 8px;border-radius:16px;font-size:0.85rem;font-weight:500;display:flex;align-items:center;gap:6px;border:1px solid #5fa8e9;";
+            
+            const texto = document.createElement("span");
+            texto.textContent = categoria.nombre;
+            chip.appendChild(texto);
+            
+            const closeBtn = document.createElement("span");
+            closeBtn.textContent = "×";
+            closeBtn.style.cssText = "cursor:pointer;color:#d63031;font-weight:700;font-size:1.1rem;";
+            closeBtn.title = "Quitar filtro";
+            closeBtn.onclick = () => {
+                // Quitar de categorías seleccionadas
+                categoriasSeleccionadas = categoriasSeleccionadas.filter(cat => cat.id !== categoria.id);
+                actualizarChips();
+                actualizarSelect();
+                mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
+            };
+            chip.appendChild(closeBtn);
+            
+            return chip;
+        }
+
+        // Función para actualizar los chips
+        function actualizarChips() {
+            chipsContainer.innerHTML = "";
+            categoriasSeleccionadas.forEach(cat => {
+                chipsContainer.appendChild(crearChipCategoria(cat));
+            });
+            
+            // Mostrar mensaje si no hay filtros
+            if (categoriasSeleccionadas.length === 0) {
+                const placeholder = document.createElement("span");
+                placeholder.textContent = "Sin filtros aplicados";
+                placeholder.style.cssText = "color:#636e72;font-style:italic;font-size:0.85rem;";
+                chipsContainer.appendChild(placeholder);
+            }
+        }
+
+        // Event listener para el select
+        select.onchange = function() {
+            const categoriaId = parseInt(select.value);
+            if (categoriaId) {
+                const categoria = todasCategorias.find(cat => cat.id === categoriaId);
+                if (categoria && !categoriasSeleccionadas.some(sel => sel.id === categoria.id)) {
+                    categoriasSeleccionadas.push(categoria);
+                    actualizarChips();
+                    actualizarSelect();
+                    mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
+                }
+            }
+            select.value = ""; // Reset del select
         };
 
-        // Mostrar libros filtrados
-        mostrarLibrosLeidosFiltrados(data.club, filtroCategoriaId);
+        // Inicializar
+        actualizarSelect();
+        actualizarChips();
+        mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
 
     } catch (error) {
         mostrarClubNoEncontrado("No se pudo cargar el club.");
@@ -327,6 +423,78 @@ function mostrarLibrosLeidosFiltrados(club, filtroCategoriaId) {
         });
     } else {
         librosList.innerHTML = '<div style="color:#636e72;">No hay libros leídos en esta categoría.</div>';
+    }
+}
+
+// Nueva función para mostrar libros con filtros múltiples
+function mostrarLibrosLeidosMultipleFiltro(club, categoriasSeleccionadas) {
+    const librosList = document.getElementById('libros-leidos-list');
+    librosList.innerHTML = "";
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    let libros = club.readBooks || [];
+    
+    // Si hay categorías seleccionadas, filtrar libros
+    if (categoriasSeleccionadas.length > 0) {
+        libros = libros.filter(libro => {
+            // El libro debe tener AL MENOS UNA de las categorías seleccionadas
+            return libro.categorias.some(catLibro => 
+                categoriasSeleccionadas.some(catSel => catSel.id === catLibro.id)
+            );
+        });
+    }
+    
+    if (libros.length > 0) {
+        libros.forEach(libro => {
+            const card = document.createElement('div');
+            card.className = 'libro-card';
+            card.style.background = '#fff';
+            card.style.borderRadius = '16px';
+            card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+            card.style.padding = '1rem';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'center';
+            card.style.justifyContent = 'flex-start';
+            card.style.border = '1px solid #eaf6ff';
+            card.style.width = '100%';
+            card.style.maxWidth = '200px';
+            card.style.minHeight = '320px';
+            card.style.position = 'relative';
+
+            const categoriasHTML = libro.categorias
+                .map(cat => {
+                    // Destacar categorías que están siendo filtradas
+                    const isFiltered = categoriasSeleccionadas.some(catSel => catSel.id === cat.id);
+                    const bgColor = isFiltered ? '#5fa8e9' : '#eaf6ff';
+                    const textColor = isFiltered ? '#fff' : '#2c5a91';
+                    return `<span style="background:${bgColor};color:${textColor};padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;font-weight:${isFiltered ? '600' : '500'};">${cat.nombre}</span>`;
+                })
+                .join(" ");
+
+            card.innerHTML = `
+                <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
+                    ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;'></div>`}
+                    <div style='text-align:center;'>
+                        <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
+                        ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
+                        <div style="margin-top:6px;">${categoriasHTML}</div>
+                        <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
+                    </div>
+                </div>
+            `;
+
+            if (isOwner) {
+                agregarBotonEliminarLibro(card, libro.id);
+            }
+
+            librosList.appendChild(card);
+        });
+    } else {
+        const mensaje = categoriasSeleccionadas.length > 0 
+            ? `No hay libros que coincidan con los filtros seleccionados.`
+            : `No hay libros leídos aún.`;
+        librosList.innerHTML = `<div style="color:#636e72;">${mensaje}</div>`;
     }
 }
 
