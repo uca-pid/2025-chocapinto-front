@@ -148,30 +148,40 @@ window.logout = logout;
                     return;
                 }
                 data.books.forEach(libro => {
-                    const card = document.createElement("div");
-                    card.className = "recomendacion-card";
-                    card.style.background = "rgba(255,255,255,0.15)";
-                    card.style.backdropFilter = "blur(8px)";
-                    card.style.boxShadow = "0 8px 32px 0 rgba(44,90,145,0.12)";
-                    card.style.borderRadius = "18px";
-                    card.style.padding = "1rem";
-                    card.style.display = "flex";
-                    card.style.flexDirection = "column";
-                    card.style.alignItems = "center";
-                    card.style.justifyContent = "flex-start";
-                    card.style.width = "100%";
-                    card.style.maxWidth = "200px";
-                    card.style.minHeight = "280px";
-                    card.style.position = "relative";
-                    card.style.border = "1px solid rgba(44,90,145,0.08)";
-                    card.innerHTML = `
-                        <div style="width:100%;display:flex;justify-content:center;margin-bottom:14px;">
-                            <img src="${libro.portada ? libro.portada : '../images/BooksyLogo.png'}" alt="Portada del libro" style="width:90px;height:130px;object-fit:cover;object-position:center;border-radius:10px;box-shadow:0 4px 24px rgba(44,90,145,0.10);background:rgba(245,246,250,0.7);">
-                        </div>
-                        <h4 style="margin:0 0 6px 0;font-size:1.08rem;color:#2c5a91;text-align:center;line-height:1.2;text-shadow:0 2px 12px rgba(44,90,145,0.10);">${libro.title}</h4>
-                        <p style="margin:0 0 8px 0;font-size:0.97rem;color:#636e72;text-align:center;text-shadow:0 2px 12px rgba(44,90,145,0.08);">${libro.author ? libro.author : "Autor desconocido"}</p>
+                    const bookContainer = document.createElement("div");
+                    bookContainer.className = "book";
+                    
+                    // Contenido interno del libro (se ve cuando se abre)
+                    const bookContent = document.createElement("div");
+                    bookContent.className = "book-content";
+                    bookContent.innerHTML = `
+                        <div class="book-title">${libro.title}</div>
+                        <div class="book-author">${libro.author ? libro.author : "Autor desconocido"}</div>
                     `;
-                    grid.appendChild(card);
+                    
+                    // Portada del libro (se ve por defecto)
+                    const cover = document.createElement("div");
+                    cover.className = "cover";
+                    
+                    // Si hay imagen de portada, usarla como imagen
+                    if (libro.portada) {
+                        cover.innerHTML = `
+                            <img src="${libro.portada}" alt="Portada de ${libro.title}">
+                            <div class="cover-text" style="position:absolute;bottom:10px;">Ver detalles</div>
+                        `;
+                    } else {
+                        // Si no hay portada, mostrar diseño por defecto
+                        cover.innerHTML = `
+                            <div class="default-cover">
+                                <img src="../images/BooksyLogo.png" alt="Logo" style="width:60px;height:60px;margin-bottom:10px;opacity:0.7;">
+                                <div class="cover-text">Ver detalles</div>
+                            </div>
+                        `;
+                    }
+                    
+                    bookContainer.appendChild(bookContent);
+                    bookContainer.appendChild(cover);
+                    grid.appendChild(bookContainer);
                 });
             } catch (error) {
                 grid.innerHTML = '<p style="color:#d63031;">Error al cargar libros.</p>';
