@@ -3,22 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Mi Perfil - Booksy</title>
+    
     <link rel="stylesheet" href="../css/perfilstyles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/componentes/notificaciones.css">
 </head>
 <body>
-    <div id="modalPerfilSuccess" class="modal-overlay" style="display:none;">
-        <div id="modalPerfilSuccessBox" class="modal-box modal-success">
-            <span id="closeModalPerfilSuccess" class="modal-close">&times;</span>
-            <div id="modalPerfilSuccessMsg" class="modal-message"></div>
-        </div>
-    </div>
-    <div id="modalPerfilError" class="modal-overlay" style="display:none;">
-        <div id="modalPerfilErrorBox" class="modal-box modal-error">
-            <span id="closeModalPerfilError" class="modal-close">&times;</span>
-            <div id="modalPerfilErrorMsg" class="modal-message"></div>
-        </div>
-    </div>
+
 
     <div class="perfil-wrapper">
         <div class="perfil-layout">
@@ -99,6 +90,7 @@
             </main>
         </div>
     </div>
+<div id="notifications" class="notification-container"></div>
    <script type="module" src="../js/perfil.js"></script>
 </body>
 </html>

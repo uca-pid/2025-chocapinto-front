@@ -1,4 +1,6 @@
-const API_URL = "http://127.0.0.1:5000";
+import { API_URL } from "./env.js";
+import { showNotification } from "../componentes/notificacion.js";
+
 // Gestionar solicitud: aceptar o rechazar
 async function gestionarSolicitud(solicitudId, aceptar) {
     const clubId = getClubId();
@@ -10,13 +12,13 @@ async function gestionarSolicitud(solicitudId, aceptar) {
         });
         const data = await res.json();
         if (data.success) {
-            alert(data.message || (aceptar ? "Solicitud aceptada" : "Solicitud rechazada"));
+            showNotification("success", data.message || (aceptar ? "Solicitud aceptada" : "Solicitud rechazada"));
             renderClub();
         } else {
-            alert(data.message || "No se pudo procesar la solicitud");
+            showNotification("error", data.message || "No se pudo procesar la solicitud");
         }
     } catch (error) {
-        alert("Error de conexión al gestionar solicitud");
+        showNotification("error", "Error de conexión al gestionar solicitud");
     }
 }
 
@@ -28,13 +30,13 @@ async function eliminarUsuarioDelClub(userId, clubId) {
         });
         const data = await res.json();
         if (data.success) {
-            alert("Usuario eliminado");
+            showNotification("success", "Usuario eliminado");
             renderClub();
         } else {
-            alert(data.message || "No se pudo eliminar el usuario");
+            showNotification("error", data.message || "No se pudo eliminar el usuario");
         }
     } catch (error) {
-        alert("Error de conexión");
+        showNotification("error", "Error de conexión");
     }
 }
 
@@ -126,11 +128,11 @@ function eliminarCategoria(categoriaId) {
         categoriasDisponibles = categoriasDisponibles.filter(c => c.id !== categoriaId);
         renderCategoriasCheckboxes();
       } else {
-        alert(data.message || "Error al eliminar categoría");
+        showNotification("error", data.message || "Error al eliminar categoría");
       }
     })
     .catch(() => {
-      alert("Error de conexión al eliminar categoría");
+      showNotification("error", "Error de conexión al eliminar categoría");
     });
 }
 
@@ -154,11 +156,11 @@ function editarCategoria(categoriaId, nombreActual) {
         }
         renderCategoriasCheckboxes();
       } else {
-        alert(data.message || "Error al editar categoría");
+        showNotification("error", data.message || "Error al editar categoría");
       }
     })
     .catch(() => {
-      alert("Error de conexión al editar categoría");
+      showNotification("error", "Error de conexión al editar categoría");
     });
 }
 
@@ -506,10 +508,10 @@ async function eliminarLibro(bookId, clubId, username) {
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
-            alert(data.message || "Error al eliminar libro");
+            showNotification("error", data.message || "Error al eliminar libro");
         }
     } catch (error) {
-        alert("Error de conexión al eliminar libro");
+        showNotification("error", "Error de conexión al eliminar libro");
     }
 }
 
@@ -525,7 +527,7 @@ agregarCategoriaBtn.addEventListener('click', async () => {
     if (!nombre) return;
     // Evitar duplicados
     if (categoriasDisponibles.some(cat => cat.nombre.toLowerCase() === nombre.toLowerCase())) {
-        alert("La categoría ya existe");
+        showNotification("warning", "La categoría ya existe");
         return;
     }
     try {
@@ -541,7 +543,7 @@ agregarCategoriaBtn.addEventListener('click', async () => {
             nuevaCategoriaInput.value = '';
         }
     } catch (error) {
-        alert("Error al crear categoría");
+        showNotification("error", "Error al crear categoría");
     }
 });
 
@@ -745,11 +747,11 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
     if (data.success) {
       await cargarComentarios(bookId, clubId);
     } else {
-      alert(data.message || "No se pudo eliminar el comentario");
+      showNotification("error", data.message || "No se pudo eliminar el comentario");
 
     }
   } catch {
-    alert("Error de conexión al eliminar comentario");
+    showNotification("error", "Error de conexión al eliminar comentario");
   }
 }
 
@@ -771,10 +773,10 @@ enviarComentarioBtn.onclick = async () => {
       nuevoComentario.value = "";
       await cargarComentarios(currentBookId, clubId);
     } else {
-      alert(data.message || "No se pudo enviar el comentario");
+      showNotification("error", data.message || "No se pudo enviar el comentario");
     }
   } catch {
-    alert("Error de conexión");
+    showNotification("error", "Error de conexión");
   }
 };
 
@@ -787,13 +789,13 @@ async function eliminarClub(){
         });
         const data = await res.json();
         if (data.success) {
-            alert("Club eliminado con éxito");
+            showNotification("success", "Club eliminado con éxito");
             window.location.href = "main.html";
         } else {
-            alert(data.message || "No se pudo eliminar el club");
+            showNotification("error", data.message || "No se pudo eliminar el club");
         }
     } catch {
-        alert("Error de conexión");
+        showNotification("error", "Error de conexión");
     }
 }
 

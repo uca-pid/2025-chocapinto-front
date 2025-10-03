@@ -1,4 +1,5 @@
 import { API_URL } from "./env.js";
+import { showNotification } from "../componentes/notificacion.js";
 
 function logout() {
             localStorage.removeItem("username");
@@ -50,8 +51,10 @@ window.logout = logout;
     }
 
                     if (!esMiembro) {
-                        clubCard.querySelector(".unirme-btn").addEventListener("click", async () => {
-            console.log('Unirme clickeado', { clubId: club.id, username });
+                        clubCard.querySelector(".unirme-btn").addEventListener("click", async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
             // Crear solicitud de ingreso al club
             const res = await fetch(`${API_URL}/clubSolicitud`, {
                 method: "POST",
@@ -59,13 +62,20 @@ window.logout = logout;
                 body: JSON.stringify({ clubId: club.id, username })
             });
             const data = await res.json();
-            console.log('Respuesta clubSolicitud:', data);
+            
             if (data.success) {
-                alert("Solicitud enviada. Espera la aprobación del moderador.");
-                cargarClubes();
+                showNotification("success", "Solicitud enviada. Espera la aprobación del moderador.");
+                
+                // Cambiar el botón en lugar de recargar todo
+                const btn = event.target;
+                btn.textContent = "Solicitud enviada";
+                btn.disabled = true;
+                btn.style.background = "#636e72";
+                btn.style.cursor = "not-allowed";
             } else {
-                alert(data.message || "No se pudo enviar la solicitud.");
+                showNotification("error", data.message || "No se pudo enviar la solicitud.");
             }
+
         });
                     }
                     if (esCreador) {
