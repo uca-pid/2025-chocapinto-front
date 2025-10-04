@@ -194,10 +194,14 @@ function inicializarAplicacion() {
     
     const username = localStorage.getItem("username");
     const usernameDisplay = document.getElementById("usernameDisplay");
+    const usernameDisplayHover = document.getElementById("usernameDisplayHover");
 
     // Verificar autenticación
     if (username && usernameDisplay) {
         usernameDisplay.textContent = username;
+        if (usernameDisplayHover) {
+            usernameDisplayHover.textContent = username;
+        }
     } else {
         hideLoader(); // Ocultar loader antes de redirigir
         window.location.href = "index.html";
