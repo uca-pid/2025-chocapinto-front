@@ -1,5 +1,12 @@
 function showNotification(type, message) {
-    const container = document.getElementById("notifications");
+    let container = document.getElementById("notifications");
+    
+    // Crear el contenedor si no existe
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "notifications";
+        document.body.appendChild(container);
+    }
 
     // Crear el elemento
     const notif = document.createElement("div");

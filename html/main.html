@@ -4,22 +4,19 @@
     <meta charset="UTF-8">
     <title>Booksy - Club de Lectura</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/componentes/notificaciones.css">
+    <link rel="stylesheet" href="../css/componentes/loader.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
 <body class="main-body">
+    <!-- Contenedor de notificaciones -->
+    <div id="notifications"></div>
+    
     <header class="main-header">
         <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
-        <div class="search-bar">
-            <form id="buscadorLibrosForm" onsubmit="buscarLibrosGoogleBooks(event)">
-                <input type="text" id="busquedaLibro" placeholder="Buscar libros por título, autor, ISBN..." autocomplete="off" required style="padding:0.5rem; border-radius:4px; border:1px solid #ccc; width:220px;">
-                <button type="submit" style="padding:0.5rem 1rem; background:#2c5a91; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-                    Buscar
-                </button>
-            </form>
-            <div id="resultadosBusquedaLibros" class="resultados-busqueda-libros"></div>
-        </div>
+        
         <nav class="main-nav">
             <div class="profile-dropdown">
                 <button class="profile-btn" id="profileDropdownBtn">
@@ -83,6 +80,8 @@
     </footer>
 
     <script type="module" src="../js/principal.js"></script>
-        
+</body>
+</html>
+  
 </body>
 </html>

@@ -1,4 +1,19 @@
 /* Notification container */
+#notifications {
+  position: fixed;
+  bottom: 2%;
+  right: 2%;
+  z-index: 1000;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  pointer-events: none;
+}
+
+#notifications .notification-item {
+  pointer-events: auto;
+}
 
 .notification-container {
   /* Position top left */

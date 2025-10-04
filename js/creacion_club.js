@@ -1,5 +1,18 @@
 import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
+import { showLoader, hideLoader } from "../componentes/loader.js";
+
+// ========== INICIALIZACIÓN ==========
+// Mostrar loader al cargar la página
+showLoader("Cargando formulario...");
+
+// Ocultar loader cuando el DOM esté listo
+document.addEventListener("DOMContentLoaded", () => {
+    // Simular un pequeño delay para mostrar el loader
+    setTimeout(() => {
+        hideLoader();
+    }, 800);
+});
 
 const fileInput = document.getElementById("imagenClubUrl");
 const previewImg = document.getElementById("previewClubImg");
@@ -32,23 +45,33 @@ fileInput.addEventListener("change", () => {
         }
 
         try {
+            // Mostrar loader durante la creación
+            showLoader("Creando club...");
+            
             const body = { name, description, ownerUsername, imagen };
 
             const res = await fetch(`${API_URL}/createClub`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
             });
 
             const data = await res.json();
 
             if (data.success) {
-            showNotification("success","Club creado con éxito. Ahora eres moderador!");
-            setTimeout(() => window.location.href = "main.html", 1500);
+                // Cambiar mensaje del loader
+                showLoader("Club creado! Redirigiendo...");
+                showNotification("success","Club creado con éxito. Ahora eres moderador!");
+                setTimeout(() => {
+                    hideLoader();
+                    window.location.href = "main.html";
+                }, 1500);
             } else {
-            showNotification("error",data.message || "Error al crear club");
+                hideLoader();
+                showNotification("error", data.message || "Error al crear club");
             }
         } catch (error) {
-            showNotification("error","Error de conexión con el servidor");
+            hideLoader();
+            showNotification("error", "Error de conexión con el servidor");
         }
     });
