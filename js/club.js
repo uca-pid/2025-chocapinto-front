@@ -3,12 +3,39 @@ import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
 import { mostrarConfirmacion, confirmarEliminacion } from "../componentes/confirmacion.js";
 
+// Variable global para almacenar datos del club
+window.clubData = null;
+
 //inicializador de pagina
+console.log("Cargando archivo club.js...");
+console.log("API_URL:", API_URL);
+
+
 showLoader("Cargando club...");
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM Content Loaded");
+    
+    // Configurar event listeners para cambio de tabs
+    setupTabNavigation();
+    
+    // Configurar event listeners para botones
+    setupButtonEventListeners();
+    
+    // Configurar modal de libros
+    setupModalLibro();
+    
     // Simular un pequeño delay para mostrar el loader
     setTimeout(() => {
-        hideLoader();
+        try {
+            hideLoader();
+            console.log("Loader ocultado, iniciando renderClub...");
+            renderClub(); // Llamar renderClub después de ocultar el loader
+        } catch (error) {
+            console.error("Error en el timeout:", error);
+            // Fallback simple sin loader
+            document.getElementById('club-name').textContent = "Error de carga";
+            document.getElementById('club-description').textContent = error.message;
+        }
     }, 800);
 });
 
@@ -227,17 +254,24 @@ function getClubId() {
     }
 async function renderClub() {
     const clubId = getClubId();
+    console.log("Club ID obtenido:", clubId);
     if (!clubId) {
         mostrarClubNoEncontrado("No se especificó el club.");
         return;
     }
     try {
+        console.log("Haciendo fetch al club...");
         const res = await fetch(`${API_URL}/club/${clubId}`);
         const data = await res.json();
+        console.log("Datos del club recibidos:", data);
         if (!res.ok || !data.success) {
+            console.log("Error en la respuesta:", data.message);
             mostrarClubNoEncontrado(data.message || "No existe el club.");
             return;
         }
+        // Almacenar datos del club globalmente
+        window.clubData = data.club;
+        
         mostrarDatosClub(data.club);
         mostrarIntegrantes(data.club);
         mostrarSolicitudes(data.club);
@@ -393,7 +427,9 @@ async function renderClub() {
         mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
 
     } catch (error) {
-        mostrarClubNoEncontrado("No se pudo cargar el club.");
+        console.error("Error al cargar el club:", error);
+        hideLoader();
+        mostrarClubNoEncontrado(`No se pudo cargar el club. Error: ${error.message}`);
     }
 }
 
@@ -460,6 +496,9 @@ function mostrarLibrosLeidosMultipleFiltro(club, categoriasSeleccionadas) {
     librosList.innerHTML = "";
     const userId = localStorage.getItem("userId");
     const isOwner = club.id_owner == userId;
+    
+    // Actualizar estadísticas
+    actualizarEstadisticas(club);
     let libros = club.readBooks || [];
     
     // Si hay categorías seleccionadas, filtrar libros
@@ -529,14 +568,80 @@ function mostrarLibrosLeidosMultipleFiltro(club, categoriasSeleccionadas) {
 // Helpers
 
 function mostrarClubNoEncontrado(msg) {
-    document.getElementById('club-name').textContent = "Club no encontrado";
-    document.getElementById('club-description').textContent = msg;
+    console.log("Mostrando club no encontrado:", msg);
+    hideLoader(); // Asegurar que el loader se oculte
+    const nameElement = document.getElementById('club-name');
+    const descElement = document.getElementById('club-description');
+    
+    if (nameElement) nameElement.textContent = "Club no encontrado";
+    if (descElement) descElement.textContent = msg;
 }
 
 function mostrarDatosClub(club) {
-    document.getElementById('club-name').textContent = club.name;
-    document.getElementById('club-imagen').src = club.imagen || '../images/BooksyLogo.png'; // Imagen por defecto
-    document.getElementById('club-description').textContent = club.description;
+    console.log("Mostrando datos del club:", club);
+    const nameElement = document.getElementById('club-name');
+    const imageElement = document.getElementById('club-imagen');
+    const descElement = document.getElementById('club-description');
+    
+    // Elementos del sidebar para Principal y Notificaciones
+    const sidebarNameElement = document.getElementById('sidebar-club-name');
+    const sidebarImageElement = document.getElementById('sidebar-club-imagen');
+    const sidebarDescElement = document.getElementById('sidebar-club-description');
+    const sidebarNameElement2 = document.getElementById('sidebar-club-name-2');
+    const sidebarImageElement2 = document.getElementById('sidebar-club-imagen-2');
+    const sidebarDescElement2 = document.getElementById('sidebar-club-description-2');
+    
+    console.log("Elementos encontrados:", { nameElement, imageElement, descElement });
+    
+    const imageSrc = club.imagen || '../images/BooksyLogo.png';
+    
+    // Actualizar elementos principales (sección Club)
+    if (nameElement) {
+        nameElement.textContent = club.name;
+        console.log("Nombre del club establecido:", club.name);
+    }
+    if (imageElement) {
+        imageElement.src = imageSrc;
+        console.log("Imagen del club establecida:", imageSrc);
+        // Agregar un handler para errores de carga de imagen
+        imageElement.onerror = function() {
+            console.log("Error cargando imagen, usando fallback");
+            this.src = '../images/BooksyLogo.png';
+        };
+    }
+    if (descElement) {
+        descElement.textContent = club.description;
+        console.log("Descripción del club establecida:", club.description);
+    }
+    
+    // Actualizar elementos del sidebar (sección Principal)
+    if (sidebarNameElement) {
+        sidebarNameElement.textContent = club.name;
+    }
+    if (sidebarImageElement) {
+        sidebarImageElement.src = imageSrc;
+        sidebarImageElement.onerror = function() {
+            this.src = '../images/BooksyLogo.png';
+        };
+    }
+    if (sidebarDescElement) {
+        sidebarDescElement.textContent = club.description;
+    }
+    
+    // Actualizar elementos del sidebar (sección Notificaciones)
+    if (sidebarNameElement2) {
+        sidebarNameElement2.textContent = club.name;
+    }
+    if (sidebarImageElement2) {
+        sidebarImageElement2.src = imageSrc;
+        sidebarImageElement2.onerror = function() {
+            this.src = '../images/BooksyLogo.png';
+        };
+    }
+    if (sidebarDescElement2) {
+        sidebarDescElement2.textContent = club.description;
+    }
+    
     obtenerDatosOwner(club.id_owner);
     mostrarBotonesAccion(club);
 }
@@ -557,6 +662,19 @@ function mostrarIntegrantes(club) {
     membersList.innerHTML = "";
     const userId = localStorage.getItem("userId");
     const isOwner = club.id_owner == userId;
+    
+    // Actualizar contador de miembros en el badge
+    const membersCountBadge = document.querySelector('.club-badge span');
+    if (membersCountBadge) {
+        membersCountBadge.textContent = club.members ? club.members.length : 0;
+    }
+    
+    // Actualizar contador en sección Principal si existe
+    const totalMembersCounter = document.getElementById('total-members');
+    if (totalMembersCounter) {
+        totalMembersCounter.textContent = club.members ? club.members.length : 0;
+    }
+    
     if (club.members && club.members.length > 0) {
         club.members.forEach(m => {
             const li = document.createElement('li');
@@ -614,11 +732,34 @@ function mostrarSolicitudes(club) {
     }
 }
 
+function actualizarEstadisticas(club) {
+    // Actualizar contador de libros
+    const totalBooksCounter = document.getElementById('total-books');
+    if (totalBooksCounter) {
+        totalBooksCounter.textContent = club.readBooks ? club.readBooks.length : 0;
+    }
+    
+    // Actualizar contador de categorías (categorías únicas)
+    const totalCategoriesCounter = document.getElementById('total-categories');
+    if (totalCategoriesCounter) {
+        const categoriesSet = new Set();
+        if (club.readBooks) {
+            club.readBooks.forEach(libro => {
+                libro.categorias.forEach(cat => categoriesSet.add(cat.id));
+            });
+        }
+        totalCategoriesCounter.textContent = categoriesSet.size;
+    }
+}
+
 function mostrarLibrosLeidos(club) {
     const librosList = document.getElementById('libros-leidos-list');
     librosList.innerHTML = "";
     const userId = localStorage.getItem("userId");
     const isOwner = club.id_owner == userId;
+    
+    // Actualizar estadísticas
+    actualizarEstadisticas(club);
     if (club.readBooks && club.readBooks.length > 0) {
         club.readBooks.forEach(libro => {
             const card = document.createElement('div');
@@ -751,20 +892,40 @@ agregarCategoriaBtn.addEventListener('click', async () => {
     }
 });
 
-// Cargar categorías al abrir modal
-document.querySelector('.agregar-libro-btn').addEventListener('click', () => {
-        document.getElementById('modalLibro').style.display = 'block';
-        cargarCategorias();
-        // Mostrar input de crear categoría solo si es owner
-        const clubId = getClubId();
-        fetch(`${API_URL}/club/${clubId}`)
-            .then(res => res.json())
-            .then(data => {
-                const userId = localStorage.getItem("userId");
-                const isOwner = data.club && data.club.id_owner == userId;
-                document.getElementById('crearCategoriaBox').style.display = isOwner ? 'block' : 'none';
-            });
-});
+// Función para configurar el modal de libros
+function setupModalLibro() {
+    const agregarLibroBtn = document.querySelector('.primary-action-btn');
+    if (agregarLibroBtn && !agregarLibroBtn.hasAttribute('data-listener-added')) {
+        // Marcar que ya se agregó el listener para evitar duplicados
+        agregarLibroBtn.setAttribute('data-listener-added', 'true');
+        
+        agregarLibroBtn.addEventListener('click', () => {
+            console.log("Botón agregar libro clickeado");
+            document.getElementById('modalLibro').style.display = 'block';
+            cargarCategorias();
+            // Mostrar input de crear categoría solo si es owner
+            const clubId = getClubId();
+            if (clubId) {
+                fetch(`${API_URL}/club/${clubId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const userId = localStorage.getItem("userId");
+                        const isOwner = data.club && data.club.id_owner == userId;
+                        const crearCategoriaBox = document.getElementById('crearCategoriaBox');
+                        if (crearCategoriaBox) {
+                            crearCategoriaBox.style.display = isOwner ? 'block' : 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error al verificar ownership:", error);
+                    });
+            }
+        });
+        console.log("Event listener agregado al botón de agregar libro");
+    } else if (!agregarLibroBtn) {
+        console.log("No se encontró el botón de agregar libro (.primary-action-btn)");
+    }
+}
 // --- CAMBIO: Buscador Google Books y guardar libro seleccionado ---
 const buscadorLibro = document.getElementById("buscadorLibro");
 const resultadosBusquedaLibro = document.getElementById("resultadosBusquedaLibro");
@@ -899,14 +1060,21 @@ document.addEventListener("click", async (e) => {
 });
 
 async function cargarComentarios(bookId, clubId) {
-  comentariosList.innerHTML = "<span style='color:#636e72;'>Cargando comentarios...</span>";
+  comentariosList.innerHTML = "<div style='color:#636e72;text-align:center;padding:20px;'>Cargando comentarios...</div>";
+  const commentsCount = document.getElementById('comments-count');
+  
   try {
     const res = await fetch(`${API_URL}/comentario/book/${bookId}/club/${clubId}`);
     const data = await res.json();
 
     if (data.success && Array.isArray(data.comentarios)) {
+      // Actualizar contador de comentarios
+      if (commentsCount) {
+        commentsCount.textContent = data.comentarios.length;
+      }
+      
       if (data.comentarios.length === 0) {
-        comentariosList.innerHTML = "<span style='color:#636e72;'>No hay comentarios aún.</span>";
+        comentariosList.innerHTML = "<div style='color:#636e72;text-align:center;padding:20px;'>No hay comentarios aún.</div>";
       } else {
         comentariosList.innerHTML = "";
 
@@ -916,17 +1084,31 @@ async function cargarComentarios(bookId, clubId) {
         const isOwner = clubData.club && clubData.club.id_owner == userId;
 
         data.comentarios.forEach(c => {
-          const div = document.createElement("div");
-          div.style.cssText = "background:#f5f9ff;padding:0.6rem;border-radius:8px;color:#2c5a91;position:relative;";
+          const commentItem = document.createElement("div");
+          commentItem.className = "comment-item";
+          
+          // Obtener la primera letra del username para el avatar
+          const avatarLetter = c.user.username ? c.user.username.charAt(0).toUpperCase() : 'U';
+          
+          commentItem.innerHTML = `
+            <div class="user">
+              <div class="user-pic">
+                ${avatarLetter}
+              </div>
+              <div class="user-info">
+                <span>${c.user.username}</span>
+                <p>Hace un momento</p>
+              </div>
+            </div>
+            <p class="comment-content">${c.content}</p>
+          `;
 
-          div.innerHTML = `<strong>${c.user.username}</strong>: ${c.content}`;
-
-          // Mostrar ❌ si sos dueño del comentario o moderador
+          // Mostrar botón de eliminar si sos dueño del comentario o moderador
           if (isOwner || c.userId === userId) {
-            const deleteBtn = document.createElement("span");
-            deleteBtn.textContent = "❌";
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-comment";
+            deleteBtn.innerHTML = "❌";
             deleteBtn.title = "Eliminar comentario";
-            deleteBtn.style.cssText = "position:absolute;top:6px;right:8px;cursor:pointer;color:#d63031;font-size:1rem;";
             deleteBtn.onclick = async () => {
               mostrarConfirmacion(
                 "¿Eliminar este comentario?",
@@ -943,17 +1125,19 @@ async function cargarComentarios(bookId, clubId) {
                 }
               );
             };
-            div.appendChild(deleteBtn);
+            commentItem.appendChild(deleteBtn);
           }
 
-          comentariosList.appendChild(div);
+          comentariosList.appendChild(commentItem);
         });
       }
     } else {
-      comentariosList.innerHTML = "<span style='color:#d63031;'>Error al cargar comentarios</span>";
+      comentariosList.innerHTML = "<div style='color:#d63031;text-align:center;padding:20px;'>Error al cargar comentarios</div>";
+      if (commentsCount) commentsCount.textContent = '0';
     }
   } catch {
-    comentariosList.innerHTML = "<span style='color:#d63031;'>Error de conexión</span>";
+    comentariosList.innerHTML = "<div style='color:#d63031;text-align:center;padding:20px;'>Error de conexión</div>";
+    if (commentsCount) commentsCount.textContent = '0';
   }
 }
 
@@ -980,33 +1164,37 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
 
 
 
-enviarComentarioBtn.onclick = async () => {
-  const texto = nuevoComentario.value.trim();
-  if (!texto) return;
-  showLoader("Enviando comentario...");
-  try {
-    const userId = localStorage.getItem("userId");
-    const clubId = getClubId();
-    const res = await fetch(`${API_URL}/comentario`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, bookId: currentBookId, clubId, content: texto })
-    });
-    const data = await res.json();
-    if (data.success) {
-      nuevoComentario.value = "";
-      await cargarComentarios(currentBookId, clubId);
+// Event listener para el botón de enviar (ahora funciona como submit)
+document.addEventListener('click', async (e) => {
+  if (e.target.id === 'enviarComentarioBtn' || e.target.closest('#enviarComentarioBtn')) {
+    e.preventDefault();
+    const texto = nuevoComentario.value.trim();
+    if (!texto) return;
+    showLoader("Enviando comentario...");
+    try {
+      const userId = localStorage.getItem("userId");
+      const clubId = getClubId();
+      const res = await fetch(`${API_URL}/comentario`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, bookId: currentBookId, clubId, content: texto })
+      });
+      const data = await res.json();
+      if (data.success) {
+        nuevoComentario.value = "";
+        await cargarComentarios(currentBookId, clubId);
+        hideLoader();
+        showNotification("success", "Comentario enviado");
+      } else {
+        hideLoader();
+        showNotification("error", data.message || "No se pudo enviar el comentario");
+      }
+    } catch {
       hideLoader();
-      showNotification("success", "Comentario enviado");
-    } else {
-      hideLoader();
-      showNotification("error", data.message || "No se pudo enviar el comentario");
+      showNotification("error", "Error de conexión");
     }
-  } catch {
-    hideLoader();
-    showNotification("error", "Error de conexión");
   }
-};
+});
 
 async function eliminarClub(){
     mostrarConfirmacion(
@@ -1093,18 +1281,132 @@ async function salirDelClub(){
     );
 }
 
-// Event listeners para los botones
-document.addEventListener('DOMContentLoaded', () => {
+// Función para configurar event listeners de botones
+function setupButtonEventListeners() {
+    console.log("Configurando event listeners de botones...");
+    
     const eliminarBtn = document.getElementById('eliminarClubBtn');
     const salirBtn = document.getElementById('salirClubBtn');
     
     if (eliminarBtn) {
         eliminarBtn.addEventListener('click', eliminarClub);
+        console.log("Event listener agregado a eliminarClubBtn");
     }
     
     if (salirBtn) {
         salirBtn.addEventListener('click', salirDelClub);
+        console.log("Event listener agregado a salirClubBtn");
     }
-});
+}
 
-renderClub();
+// Función para configurar la navegación entre tabs
+function setupTabNavigation() {
+    console.log("Configurando navegación entre tabs...");
+    
+    // Detectar cambio de radio button
+    const radioButtons = document.querySelectorAll('input[name="plan"]');
+    console.log("Radio buttons encontrados:", radioButtons.length);
+    
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', handleTabChange);
+        radio.addEventListener('click', handleTabChange);
+    });
+    
+    // También agregar listeners a las labels por si acaso
+    const labels = document.querySelectorAll('label[for^="glass-"]');
+    console.log("Labels encontradas:", labels.length);
+    
+    labels.forEach(label => {
+        label.addEventListener('click', () => {
+            console.log("Label clickeada:", label.getAttribute('for'));
+            setTimeout(handleTabChange, 50); // Pequeño delay para que el radio se marque primero
+        });
+    });
+    
+    // Asegurar que la segunda tab (Principal) esté activa y visible por defecto
+    const defaultTab = document.getElementById('glass-gold');
+    const menuPrincipal = document.getElementById('menuPrincipal');
+    
+    if (defaultTab) {
+        defaultTab.checked = true;
+        console.log("Tab Principal marcada como checked por defecto");
+    }
+    
+    if (menuPrincipal) {
+        menuPrincipal.style.display = 'block';
+        console.log("MenuPrincipal mostrado por defecto");
+    }
+    
+    // Ocultar otras secciones por defecto
+    const menuClub = document.getElementById('menuClub');
+    const menuNotificaciones = document.getElementById('menuNotificaciones');
+    
+    if (menuClub) menuClub.style.display = 'none';
+    if (menuNotificaciones) menuNotificaciones.style.display = 'none';
+}
+
+// Función separada para manejar el cambio de tabs
+function handleTabChange() {
+    console.log("Manejando cambio de tab...");
+    
+    // Ocultamos todos los menús
+    document.querySelectorAll('.menu-section').forEach(menu => {
+        menu.style.display = 'none';
+    });
+
+    // Mostramos el que corresponde
+    const silverChecked = document.getElementById('glass-silver').checked;
+    const goldChecked = document.getElementById('glass-gold').checked;
+    const platinumChecked = document.getElementById('glass-platinum').checked;
+    
+    console.log("Estados de tabs:", { silverChecked, goldChecked, platinumChecked });
+
+    if (silverChecked) {
+        console.log("Mostrando sección Club");
+        document.getElementById('menuClub').style.display = 'block';
+        // Re-renderizar el club si es necesario para actualizar datos
+        if (window.clubData) {
+            mostrarDatosClub(window.clubData);
+            mostrarIntegrantes(window.clubData);
+            mostrarSolicitudes(window.clubData);
+        }
+    } else if (goldChecked) {
+        console.log("Mostrando sección Principal");
+        document.getElementById('menuPrincipal').style.display = 'block';
+        // Re-renderizar libros si es necesario
+        if (window.clubData) {
+            actualizarEstadisticas(window.clubData);
+        }
+        // Configurar el modal de libros cuando se muestra la sección Principal
+        setupModalLibro();
+    } else if (platinumChecked) {
+        console.log("Mostrando sección Notificaciones");
+        document.getElementById('menuNotificaciones').style.display = 'block';
+        // Cargar notificaciones si es necesario
+        cargarNotificaciones();
+    }
+
+}
+
+// Función para cargar notificaciones (placeholder)
+function cargarNotificaciones() {
+    const notificationsList = document.getElementById('notifications-list');
+    const emptyState = document.getElementById('notifications-empty-state');
+    
+    if (notificationsList) {
+        // Por ahora mostramos el estado vacío
+        notificationsList.innerHTML = '';
+        if (emptyState) {
+            emptyState.style.display = 'flex';
+        }
+        
+        // Actualizar contadores
+        const unreadCount = document.getElementById('unread-count');
+        const totalNotifications = document.getElementById('total-notifications');
+        if (unreadCount) unreadCount.textContent = '0';
+        if (totalNotifications) totalNotifications.textContent = '0';
+    }
+}
+
+
+// renderClub() se llama ahora desde el DOMContentLoaded
