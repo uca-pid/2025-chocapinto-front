@@ -1024,7 +1024,11 @@ async function eliminarClub(){
                     showLoader("Club eliminado! Redirigiendo...");
                     showNotification("success", "Club eliminado con éxito");
                     setTimeout(() => {
-                        window.location.href = "main.html";
+                        try {
+                            window.location.replace("main.html");
+                        } catch (e) {
+                            window.location.href = "main.html";
+                        }
                     }, 1500);
                 } else {
                     hideLoader();
@@ -1062,10 +1066,14 @@ async function salirDelClub(){
                 const data = await res.json();
                 if (data.success) {
                     showLoader("Has salido del club! Redirigiendo...");
-            showNotification("success", "Has salido del club");
-            setTimeout(() => {
-                window.location.href = "main.html";
-            }, 1500);
+                    showNotification("success", "Has salido del club");
+                    setTimeout(() => {
+                        try {
+                            window.location.replace("main.html");
+                        } catch (e) {
+                            window.location.href = "main.html";
+                        }
+                    }, 1500);
                 } else {
                     hideLoader();
                     showNotification("error", data.message || "No se pudo salir del club");
