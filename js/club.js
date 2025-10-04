@@ -1,9 +1,21 @@
 import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
+import { showLoader, hideLoader } from "../componentes/loader.js";
+import { mostrarConfirmacion, confirmarEliminacion } from "../componentes/confirmacion.js";
+
+//inicializador de pagina
+showLoader("Cargando club...");
+document.addEventListener("DOMContentLoaded", () => {
+    // Simular un pequeño delay para mostrar el loader
+    setTimeout(() => {
+        hideLoader();
+    }, 800);
+});
 
 // Gestionar solicitud: aceptar o rechazar
 async function gestionarSolicitud(solicitudId, aceptar) {
     const clubId = getClubId();
+    showLoader(aceptar ? "Aceptando solicitud..." : "Rechazando solicitud...");
     try {
         const res = await fetch(`${API_URL}/club/${clubId}/solicitud/${solicitudId}`, {
             method: "PUT",
@@ -15,29 +27,35 @@ async function gestionarSolicitud(solicitudId, aceptar) {
             showNotification("success", data.message || (aceptar ? "Solicitud aceptada" : "Solicitud rechazada"));
             renderClub();
         } else {
+            hideLoader();
             showNotification("error", data.message || "No se pudo procesar la solicitud");
         }
     } catch (error) {
+        hideLoader();
         showNotification("error", "Error de conexión al gestionar solicitud");
     }
 }
 
 async function eliminarUsuarioDelClub(userId, clubId) {
-    if (!confirm("¿Seguro que quieres eliminar este usuario del club?")) return;
-    try {
-        const res = await fetch(`${API_URL}/club/${clubId}/removeMember/${userId}`, {
-            method: "DELETE"
-        });
-        const data = await res.json();
-        if (data.success) {
-            showNotification("success", "Usuario eliminado");
-            renderClub();
-        } else {
-            showNotification("error", data.message || "No se pudo eliminar el usuario");
+    confirmarEliminacion("este usuario del club", async () => {
+        showLoader("Eliminando usuario del club...");
+        try {
+            const res = await fetch(`${API_URL}/club/${clubId}/removeMember/${userId}`, {
+                method: "DELETE"
+            });
+            const data = await res.json();
+            if (data.success) {
+                showNotification("success", "Usuario eliminado");
+                renderClub();
+            } else {
+                hideLoader();
+                showNotification("error", data.message || "No se pudo eliminar el usuario");
+            }
+        } catch (error) {
+            hideLoader();
+            showNotification("error", "Error de conexión");
         }
-    } catch (error) {
-        showNotification("error", "Error de conexión");
-    }
+    });
 }
 
 async function obtenerDatosOwner(id_owner){
@@ -128,24 +146,29 @@ function renderCategoriasCheckboxes() {
     });
 }
 function eliminarCategoria(categoriaId) {
-  if (!confirm("¿Seguro que querés eliminar esta categoría?")) return;
-
-  fetch(`${API_URL}/categorias/${categoriaId}`, {
-    method: "DELETE"
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        // quitar de la lista en memoria y volver a renderizar
-        categoriasDisponibles = categoriasDisponibles.filter(c => c.id !== categoriaId);
-        renderCategoriasCheckboxes();
-      } else {
-        showNotification("error", data.message || "Error al eliminar categoría");
-      }
+  confirmarEliminacion("esta categoría", () => {
+    showLoader("Eliminando categoría...");
+    fetch(`${API_URL}/categorias/${categoriaId}`, {
+      method: "DELETE"
     })
-    .catch(() => {
-      showNotification("error", "Error de conexión al eliminar categoría");
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // quitar de la lista en memoria y volver a renderizar
+          categoriasDisponibles = categoriasDisponibles.filter(c => c.id !== categoriaId);
+          renderCategoriasCheckboxes();
+          hideLoader();
+          showNotification("success", "Categoría eliminada");
+        } else {
+          hideLoader();
+          showNotification("error", data.message || "Error al eliminar categoría");
+        }
+      })
+      .catch(() => {
+        hideLoader();
+        showNotification("error", "Error de conexión al eliminar categoría");
+      });
+  });
 }
 
 
@@ -153,6 +176,7 @@ function editarCategoria(categoriaId, nombreActual) {
   const nuevoNombre = prompt("Nuevo nombre para la categoría:", nombreActual);
   if (!nuevoNombre || nuevoNombre.trim() === "") return;
 
+  showLoader("Editando categoría...");
   fetch(`${API_URL}/categorias/${categoriaId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -167,11 +191,15 @@ function editarCategoria(categoriaId, nombreActual) {
           categoriasDisponibles[index].nombre = data.categoria.nombre;
         }
         renderCategoriasCheckboxes();
+        hideLoader();
+        showNotification("success", "Categoría editada");
       } else {
+        hideLoader();
         showNotification("error", data.message || "Error al editar categoría");
       }
     })
     .catch(() => {
+      hideLoader();
       showNotification("error", "Error de conexión al editar categoría");
     });
 }
@@ -641,33 +669,29 @@ function agregarBotonEliminarLibro(card, bookId) {
     deleteBtn.style.cssText = 'color:#d63031;cursor:pointer;font-size:1.3rem;position:absolute;top:10px;right:14px;';
     deleteBtn.title = 'Eliminar libro';
     deleteBtn.onclick = () => {
-        const modal = document.getElementById('modalEliminarLibro');
-        modal.style.display = 'flex';
-        modal.dataset.bookId = bookId;
+        mostrarConfirmacion(
+            "¿Eliminar este libro?",
+            "El libro será removido del club y ya no aparecerá en la lista de libros leídos.",
+            async () => {
+                const clubId = getClubId();
+                const username = localStorage.getItem("username");
+                await eliminarLibro(bookId, clubId, username);
+                renderClub();
+            },
+            null,
+            {
+                confirmText: "Eliminar Libro",
+                cancelText: "Cancelar",
+                confirmClass: "red-btn",
+                cancelClass: "green-btn"
+            }
+        );
     };
     card.appendChild(deleteBtn);
-
-    // Modal de confirmación para eliminar libro
-    const modalEliminar = document.getElementById('modalEliminarLibro');
-    const closeModalEliminar = document.getElementById('closeModalEliminar');
-    const confirmEliminarBtn = document.getElementById('confirmEliminarBtn');
-    const cancelEliminarBtn = document.getElementById('cancelEliminarBtn');
-
-    if (closeModalEliminar) closeModalEliminar.onclick = () => { modalEliminar.style.display = 'none'; };
-    if (cancelEliminarBtn) cancelEliminarBtn.onclick = () => { modalEliminar.style.display = 'none'; };
-    if (confirmEliminarBtn) confirmEliminarBtn.onclick = async () => {
-        const clubId = getClubId();
-        const username = localStorage.getItem("username");
-        const bookId = modalEliminar.dataset.bookId;
-        if (bookId) {
-            await eliminarLibro(bookId, clubId, username);
-            modalEliminar.style.display = 'none';
-            renderClub();
-        }
-    };
 }
 
 async function eliminarLibro(bookId, clubId, username) {
+    showLoader("Eliminando libro...");
     try {
         const res = await fetch(`${API_URL}/club/${clubId}/deleteBook/${bookId}`, {
             method: "DELETE",
@@ -676,9 +700,14 @@ async function eliminarLibro(bookId, clubId, username) {
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
+            hideLoader();
             showNotification("error", data.message || "Error al eliminar libro");
+        } else {
+            showNotification("success", "Libro eliminado");
+            hideLoader();
         }
     } catch (error) {
+        hideLoader();
         showNotification("error", "Error de conexión al eliminar libro");
     }
 }
@@ -698,6 +727,7 @@ agregarCategoriaBtn.addEventListener('click', async () => {
         showNotification("warning", "La categoría ya existe");
         return;
     }
+    showLoader("Creando categoría...");
     try {
         const res = await fetch(`${API_URL}/categorias`, {
             method: "POST",
@@ -709,8 +739,14 @@ agregarCategoriaBtn.addEventListener('click', async () => {
             categoriasDisponibles.push(data.categoria);
             renderCategoriasCheckboxes();
             nuevaCategoriaInput.value = '';
+            hideLoader();
+            showNotification("success", "Categoría creada");
+        } else {
+            hideLoader();
+            showNotification("error", "Error al crear categoría");
         }
     } catch (error) {
+        hideLoader();
         showNotification("error", "Error al crear categoría");
     }
 });
@@ -806,6 +842,7 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
         msg.style.display = "block";
         return;
     }
+    showLoader("Agregando libro al club...");
     try {
         const res = await fetch(`${API_URL}/club/${clubId}/addBook`, {
             method: "POST",
@@ -814,18 +851,21 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
         });
         const data = await res.json();
         if (res.ok && data.success) {
+            hideLoader();
             msg.textContent = "Libro agregado con éxito";
             msg.style.background = "#eaf6ff";
             msg.style.color = "#0984e3";
             msg.style.display = "block";
             setTimeout(() => { document.getElementById('modalLibro').style.display='none'; renderClub(); }, 1200);
         } else {
+            hideLoader();
             msg.textContent = data.message || "Error al agregar libro";
             msg.style.background = "#ffeaea";
             msg.style.color = "#d63031";
             msg.style.display = "block";
         }
     } catch (error) {
+        hideLoader();
         msg.textContent = "Error de conexión con el servidor";
         msg.style.background = "#ffeaea";
         msg.style.color = "#d63031";
@@ -888,9 +928,20 @@ async function cargarComentarios(bookId, clubId) {
             deleteBtn.title = "Eliminar comentario";
             deleteBtn.style.cssText = "position:absolute;top:6px;right:8px;cursor:pointer;color:#d63031;font-size:1rem;";
             deleteBtn.onclick = async () => {
-              if (confirm("¿Eliminar este comentario?")) {
-                await eliminarComentario(c.id, bookId, clubId);
-              }
+              mostrarConfirmacion(
+                "¿Eliminar este comentario?",
+                "El comentario será eliminado permanentemente y no se podrá recuperar.",
+                async () => {
+                  await eliminarComentario(c.id, bookId, clubId);
+                },
+                null,
+                {
+                  confirmText: "Eliminar",
+                  cancelText: "Cancelar",
+                  confirmClass: "red-btn",
+                  cancelClass: "green-btn"
+                }
+              );
             };
             div.appendChild(deleteBtn);
           }
@@ -907,6 +958,7 @@ async function cargarComentarios(bookId, clubId) {
 }
 
 async function eliminarComentario(comentarioId, bookId, clubId) {
+  showLoader("Eliminando comentario...");
   try {
     const res = await fetch(`${API_URL}/comentario/${comentarioId}`, {
       method: "DELETE"
@@ -914,11 +966,14 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
     const data = await res.json();
     if (data.success) {
       await cargarComentarios(bookId, clubId);
+      hideLoader();
+      showNotification("success", "Comentario eliminado");
     } else {
+      hideLoader();
       showNotification("error", data.message || "No se pudo eliminar el comentario");
-
     }
   } catch {
+    hideLoader();
     showNotification("error", "Error de conexión al eliminar comentario");
   }
 }
@@ -928,6 +983,7 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
 enviarComentarioBtn.onclick = async () => {
   const texto = nuevoComentario.value.trim();
   if (!texto) return;
+  showLoader("Enviando comentario...");
   try {
     const userId = localStorage.getItem("userId");
     const clubId = getClubId();
@@ -940,33 +996,107 @@ enviarComentarioBtn.onclick = async () => {
     if (data.success) {
       nuevoComentario.value = "";
       await cargarComentarios(currentBookId, clubId);
+      hideLoader();
+      showNotification("success", "Comentario enviado");
     } else {
+      hideLoader();
       showNotification("error", data.message || "No se pudo enviar el comentario");
     }
   } catch {
+    hideLoader();
     showNotification("error", "Error de conexión");
   }
 };
 
 async function eliminarClub(){
-    if(!confirm("¿Seguro que querés eliminar este club? Esta acción no se puede deshacer.")) return;
-    const clubId = getClubId();
-    try {
-        const res = await fetch(`${API_URL}/deleteClub/${clubId}`, {
-            method: "DELETE"
-        });
-        const data = await res.json();
-        if (data.success) {
-            showNotification("success", "Club eliminado con éxito");
-            window.location.href = "main.html";
-        } else {
-            showNotification("error", data.message || "No se pudo eliminar el club");
+    mostrarConfirmacion(
+        "¿Eliminar este club?",
+        "Esta acción no se puede deshacer. Se eliminará el club y toda su información.",
+        async () => {
+            const clubId = getClubId();
+            showLoader("Eliminando club...");
+            try {
+                const res = await fetch(`${API_URL}/deleteClub/${clubId}`, {
+                    method: "DELETE"
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showLoader("Club eliminado! Redirigiendo...");
+                    showNotification("success", "Club eliminado con éxito");
+                    setTimeout(() => {
+                        window.location.href = "main.html";
+                    }, 1500);
+                } else {
+                    hideLoader();
+                    showNotification("error", data.message || "No se pudo eliminar el club");
+                }
+            } catch {
+                hideLoader();
+                showNotification("error", "Error de conexión");
+            }
+        },
+        null,
+        {
+            confirmText: "Eliminar Club",
+            cancelText: "Cancelar",
+            confirmClass: "red-btn",
+            cancelClass: "green-btn"
         }
-    } catch {
-        showNotification("error", "Error de conexión");
-    }
+    );
 }
 
+async function salirDelClub(){
+    mostrarConfirmacion(
+        "¿Salir de este club?",
+        "Ya no serás miembro y perderás acceso a los contenidos del club.",
+        async () => {
+            const clubId = getClubId();
+            const userId = localStorage.getItem("userId");
+            showLoader("Saliendo del club...");
+            try {
+                const res = await fetch(`${API_URL}/club/${clubId}/leave`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showLoader("Has salido del club! Redirigiendo...");
+            showNotification("success", "Has salido del club");
+            setTimeout(() => {
+                window.location.href = "main.html";
+            }, 1500);
+                } else {
+                    hideLoader();
+                    showNotification("error", data.message || "No se pudo salir del club");
+                }
+            } catch {
+                hideLoader();
+                showNotification("error", "Error de conexión");
+            }
+        },
+        null,
+        {
+            confirmText: "Salir del Club",
+            cancelText: "Cancelar",
+            confirmClass: "red-btn",
+            cancelClass: "green-btn"
+        }
+    );
+}
 
+// Event listeners para los botones
+document.addEventListener('DOMContentLoaded', () => {
+    const eliminarBtn = document.getElementById('eliminarClubBtn');
+    const salirBtn = document.getElementById('salirClubBtn');
+    
+    if (eliminarBtn) {
+        eliminarBtn.addEventListener('click', eliminarClub);
+    }
+    
+    if (salirBtn) {
+        salirBtn.addEventListener('click', salirDelClub);
+    }
+});
 
 renderClub();
