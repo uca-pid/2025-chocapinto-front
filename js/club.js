@@ -98,6 +98,87 @@ async function obtenerDatosOwner(id_owner){
         document.getElementById('club-owner').textContent = "Moderador: error de datos";
     }
 }
+
+// Función para obtener información visual del estado del libro
+function getEstadoInfo(estado) {
+    switch(estado) {
+        case 'leido':
+            return {
+                background: '#d1f2eb',
+                color: '#00b894',
+                border: '#00b894',
+                icon: '✅',
+                label: 'Leído'
+            };
+        case 'leyendo':
+            return {
+                background: '#d6eaf8',
+                color: '#3498db',
+                border: '#3498db',
+                icon: '📖',
+                label: 'Leyendo'
+            };
+        case 'por_leer':
+        default:
+            return {
+                background: '#fef9e7',
+                color: '#f39c12',
+                border: '#f39c12',
+                icon: '📚',
+                label: 'Por leer'
+            };
+    }
+}
+
+// Función para cambiar el estado de un libro
+async function cambiarEstadoLibro(bookId, nuevoEstado) {
+    const clubId = getClubId();
+    const username = localStorage.getItem("username");
+    
+    if (!username) {
+        showNotification("error", "Usuario no identificado");
+        return;
+    }
+
+    showLoader("Cambiando estado del libro...");
+    
+    try {
+        const res = await fetch(`${API_URL}/club/${clubId}/book/${bookId}/estado`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                estado: nuevoEstado,
+                username: username 
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            hideLoader();
+            showNotification("success", `Estado cambiado a: ${getEstadoLabel(nuevoEstado)}`);
+            // Recargar los datos del club para actualizar las estadísticas
+            renderClub();
+        } else {
+            hideLoader();
+            showNotification("error", data.message || "Error al cambiar el estado");
+        }
+    } catch (error) {
+        hideLoader();
+        console.error("Error al cambiar estado:", error);
+        showNotification("error", "Error de conexión al cambiar estado");
+    }
+}
+
+// Función auxiliar para obtener el label del estado
+function getEstadoLabel(estado) {
+    switch(estado) {
+        case 'leido': return '✅ Leído';
+        case 'leyendo': return '📖 Leyendo';
+        case 'por_leer': return '📚 Por leer';
+        default: return estado;
+    }
+}
 async function cargarCategorias() {
     try {
         const res = await fetch(`${API_URL}/categorias`);
@@ -383,7 +464,7 @@ async function renderClub() {
                 categoriasSeleccionadas = categoriasSeleccionadas.filter(cat => cat.id !== categoria.id);
                 actualizarChips();
                 actualizarSelect();
-                mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
+                aplicarFiltros(data.club, categoriasSeleccionadas);
             };
             chip.appendChild(closeBtn);
             
@@ -415,7 +496,7 @@ async function renderClub() {
                     categoriasSeleccionadas.push(categoria);
                     actualizarChips();
                     actualizarSelect();
-                    mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
+                    aplicarFiltros(data.club, categoriasSeleccionadas);
                 }
             }
             select.value = ""; // Reset del select
@@ -424,7 +505,7 @@ async function renderClub() {
         // Inicializar
         actualizarSelect();
         actualizarChips();
-        mostrarLibrosLeidosMultipleFiltro(data.club, categoriasSeleccionadas);
+        aplicarFiltros(data.club, categoriasSeleccionadas);
 
     } catch (error) {
         console.error("Error al cargar el club:", error);
@@ -467,12 +548,35 @@ function mostrarLibrosLeidosFiltrados(club, filtroCategoriaId) {
                 .map(cat => `<span style="background:#eaf6ff;color:#2c5a91;padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;">${cat.nombre}</span>`)
                 .join(" ");
 
+            // Obtener color y emoji según el estado
+            const estadoInfo = getEstadoInfo(libro.estado);
+
             card.innerHTML = `
                 <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
                     ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;'></div>`}
                     <div style='text-align:center;'>
                         <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
                         ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
+                        
+                        <div style="margin-top:8px;">
+                            <select class="estado-selector" data-bookid="${libro.id}" style="
+                                background: ${estadoInfo.background};
+                                color: ${estadoInfo.color};
+                                border: 1px solid ${estadoInfo.border};
+                                border-radius: 8px;
+                                padding: 4px 8px;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                                cursor: pointer;
+                                width: 100%;
+                                margin-bottom: 8px;
+                            ">
+                                <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
+                                <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
+                                <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
+                            </select>
+                        </div>
+                        
                         <div style="margin-top:6px;">${categoriasHTML}</div>
                         <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
                     </div>
@@ -539,12 +643,35 @@ function mostrarLibrosLeidosMultipleFiltro(club, categoriasSeleccionadas) {
                 })
                 .join(" ");
 
+            // Obtener color y emoji según el estado
+            const estadoInfo = getEstadoInfo(libro.estado);
+
             card.innerHTML = `
                 <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
                     ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;'></div>`}
                     <div style='text-align:center;'>
                         <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
                         ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
+                        
+                        <div style="margin-top:8px;">
+                            <select class="estado-selector" data-bookid="${libro.id}" style="
+                                background: ${estadoInfo.background};
+                                color: ${estadoInfo.color};
+                                border: 1px solid ${estadoInfo.border};
+                                border-radius: 8px;
+                                padding: 4px 8px;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                                cursor: pointer;
+                                width: 100%;
+                                margin-bottom: 8px;
+                            ">
+                                <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
+                                <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
+                                <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
+                            </select>
+                        </div>
+                        
                         <div style="margin-top:6px;">${categoriasHTML}</div>
                         <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
                     </div>
@@ -562,6 +689,136 @@ function mostrarLibrosLeidosMultipleFiltro(club, categoriasSeleccionadas) {
             ? `No hay libros que coincidan con los filtros seleccionados.`
             : `No hay libros leídos aún.`;
         librosList.innerHTML = `<div style="color:#636e72;">${mensaje}</div>`;
+    }
+}
+
+// Variables para filtros
+let filtroTexto = '';
+let filtroEstado = 'todos';
+
+// Función principal de filtrado que combina búsqueda de texto, estado y categorías
+function aplicarFiltros(club, categoriasSeleccionadas = []) {
+    const librosList = document.getElementById('libros-leidos-list');
+    librosList.innerHTML = "";
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    
+    // Actualizar estadísticas
+    actualizarEstadisticas(club);
+    
+    let libros = club.readBooks || [];
+    
+    // Aplicar filtro de texto
+    if (filtroTexto.trim()) {
+        const texto = filtroTexto.toLowerCase();
+        libros = libros.filter(libro => 
+            libro.title.toLowerCase().includes(texto) ||
+            (libro.author && libro.author.toLowerCase().includes(texto)) ||
+            libro.categorias.some(cat => cat.nombre.toLowerCase().includes(texto))
+        );
+    }
+    
+    // Aplicar filtro de estado
+    if (filtroEstado !== 'todos') {
+        libros = libros.filter(libro => libro.estado === filtroEstado);
+    }
+    
+    // Aplicar filtro de categorías (si se proporcionan)
+    if (categoriasSeleccionadas.length > 0) {
+        libros = libros.filter(libro => {
+            // El libro debe tener AL MENOS UNA de las categorías seleccionadas
+            return libro.categorias.some(catLibro => 
+                categoriasSeleccionadas.some(catSel => catSel.id === catLibro.id)
+            );
+        });
+    }
+    
+    // Mostrar libros filtrados
+    if (libros.length > 0) {
+        libros.forEach(libro => {
+            const card = document.createElement('div');
+            card.className = 'libro-card';
+            card.style.background = '#fff';
+            card.style.borderRadius = '16px';
+            card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
+            card.style.padding = '1rem';
+            card.style.display = 'flex';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'center';
+            card.style.justifyContent = 'flex-start';
+            card.style.border = '1px solid #eaf6ff';
+            card.style.width = '100%';
+            card.style.maxWidth = '200px';
+            card.style.minHeight = '320px';
+            card.style.position = 'relative';
+            
+            const categoriasHTML = libro.categorias
+                .map(cat => {
+                    // Destacar categorías que están siendo filtradas
+                    const isFiltered = categoriasSeleccionadas.some(catSel => catSel.id === cat.id);
+                    const bgColor = isFiltered ? '#5fa8e9' : '#eaf6ff';
+                    const textColor = isFiltered ? '#fff' : '#2c5a91';
+                    return `<span style="background:${bgColor};color:${textColor};padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;font-weight:${isFiltered ? '600' : '500'};">${cat.nombre}</span>`;
+                })
+                .join(" ");
+            
+            // Obtener color y emoji según el estado
+            const estadoInfo = getEstadoInfo(libro.estado);
+            
+            card.innerHTML = `
+                <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
+                    ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;color:#2c5a91;font-size:2rem;'>📚</div>`}
+                    <div style='text-align:center;'>
+                        <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
+                        ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
+                        
+                        <div style="margin-top:8px;">
+                            <select class="estado-selector" data-bookid="${libro.id}" style="
+                                background: ${estadoInfo.background};
+                                color: ${estadoInfo.color};
+                                border: 1px solid ${estadoInfo.border};
+                                border-radius: 8px;
+                                padding: 4px 8px;
+                                font-size: 0.8rem;
+                                font-weight: 600;
+                                cursor: pointer;
+                                width: 100%;
+                                margin-bottom: 8px;
+                            ">
+                                <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
+                                <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
+                                <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-top:6px;">${categoriasHTML}</div>
+                        <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
+                    </div>
+                </div>
+            `;
+            
+            if (isOwner) {
+                agregarBotonEliminarLibro(card, libro.id);
+            }
+            
+            librosList.appendChild(card);
+        });
+    } else {
+        let mensaje = 'No hay libros aún.';
+        let filtros = [];
+        
+        if (filtroTexto.trim()) filtros.push(`"${filtroTexto}"`);
+        if (filtroEstado !== 'todos') filtros.push(`estado "${getEstadoLabel(filtroEstado)}"`);
+        if (categoriasSeleccionadas.length > 0) {
+            const categorias = categoriasSeleccionadas.map(cat => cat.nombre).join(', ');
+            filtros.push(`categorías ${categorias}`);
+        }
+        
+        if (filtros.length > 0) {
+            mensaje = `No hay libros que coincidan con los filtros: ${filtros.join(', ')}.`;
+        }
+        
+        librosList.innerHTML = `<div style="color:#636e72;text-align:center;padding:2rem;">${mensaje}</div>`;
     }
 }
 
@@ -733,10 +990,36 @@ function mostrarSolicitudes(club) {
 }
 
 function actualizarEstadisticas(club) {
-    // Actualizar contador de libros
+    // Contadores por estado
+    let librosLeidos = 0;
+    let librosLeyendo = 0;
+    let librosPorLeer = 0;
+    
+    // Actualizar contadores de libros por estado
     const totalBooksCounter = document.getElementById('total-books');
+    const readingBooksCounter = document.getElementById('reading-books');
+    const pendingBooksCounter = document.getElementById('pending-books');
+    
+    if (club.readBooks) {
+        club.readBooks.forEach(libro => {
+            if (libro.estado === 'leido') {
+                librosLeidos++;
+            } else if (libro.estado === 'leyendo') {
+                librosLeyendo++;
+            } else if (libro.estado === 'por_leer') {
+                librosPorLeer++;
+            }
+        });
+    }
+    
     if (totalBooksCounter) {
-        totalBooksCounter.textContent = club.readBooks ? club.readBooks.length : 0;
+        totalBooksCounter.textContent = librosLeidos;
+    }
+    if (readingBooksCounter) {
+        readingBooksCounter.textContent = librosLeyendo;
+    }
+    if (pendingBooksCounter) {
+        pendingBooksCounter.textContent = librosPorLeer;
     }
     
     // Actualizar contador de categorías (categorías únicas)
@@ -753,55 +1036,8 @@ function actualizarEstadisticas(club) {
 }
 
 function mostrarLibrosLeidos(club) {
-    const librosList = document.getElementById('libros-leidos-list');
-    librosList.innerHTML = "";
-    const userId = localStorage.getItem("userId");
-    const isOwner = club.id_owner == userId;
-    
-    // Actualizar estadísticas
-    actualizarEstadisticas(club);
-    if (club.readBooks && club.readBooks.length > 0) {
-        club.readBooks.forEach(libro => {
-            const card = document.createElement('div');
-            card.className = 'libro-card';
-            card.style.background = '#fff';
-            card.style.borderRadius = '16px';
-            card.style.boxShadow = '0 2px 16px #2c5a9140';
-            card.style.padding = '1.2rem 1.2rem';
-            card.style.display = 'flex';
-            card.style.flexDirection = 'column';
-            card.style.alignItems = 'flex-start';
-            card.style.justifyContent = 'flex-start';
-            card.style.border = '1px solid #eaf6ff';
-            card.style.width = '100%';
-            card.style.maxWidth = '260px';
-            card.style.minHeight = '120px';
-            card.style.position = 'relative';
-            const categoriasHTML = libro.categorias
-                .map(cat => `<span style="background:#eaf6ff;color:#2c5a91;padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;">${cat.nombre}</span>`)
-                .join(" ");
-            card.innerHTML = `
-                <div style='width:100%;display:flex;align-items:center;gap:10px;'>
-                    ${libro.portada ? `<img src='${libro.portada}' style='width:48px;height:auto;border-radius:6px;'>` : ` ... `}
-                    <div>
-                        <strong style='color:#2c5a91;font-size:1.15rem;'>${libro.title}</strong>
-                        ${libro.author ? '<br><span style="color:#636e72;">de ' + libro.author + '</span>' : ''}
-                        <div style="margin-top:10px;">
-   <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;">💬 Comentarios</button>
-</div>
-
-                        <div style="margin-top:6px;">${categoriasHTML}</div>
-                    </div>
-                </div>
-            `;
-            if (isOwner) {
-                agregarBotonEliminarLibro(card, libro.id);
-            }
-            librosList.appendChild(card);
-        });
-    } else {
-        librosList.innerHTML = '<div style="color:#636e72;">No hay libros leídos aún.</div>';
-    }
+    // Usar la nueva función de filtrado
+    aplicarFiltros(club);
 }
 
 function agregarBotonEliminarLibro(card, bookId) {
@@ -984,6 +1220,7 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
     const thumbnail = portadaLibro.value;
     const id_api = document.getElementById("idApiLibro").value;
     const clubId = getClubId();
+    const username = localStorage.getItem("username");
     const msg = document.getElementById("msgLibro");
     msg.textContent = "";
     msg.style.display = "none";
@@ -1008,7 +1245,7 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
         const res = await fetch(`${API_URL}/club/${clubId}/addBook`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title, author, thumbnail, id_api, categorias: categoriasSeleccionadas })
+            body: JSON.stringify({ title, author, thumbnail, id_api, username, categorias: categoriasSeleccionadas })
         });
         const data = await res.json();
         if (res.ok && data.success) {
@@ -1196,6 +1433,33 @@ document.addEventListener('click', async (e) => {
   }
 });
 
+// Event listener para cambiar el estado de los libros
+document.addEventListener('change', async (e) => {
+  if (e.target.classList.contains('estado-selector')) {
+    const bookId = e.target.getAttribute('data-bookid');
+    const nuevoEstado = e.target.value;
+    await cambiarEstadoLibro(bookId, nuevoEstado);
+  }
+  
+  // Event listener para el filtro de estado
+  if (e.target.id === 'estado-filter') {
+    filtroEstado = e.target.value;
+    if (window.clubData) {
+      aplicarFiltros(window.clubData);
+    }
+  }
+});
+
+// Event listener para el filtro de búsqueda de texto
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'search-books') {
+    filtroTexto = e.target.value;
+    if (window.clubData) {
+      aplicarFiltros(window.clubData);
+    }
+  }
+});
+
 async function eliminarClub(){
     mostrarConfirmacion(
         "¿Eliminar este club?",
@@ -1297,6 +1561,12 @@ function setupButtonEventListeners() {
         salirBtn.addEventListener('click', salirDelClub);
         console.log("Event listener agregado a salirClubBtn");
     }
+    
+    // Configurar modal del gráfico
+    configurarModalGrafico();
+    
+    // Configurar historial del club
+    setupHistorialClubEventListeners();
 }
 
 // Función para configurar la navegación entre tabs
@@ -1358,8 +1628,9 @@ function handleTabChange() {
     const silverChecked = document.getElementById('glass-silver').checked;
     const goldChecked = document.getElementById('glass-gold').checked;
     const platinumChecked = document.getElementById('glass-platinum').checked;
+    const historialChecked = document.getElementById('glass-historial').checked;
     
-    console.log("Estados de tabs:", { silverChecked, goldChecked, platinumChecked });
+    console.log("Estados de tabs:", { silverChecked, goldChecked, platinumChecked, historialChecked });
 
     if (silverChecked) {
         console.log("Mostrando sección Club");
@@ -1384,6 +1655,17 @@ function handleTabChange() {
         document.getElementById('menuNotificaciones').style.display = 'block';
         // Cargar notificaciones si es necesario
         cargarNotificaciones();
+    } else if (historialChecked) {
+        console.log("Mostrando sección Historial");
+        document.getElementById('menuHistorial').style.display = 'block';
+        // Actualizar información del club en la sidebar
+        if (window.clubData) {
+            actualizarInfoClubHistorial(window.clubData);
+        }
+        // Configurar event listeners para filtros del historial
+        setupHistorialClubEventListeners();
+        // Cargar historial del club
+        cargarHistorialClub();
     }
 
 }
@@ -1410,3 +1692,868 @@ function cargarNotificaciones() {
 
 
 // renderClub() se llama ahora desde el DOMContentLoaded
+
+// Variables para el gráfico
+let graficoInstancia = null;
+
+// Variables para el historial
+let historialClubData = [];
+let currentView = 'timeline';
+let clubStats = {};
+
+// Configurar modal del gráfico
+function configurarModalGrafico() {
+    const chartBtn = document.getElementById('ver-grafico-btn');
+    const modal = document.getElementById('modalGrafico');
+    const closeBtn = document.getElementById('closeModalGrafico');
+    const chartEstadoFilter = document.getElementById('chart-estado-filter');
+
+    if (chartBtn) {
+        chartBtn.addEventListener('click', () => {
+            console.log('Botón de gráfico clickeado');
+            modal.style.display = 'flex';
+            generarGraficoGeneros('todos');
+        });
+    } else {
+        console.error('No se encontró el botón ver-grafico-btn');
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+
+    // Event listener para el filtro de estado
+    if (chartEstadoFilter) {
+        chartEstadoFilter.addEventListener('change', (e) => {
+            generarGraficoGeneros(e.target.value);
+        });
+    }
+}
+
+// Función para generar el gráfico de géneros
+function generarGraficoGeneros(estadoFiltro = 'todos') {
+    console.log('Generando gráfico con filtro:', estadoFiltro);
+    console.log('window.clubData:', window.clubData);
+    
+    if (!window.clubData) {
+        console.error('No hay datos del club');
+        return;
+    }
+    
+    if (!window.clubData.readBooks) {
+        console.error('No hay libros en los datos del club');
+        console.log('Propiedades disponibles en clubData:', Object.keys(window.clubData));
+        return;
+    }
+    
+    console.log('Cantidad de libros:', window.clubData.readBooks.length);
+
+    // Obtener todos los libros del club
+    console.log('Libros disponibles:', window.clubData.readBooks);
+    
+    // Para el gráfico, usamos todos los libros del club
+    let todosLosLibros = window.clubData.readBooks;
+    
+    // Filtrar por estado directamente del libro
+    let librosFiltrados;
+    if (estadoFiltro === 'todos') {
+        librosFiltrados = todosLosLibros;
+    } else {
+        // Filtrar libros por su estado directo
+        librosFiltrados = todosLosLibros.filter(book => {
+            return book.estado === estadoFiltro;
+        });
+    }
+    
+    console.log('Libros filtrados:', librosFiltrados);
+    console.log(`Filtro aplicado: ${estadoFiltro}, Libros resultantes: ${librosFiltrados.length}`);
+    
+    // Debug: verificar estado directo de cada libro
+    if (estadoFiltro !== 'todos') {
+        console.log('=== DEBUG FILTRO POR ESTADO ===');
+        todosLosLibros.forEach((book, index) => {
+            console.log(`Libro ${index + 1}: ${book.title}`);
+            console.log(`  Estado: ${book.estado}, Coincide con filtro (${estadoFiltro}): ${book.estado === estadoFiltro}`);
+        });
+    }
+
+    // Contar libros por categoría usando la misma estructura que el filtro existente
+    const conteoGeneros = {};
+    
+    librosFiltrados.forEach(book => {
+        if (book.categorias && book.categorias.length > 0) {
+            // Si el libro tiene categorías, contar cada una
+            book.categorias.forEach(categoria => {
+                const nombreCategoria = categoria.nombre || categoria.name || `Categoría ${categoria.id}`;
+                conteoGeneros[nombreCategoria] = (conteoGeneros[nombreCategoria] || 0) + 1;
+            });
+        } else {
+            // Si no tiene categorías, contar como "Sin categoría"
+            conteoGeneros['Sin categoría'] = (conteoGeneros['Sin categoría'] || 0) + 1;
+        }
+        console.log(`Libro: ${book.title}, Categorías:`, book.categorias);
+    });
+    
+    console.log('Conteo por géneros:', conteoGeneros);
+
+    // Preparar datos para el gráfico
+    const labels = Object.keys(conteoGeneros);
+    const data = Object.values(conteoGeneros);
+    const total = data.reduce((sum, value) => sum + value, 0);
+
+    // Colores para el gráfico
+    const colores = [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+    ];
+
+    // Obtener canvas
+    const canvas = document.getElementById('genreChart');
+    if (!canvas) {
+        console.error('No se encontró el canvas genreChart');
+        return;
+    }
+    console.log('Canvas encontrado:', canvas);
+    const ctx = canvas.getContext('2d');
+
+    // Destruir gráfico anterior si existe
+    if (graficoInstancia) {
+        graficoInstancia.destroy();
+    }
+
+    // Crear nuevo gráfico
+    if (labels.length === 0) {
+        // No hay datos para mostrar
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#666';
+        ctx.textAlign = 'center';
+        ctx.fillText('No hay libros para mostrar', canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js no está cargado');
+        return;
+    }
+
+    console.log('Creando gráfico con datos:', { labels, data });
+    
+    graficoInstancia = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colores.slice(0, labels.length),
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1,
+            plugins: {
+                legend: {
+                    display: false // La leyenda se muestra aparte
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed;
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} libros (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            layout: {
+                padding: 20
+            }
+        }
+    });
+
+    // Actualizar leyenda personalizada
+    actualizarLeyendaGrafico(labels, data, colores.slice(0, labels.length), total);
+}
+
+// Función para actualizar la leyenda del gráfico
+function actualizarLeyendaGrafico(labels, data, colores, total) {
+    const leyenda = document.getElementById('chartLegend');
+    if (!leyenda) return;
+
+    leyenda.innerHTML = '';
+    
+    labels.forEach((label, index) => {
+        const cantidad = data[index];
+        const porcentaje = ((cantidad / total) * 100).toFixed(1);
+        
+        const itemLeyenda = document.createElement('div');
+        itemLeyenda.className = 'legend-item';
+        itemLeyenda.innerHTML = `
+            <div class="legend-color" style="background-color: ${colores[index]}"></div>
+            <div class="legend-info">
+                <div class="legend-label">${label}</div>
+                <div class="legend-value">${cantidad} libros (${porcentaje}%)</div>
+            </div>
+        `;
+        
+        leyenda.appendChild(itemLeyenda);
+    });
+}
+
+// ==================== FUNCIONES DEL HISTORIAL DEL CLUB ====================
+
+// Actualizar información del club en la sidebar del historial
+function actualizarInfoClubHistorial(club) {
+    console.log('Actualizando info del club en historial:', club);
+    
+    if (!club) {
+        console.warn('No hay datos del club disponibles');
+        return;
+    }
+    
+    // Actualizar imagen del club
+    const clubImagen = document.getElementById('sidebar-club-imagen-3');
+    if (clubImagen) {
+        if (club.imagen) {
+            clubImagen.src = club.imagen;
+            clubImagen.style.display = 'block';
+        } else {
+            // Imagen por defecto si no tiene
+            clubImagen.src = '../images/BooksyLogo.png';
+            clubImagen.style.display = 'block';
+        }
+    }
+    
+    // Actualizar nombre del club
+    const clubNombre = document.getElementById('sidebar-club-name-3');
+    if (clubNombre) {
+        clubNombre.textContent = club.name || 'Club sin nombre';
+    }
+    
+    // Actualizar descripción del club
+    const clubDescripcion = document.getElementById('sidebar-club-description-3');
+    if (clubDescripcion) {
+        clubDescripcion.textContent = club.description || 'Sin descripción disponible';
+    }
+}
+
+// Cargar historial del club
+async function cargarHistorialClub(filtros = {}) {
+    try {
+        const clubId = getClubId();
+        const params = new URLSearchParams(filtros);
+        
+        console.log('Cargando historial del club:', clubId);
+        showLoader("Cargando historial del club...");
+        
+        // Llamada a la API real (cuando esté implementada)
+        const response = await fetch(`${API_URL}/club/${clubId}/reading-history?${params}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // Guardar todos los datos en variable global
+            window.historialClubData = data.historial || [];
+            
+            // Aplicar filtros localmente por ahora
+            historialClubData = aplicarFiltrosLocal(window.historialClubData, filtros);
+            
+            // Cargar estadísticas
+            await cargarEstadisticasClub(filtros);
+            
+            hideLoader();
+            
+            // Actualizar información del club si está disponible
+            if (window.clubData) {
+                actualizarInfoClubHistorial(window.clubData);
+            }
+            
+            actualizarEstadisticasHistorialClub();
+            actualizarVistaHistorialClub();
+            poblarFiltroUsuarios();
+            
+            if (historialClubData.length > 0) {
+                showNotification('success', 'Historial cargado correctamente');
+            }
+        } else {
+            hideLoader();
+            historialClubData = [];
+            clubStats = {};
+            
+            // Actualizar información del club aunque no haya historial
+            if (window.clubData) {
+                actualizarInfoClubHistorial(window.clubData);
+            }
+            
+            actualizarVistaHistorialClub();
+            console.log('No hay historial disponible:', data.message);
+        }
+        
+    } catch (error) {
+        hideLoader();
+        console.error('Error al cargar historial del club:', error);
+        historialClubData = [];
+        clubStats = {};
+        
+        // Actualizar información del club aunque haya error
+        if (window.clubData) {
+            actualizarInfoClubHistorial(window.clubData);
+        }
+        
+        actualizarVistaHistorialClub();
+        showNotification('error', 'Error al cargar el historial del club');
+    }
+}
+
+// Cargar estadísticas del club
+async function cargarEstadisticasClub(filtros = {}) {
+    try {
+        const clubId = getClubId();
+        const params = new URLSearchParams(filtros);
+        
+        const response = await fetch(`${API_URL}/club/${clubId}/reading-stats?${params}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            clubStats = data.stats || {};
+        } else {
+            clubStats = {};
+        }
+    } catch (error) {
+        console.error('Error al cargar estadísticas del club:', error);
+        clubStats = {};
+    }
+}
+
+
+
+// Actualizar estadísticas del historial del club
+function actualizarEstadisticasHistorialClub() {
+    const totalLeidosEl = document.getElementById('club-total-leidos');
+    const totalCambiosEl = document.getElementById('club-total-cambios');
+    const usuarioActivoEl = document.getElementById('usuario-mas-activo');
+    const promedioClubEl = document.getElementById('promedio-club');
+    
+    if (totalLeidosEl) totalLeidosEl.textContent = clubStats.totalLeidos || 0;
+    if (totalCambiosEl) totalCambiosEl.textContent = clubStats.totalCambios || 0;
+    if (usuarioActivoEl) usuarioActivoEl.textContent = clubStats.usuarioMasActivo || '-';
+    if (promedioClubEl) promedioClubEl.textContent = clubStats.promedioLectura || 0;
+}
+
+// Poblar filtro de usuarios
+function poblarFiltroUsuarios() {
+    const usuarioFilter = document.getElementById('historial-usuario-filter');
+    if (!usuarioFilter) return;
+    
+    // Usar datos globales para obtener todos los usuarios disponibles
+    const datosCompletos = window.historialClubData || historialClubData || [];
+    
+    // Obtener usuarios únicos del historial
+    const usuarios = [...new Set(datosCompletos.map(entry => entry.user?.username).filter(Boolean))];
+    
+    // Limpiar opciones existentes (excepto "Todos")
+    usuarioFilter.innerHTML = '<option value="">Todos los usuarios</option>';
+    
+    // Agregar usuarios
+    usuarios.forEach(username => {
+        const option = document.createElement('option');
+        option.value = username;
+        option.textContent = username;
+        usuarioFilter.appendChild(option);
+    });
+    
+    console.log('Usuarios disponibles en el filtro:', usuarios);
+}
+
+// Actualizar vista según el modo seleccionado
+function actualizarVistaHistorialClub() {
+    const container = document.getElementById('historial-content');
+    if (!container) return;
+    
+    switch (currentView) {
+        case 'timeline':
+            container.innerHTML = generarVistaTimelineClub();
+            break;
+        case 'list':
+            container.innerHTML = generarVistaListaClub();
+            break;
+        case 'stats':
+            container.innerHTML = generarVistaEstadisticasClub();
+            break;
+    }
+}
+
+// Generar vista timeline del club
+function generarVistaTimelineClub() {
+    if (historialClubData.length === 0) {
+        return `
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <h4>No hay actividad aún</h4>
+                <p>Cuando los miembros cambien el estado de los libros, aparecerá aquí</p>
+            </div>
+        `;
+    }
+    
+    const timelineItems = historialClubData.map(entry => {
+        const fecha = new Date(entry.fechaCambio).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const estadoInfo = getEstadoInfo(entry.estado);
+        const accionTexto = getAccionTexto(entry.estado);
+        
+        return `
+            <div class="timeline-item ${entry.estado}">
+                <div class="timeline-marker" style="background: ${estadoInfo.color}">
+                    ${estadoInfo.icon}
+                </div>
+                <div class="timeline-content">
+                    <div class="timeline-header">
+                        <h4>${entry.book.title}</h4>
+                        <span class="timeline-date">${fecha}</span>
+                    </div>
+                    <p class="timeline-author">Por ${entry.book.author}</p>
+                    <div class="timeline-action">
+                        <div class="timeline-user">
+                            <span class="user-avatar">${entry.user.username.charAt(0).toUpperCase()}</span>
+                            <span class="user-name">${entry.user.username}</span>
+                        </div>
+                        <span class="action-text">${accionTexto}</span>
+                        <span class="estado-badge" style="background: ${estadoInfo.color}">
+                            ${estadoInfo.icon} ${estadoInfo.label}
+                        </span>
+                    </div>
+                    ${entry.fechaInicio && entry.fechaFin && entry.estado === 'leido' ? 
+                        `<div class="reading-duration">
+                            ⏱️ Tiempo de lectura: ${calcularDiasLectura(entry.fechaInicio, entry.fechaFin)} días
+                        </div>` : ''
+                    }
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    return `<div class="timeline-container">${timelineItems}</div>`;
+}
+
+// Generar vista de lista del club
+function generarVistaListaClub() {
+    if (historialClubData.length === 0) {
+        return `
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <h4>No hay actividad aún</h4>
+                <p>Cuando los miembros cambien el estado de los libros, aparecerá aquí</p>
+            </div>
+        `;
+    }
+    
+    const listItems = historialClubData.map(entry => {
+        const fecha = new Date(entry.fechaCambio).toLocaleDateString('es-ES');
+        const estadoInfo = getEstadoInfo(entry.estado);
+        const accionTexto = getAccionTexto(entry.estado);
+        
+        return `
+            <div class="list-item">
+                <div class="list-content">
+                    <div class="list-header">
+                        <h4>${entry.book.title}</h4>
+                        <span class="list-date">${fecha}</span>
+                    </div>
+                    <p class="list-author">Por ${entry.book.author}</p>
+                    <div class="list-action">
+                        <span class="user-name">${entry.user.username}</span>
+                        <span class="action-text">${accionTexto}</span>
+                        <span class="estado-badge" style="background: ${estadoInfo.color}">
+                            ${estadoInfo.icon} ${estadoInfo.label}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    return `<div class="list-container">${listItems}</div>`;
+}
+
+// Generar vista de estadísticas del club
+function generarVistaEstadisticasClub() {
+    const porGenero = clubStats.porGenero || {};
+    const porUsuario = clubStats.porUsuario || {};
+    const porMes = clubStats.porMes || {};
+    
+    // Verificar si hay datos
+    const hayDatos = Object.keys(porGenero).length > 0 || Object.keys(porUsuario).length > 0 || Object.keys(porMes).length > 0;
+    
+    if (!hayDatos) {
+        return `
+            <div class="empty-state">
+                <div class="empty-icon">📊</div>
+                <h4>No hay estadísticas disponibles</h4>
+                <p>Cuando haya actividad en el club, aparecerán las estadísticas aquí</p>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="stats-dashboard">
+            <div class="stats-row">
+                <div class="stats-card">
+                    <h4>📊 Libros por Género</h4>
+                    <div class="stats-list">
+                        ${Object.keys(porGenero).length > 0 
+                            ? Object.entries(porGenero)
+                                .sort(([,a], [,b]) => b - a)
+                                .map(([genero, cantidad]) => `
+                                    <div class="stats-item">
+                                        <span class="stats-label">${genero}</span>
+                                        <span class="stats-value">${cantidad}</span>
+                                    </div>
+                                `).join('')
+                            : '<p class="no-data">No hay datos disponibles</p>'
+                        }
+                    </div>
+                </div>
+                
+                <div class="stats-card">
+                    <h4>👥 Actividad por Usuario</h4>
+                    <div class="stats-list">
+                        ${Object.keys(porUsuario).length > 0
+                            ? Object.entries(porUsuario)
+                                .sort(([,a], [,b]) => b - a)
+                                .map(([usuario, cantidad]) => `
+                                    <div class="stats-item">
+                                        <span class="stats-label">${usuario}</span>
+                                        <span class="stats-value">${cantidad} libros</span>
+                                    </div>
+                                `).join('')
+                            : '<p class="no-data">No hay datos disponibles</p>'
+                        }
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card full-width">
+                <h4>📅 Actividad por Mes</h4>
+                <div class="stats-list">
+                    ${Object.keys(porMes).length > 0
+                        ? Object.entries(porMes)
+                            .sort(([a], [b]) => b.localeCompare(a))
+                            .slice(0, 12)
+                            .map(([mes, cantidad]) => `
+                                <div class="stats-item">
+                                    <span class="stats-label">${formatearMes(mes)}</span>
+                                    <span class="stats-value">${cantidad} cambios</span>
+                                </div>
+                            `).join('')
+                        : '<p class="no-data">No hay datos disponibles</p>'
+                    }
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Funciones helper
+function getAccionTexto(estado) {
+    const acciones = {
+        'por_leer': 'agregó a su lista por leer',
+        'leyendo': 'empezó a leer',
+        'leido': 'terminó de leer'
+    };
+    return acciones[estado] || 'cambió el estado de';
+}
+
+function formatearMes(mesISO) {
+    const [año, mes] = mesISO.split('-');
+    const fecha = new Date(año, mes - 1);
+    return fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+}
+
+function calcularDiasLectura(fechaInicio, fechaFin) {
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    return Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24));
+}
+
+// Event listeners para el historial del club
+let historialEventListenersConfigured = false;
+function setupHistorialClubEventListeners() {
+    if (historialEventListenersConfigured) {
+        console.log('Event listeners del historial ya configurados, omitiendo...');
+        return;
+    }
+    
+    console.log('Configurando event listeners del historial...');
+    
+    // Cambio de vista
+    document.querySelectorAll('.view-toggle').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.view-toggle').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentView = e.target.dataset.view;
+            actualizarVistaHistorialClub();
+        });
+    });
+    
+    // Filtros
+    const estadoFilter = document.getElementById('historial-estado-filter');
+    if (estadoFilter) {
+        estadoFilter.addEventListener('change', (e) => {
+            console.log('Filtro de estado cambiado:', e.target.value);
+            const filtros = obtenerFiltrosHistorialClub();
+            cargarHistorialClub(filtros);
+        });
+    }
+    
+    const usuarioFilter = document.getElementById('historial-usuario-filter');
+    if (usuarioFilter) {
+        usuarioFilter.addEventListener('change', (e) => {
+            console.log('Filtro de usuario cambiado:', e.target.value);
+            const filtros = obtenerFiltrosHistorialClub();
+            cargarHistorialClub(filtros);
+        });
+    }
+    
+    const desdeFilter = document.getElementById('historial-desde');
+    if (desdeFilter) {
+        desdeFilter.addEventListener('change', (e) => {
+            console.log('Filtro desde cambiado:', e.target.value);
+            const filtros = obtenerFiltrosHistorialClub();
+            cargarHistorialClub(filtros);
+        });
+    }
+    
+    const hastaFilter = document.getElementById('historial-hasta');
+    if (hastaFilter) {
+        hastaFilter.addEventListener('change', (e) => {
+            console.log('Filtro hasta cambiado:', e.target.value);
+            const filtros = obtenerFiltrosHistorialClub();
+            cargarHistorialClub(filtros);
+        });
+    }
+    
+    // Período predefinido
+    const periodoFilter = document.getElementById('historial-periodo-filter');
+    if (periodoFilter) {
+        periodoFilter.addEventListener('change', (e) => {
+            const periodo = e.target.value;
+            if (periodo) {
+                const { desde, hasta } = obtenerFechasPeriodo(periodo);
+                const desdeInput = document.getElementById('historial-desde');
+                const hastaInput = document.getElementById('historial-hasta');
+                if (desdeInput) desdeInput.value = desde;
+                if (hastaInput) hastaInput.value = hasta;
+            }
+        });
+    }
+    
+    // Exportar historial
+    const exportarBtn = document.getElementById('exportar-historial-btn');
+    if (exportarBtn) {
+        exportarBtn.addEventListener('click', exportarHistorialClub);
+    }
+    
+    // Limpiar filtros
+    const limpiarFiltrosBtn = document.getElementById('limpiar-filtros-btn');
+    if (limpiarFiltrosBtn) {
+        limpiarFiltrosBtn.addEventListener('click', () => {
+            // Limpiar todos los filtros
+            document.getElementById('historial-estado-filter').value = '';
+            document.getElementById('historial-usuario-filter').value = '';
+            document.getElementById('historial-desde').value = '';
+            document.getElementById('historial-hasta').value = '';
+            
+            // Recargar historial sin filtros
+            cargarHistorialClub();
+            console.log('Filtros limpiados y historial recargado');
+        });
+    }
+    
+    historialEventListenersConfigured = true;
+    console.log('Event listeners del historial configurados correctamente');
+}
+
+// Obtener fechas para períodos predefinidos
+function obtenerFechasPeriodo(periodo) {
+    const ahora = new Date();
+    let desde, hasta;
+    
+    switch (periodo) {
+        case 'semana':
+            desde = new Date(ahora - 7 * 24 * 60 * 60 * 1000);
+            hasta = ahora;
+            break;
+        case 'mes':
+            desde = new Date(ahora.getFullYear(), ahora.getMonth(), 1);
+            hasta = ahora;
+            break;
+        case 'trimestre':
+            desde = new Date(ahora - 90 * 24 * 60 * 60 * 1000);
+            hasta = ahora;
+            break;
+        case 'año':
+            desde = new Date(ahora.getFullYear(), 0, 1);
+            hasta = ahora;
+            break;
+        default:
+            desde = new Date(ahora - 30 * 24 * 60 * 60 * 1000);
+            hasta = ahora;
+    }
+    
+    return {
+        desde: desde.toISOString().split('T')[0],
+        hasta: hasta.toISOString().split('T')[0]
+    };
+}
+
+// Exportar historial del club
+function exportarHistorialClub() {
+    if (historialClubData.length === 0) {
+        showNotification('warning', 'No hay datos para exportar');
+        return;
+    }
+    
+    const csv = [
+        ['Fecha', 'Usuario', 'Libro', 'Autor', 'Acción', 'Estado', 'Días de lectura'].join(','),
+        ...historialClubData.map(entry => [
+            new Date(entry.fechaCambio).toLocaleDateString('es-ES'),
+            `"${entry.user.username}"`,
+            `"${entry.book.title}"`,
+            `"${entry.book.author}"`,
+            `"${getAccionTexto(entry.estado)}"`,
+            entry.estado,
+            entry.fechaInicio && entry.fechaFin ? calcularDiasLectura(entry.fechaInicio, entry.fechaFin) : ''
+        ].join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `historial-club-${window.clubData?.name || 'club'}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    
+    showNotification('success', 'Historial del club exportado correctamente');
+}
+
+// Obtener filtros actuales del club
+function obtenerFiltrosHistorialClub() {
+    console.log('🔍 Obteniendo filtros del historial...');
+    const filtros = {};
+    
+    const estado = document.getElementById('historial-estado-filter')?.value;
+    if (estado) {
+        filtros.estado = estado;
+        console.log('✅ Aplicando filtro de estado:', estado);
+    } else {
+        console.log('❌ Sin filtro de estado');
+    }
+    
+    const usuario = document.getElementById('historial-usuario-filter')?.value;
+    if (usuario && window.historialClubData) {
+        // Convertir username a userId buscando en los datos del historial
+        const userEntry = window.historialClubData.find(entry => entry.user && entry.user.username === usuario);
+        if (userEntry) {
+            filtros.userId = userEntry.user.id;
+            console.log('✅ Aplicando filtro de usuario:', usuario, 'ID:', userEntry.user.id);
+        } else {
+            console.log('❌ Usuario no encontrado en datos:', usuario);
+        }
+    } else {
+        console.log('❌ Sin filtro de usuario o sin datos');
+    }
+    
+    const desde = document.getElementById('historial-desde')?.value;
+    if (desde) {
+        filtros.desde = desde;
+        console.log('✅ Aplicando filtro desde:', desde);
+    } else {
+        console.log('❌ Sin filtro desde');
+    }
+    
+    const hasta = document.getElementById('historial-hasta')?.value;
+    if (hasta) {
+        filtros.hasta = hasta;
+        console.log('✅ Aplicando filtro hasta:', hasta);
+    } else {
+        console.log('❌ Sin filtro hasta');
+    }
+    
+    console.log('📋 Filtros finales:', filtros);
+    return filtros;
+}
+
+// Aplicar filtros localmente a los datos del historial
+function aplicarFiltrosLocal(data, filtros) {
+    console.log('🔄 Aplicando filtros localmente...');
+    console.log('📊 Datos originales:', data ? data.length : 0, 'elementos');
+    console.log('🎯 Filtros a aplicar:', filtros);
+    
+    if (!data || data.length === 0) {
+        console.log('❌ No hay datos para filtrar');
+        return data;
+    }
+    
+    let datosFiltrados = [...data];
+    
+    // Filtro por estado
+    if (filtros.estado) {
+        const estadoInicial = datosFiltrados.length;
+        datosFiltrados = datosFiltrados.filter(item => item.estado === filtros.estado);
+        console.log(`🎚️ Filtro de estado "${filtros.estado}": ${estadoInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    // Filtro por usuario
+    if (filtros.userId) {
+        const usuarioInicial = datosFiltrados.length;
+        datosFiltrados = datosFiltrados.filter(item => item.user && item.user.id.toString() === filtros.userId.toString());
+        console.log(`👤 Filtro de usuario ID "${filtros.userId}": ${usuarioInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    // Filtro por fecha desde
+    if (filtros.desde) {
+        const fechaInicial = datosFiltrados.length;
+        const fechaDesde = new Date(filtros.desde);
+        datosFiltrados = datosFiltrados.filter(item => {
+            const fechaItem = new Date(item.fechaInicio || item.createdAt);
+            return fechaItem >= fechaDesde;
+        });
+        console.log(`📅 Filtro desde "${filtros.desde}": ${fechaInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    // Filtro por fecha hasta
+    if (filtros.hasta) {
+        const hastaInicial = datosFiltrados.length;
+        const fechaHasta = new Date(filtros.hasta);
+        fechaHasta.setHours(23, 59, 59, 999); // Incluir todo el día
+        datosFiltrados = datosFiltrados.filter(item => {
+            const fechaItem = new Date(item.fechaFin || item.updatedAt || item.createdAt);
+            return fechaItem <= fechaHasta;
+        });
+        console.log(`📅 Filtro hasta "${filtros.hasta}": ${hastaInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    console.log('✅ Filtrado completado:', datosFiltrados.length, 'elementos finales');
+    return datosFiltrados;
+}
+

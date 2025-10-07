@@ -77,6 +77,7 @@
     <link rel="stylesheet" href="../css/componentes/notificaciones.css">
     <link rel="stylesheet" href="../css/componentes/loader.css">
     <link rel="stylesheet" href="../css/componentes/confirmacion.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header class="main-header">
@@ -96,6 +97,9 @@
 
   <input type="radio" name="plan" id="glass-platinum" />
   <label for="glass-platinum">Notificaciones</label>
+
+  <input type="radio" name="plan" id="glass-historial" />
+  <label for="glass-historial">Historial</label>
 
   <div class="glass-glider"></div>
  
@@ -207,6 +211,16 @@
       <div class="principal-main-content">
         <!-- Estadísticas -->
         <div class="principal-stats-section">
+          <div class="stats-header">
+            <h3 class="section-title">Estadísticas del Club</h3>
+            <button id="ver-grafico-btn" class="chart-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+              </svg>
+              Ver Gráfico
+            </button>
+          </div>
           <div class="stats-grid">
             <div class="stat-item">
               <div class="stat-icon books-icon">
@@ -218,6 +232,32 @@
               <div class="stat-content">
                 <div class="stat-number" id="total-books">0</div>
                 <div class="stat-label">Libros leídos</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon reading-icon" style="color: #74b9ff;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                  <circle cx="12" cy="8" r="2"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number" id="reading-books">0</div>
+                <div class="stat-label">Leyendo</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon pending-icon" style="color: #fdcb6e;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  <circle cx="12" cy="12" r="1"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number" id="pending-books">0</div>
+                <div class="stat-label">Por leer</div>
               </div>
             </div>
             <div class="stat-item">
@@ -289,6 +329,14 @@
               <path d="m21 21-4.35-4.35"/>
             </svg>
             <input type="text" placeholder="Buscar libros..." id="search-books">
+          </div>
+          <div class="estado-filter">
+            <select id="estado-filter" class="filter-select">
+              <option value="todos">📚 Todos los estados</option>
+              <option value="por_leer">📚 Por leer</option>
+              <option value="leyendo">📖 Leyendo</option>
+              <option value="leido">✅ Leído</option>
+            </select>
           </div>
         </div>
       </div>
@@ -432,15 +480,170 @@
   </div>
 </div>
 
+<!-- Sección de Historial del Club -->
+<div id="menuHistorial" class="menu-section" style="display:none;">
+  <div class="historial-container">
+    <!-- Header con estadísticas del club -->
+    <div class="historial-top-row">
+      <!-- Contenido Principal -->
+      <div class="historial-main-content">
+        <div class="historial-header-card">
+          <div class="card-header">
+            <h2 class="section-title">
+              📚 Historial del Club
+            </h2>
+            
+          </div>
+          
+          <!-- Estadísticas rápidas del club -->
+          <div class="stats-quick-view">
+            <div class="quick-stat">
+              <div class="stat-icon books-read-icon">📖</div>
+              <div class="stat-content">
+                <div class="stat-number" id="club-total-leidos">0</div>
+                <div class="stat-label">Libros leídos</div>
+              </div>
+            </div>
+            
+            <div class="quick-stat">
+              <div class="stat-icon books-reading-icon">📚</div>
+              <div class="stat-content">
+                <div class="stat-number" id="club-total-cambios">0</div>
+                <div class="stat-label">Total cambios</div>
+              </div>
+            </div>
+            
+            <div class="quick-stat">
+              <div class="stat-icon user-active-icon">👑</div>
+              <div class="stat-content">
+                <div class="stat-number" id="usuario-mas-activo">-</div>
+                <div class="stat-label">Más activo</div>
+              </div>
+            </div>
+            
+            <div class="quick-stat">
+              <div class="stat-icon reading-time-icon">⏱️</div>
+              <div class="stat-content">
+                <div class="stat-number" id="promedio-club">0</div>
+                <div class="stat-label">días promedio</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  
+        <!-- Filtros de historial -->
+        <div class="historial-filters-card">
+          <div class="historial-filters">
+            <div class="filter-group">
+              <label>Estado:</label>
+              <select id="historial-estado-filter" class="filter-select">
+                <option value="">Todos los cambios</option>
+                <option value="leido">📖 Marcados como leídos</option>
+                <option value="leyendo">📚 Empezados a leer</option>
+                <option value="por_leer">⏳ Agregados por leer</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label>Usuario:</label>
+              <select id="historial-usuario-filter" class="filter-select">
+                <option value="">Todos los usuarios</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label>Período:</label>
+              <select id="historial-periodo-filter" class="filter-select">
+                <option value="">Todo el tiempo</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes">Este mes</option>
+                <option value="trimestre">Últimos 3 meses</option>
+                <option value="año">Este año</option>
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label>Desde:</label>
+              <input type="date" id="historial-desde" class="filter-input">
+            </div>
+            
+            <div class="filter-group">
+              <label>Hasta:</label>
+              <input type="date" id="historial-hasta" class="filter-input">
+            </div>
+            
+            <div class="filter-group">
+              <button id="limpiar-filtros-btn" class="action-btn secondary">
+                🗑️ Limpiar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
- 
+      <!-- Información del Club (Fija a la derecha) -->
+      <div class="club-info-sidebar">
+        <div class="sidebar-club-card">
+          <div class="sidebar-club-image">
+            <img id="sidebar-club-imagen-3" src="" alt="Imagen del club" class="sidebar-club-img">
+          </div>
+          <div class="sidebar-club-details">
+            <h3 id="sidebar-club-name-3" class="sidebar-club-title">Cargando...</h3>
+            <p id="sidebar-club-description-3" class="sidebar-club-desc">Cargando descripción...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Timeline del historial del club -->
+    <div class="historial-timeline-card">
+      <div class="card-header">
+        <h3 class="card-title">📅 Actividad del Club</h3>
+        <div class="view-toggles">
+          <button class="view-toggle active" data-view="timeline">Timeline</button>
+          <button class="view-toggle" data-view="list">Lista</button>
+          <button class="view-toggle" data-view="stats">Estadísticas</button>
+        </div>
+      </div>
+      
+      <div id="historial-content" class="historial-content">
+        <div class="empty-state">
+          <div class="empty-icon">📚</div>
+          <h4>Cargando historial...</h4>
+          <p>Obteniendo la actividad del club</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-  
-
- 
-   
+    <!-- Modal para ver gráfico -->
+    <div id="modalGrafico" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:200; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
+      <div class="chart-modal-box">
+        <div class="chart-header">
+          <h3>📊 Distribución de Libros por Género</h3>
+          <button id="closeModalGrafico" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="chart-filters">
+          <label for="chart-estado-filter">Filtrar por estado:</label>
+          <select id="chart-estado-filter" class="chart-filter-select">
+            <option value="todos">📚 Todos los estados</option>
+            <option value="por_leer">📚 Por leer</option>
+            <option value="leyendo">📖 Leyendo</option>
+            <option value="leido">✅ Leído</option>
+          </select>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="genreChart"></canvas>
+        </div>
+        
+        <div class="chart-legend" id="chartLegend">
+          <!-- La leyenda se generará dinámicamente -->
+        </div>
+      </div>
+    </div>
     
     <!-- Modal para agregar libro -->
     <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
@@ -1037,6 +1240,194 @@
 
     .volver-btn-fixed {
       animation: slideInLeft 0.5s ease-out;
+    }
+    
+    /* Estilos para el botón de ver gráfico */
+    .stats-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .chart-btn {
+      background: linear-gradient(135deg, #74b9ff, #0984e3);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(116, 185, 255, 0.3);
+    }
+    
+    .chart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
+    }
+    
+    /* Estilos para el modal del gráfico */
+    .chart-modal-box {
+      background: white;
+      max-width: 900px;
+      width: 95vw;
+      max-height: 85vh;
+      margin: 7.5vh auto;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(44, 90, 145, 0.2);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .chart-header {
+      background: linear-gradient(135deg, #74b9ff, #0984e3);
+      color: white;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .chart-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .close-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .chart-filters {
+      padding: 1.5rem 2rem 1rem;
+      border-bottom: 1px solid #eaf6ff;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .chart-filters label {
+      font-weight: 600;
+      color: #2c5a91;
+    }
+    
+    .chart-filter-select {
+      padding: 0.5rem 1rem;
+      border: 2px solid rgba(44, 90, 145, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: white;
+      color: #2c5a91;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+    
+    .chart-filter-select:focus {
+      outline: none;
+      border-color: #0984e3;
+    }
+    
+    .chart-container {
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 450px;
+      width: 100%;
+    }
+    
+    #genreChart {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto !important;
+      height: auto !important;
+    }
+    
+    .chart-legend {
+      padding: 1rem 2rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background: #f8f9fa;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    
+    /* Responsive para el modal del gráfico */
+    @media (max-width: 768px) {
+      .chart-modal-box {
+        width: 95vw;
+        max-height: 85vh;
+      }
+      
+      .chart-header {
+        padding: 1rem 1.5rem;
+      }
+      
+      .chart-header h3 {
+        font-size: 1.1rem;
+      }
+      
+      .chart-filters {
+        padding: 1rem 1.5rem 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .chart-container {
+        padding: 1rem;
+        min-height: 300px;
+      }
+      
+      .chart-legend {
+        padding: 0.5rem 1rem 1.5rem;
+        gap: 0.5rem;
+      }
+      
+      .stats-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .chart-btn {
+        align-self: flex-end;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+      }
     }
     </style>
 

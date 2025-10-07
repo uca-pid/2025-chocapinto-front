@@ -59,11 +59,11 @@
 }
 
 .glass-radio-group label:hover {
-  color: white;
+  color: rgb(53, 52, 52);
 }
 
 .glass-radio-group input:checked + label {
-  color: #fff;
+  color: #000000;
 }
 
 .glass-glider {
@@ -82,19 +82,19 @@
 /* Silver */
 #glass-silver:checked ~ .glass-glider {
   transform: translateX(0%);
-  background: linear-gradient(135deg, #c0c0c055, #e0e0e0);
+   background: linear-gradient(135deg, #d0e7ff55, #a0d8ff);
   box-shadow:
-    0 0 18px rgba(192, 192, 192, 0.5),
-    0 0 10px rgba(255, 255, 255, 0.4) inset;
+    0 0 18px rgba(160, 216, 255, 0.5),
+    0 0 10px rgba(200, 240, 255, 0.4) inset;
 }
 
 /* Gold */
 #glass-gold:checked ~ .glass-glider {
   transform: translateX(100%);
-  background: linear-gradient(135deg, #ffd70055, #ffcc00);
+   background: linear-gradient(135deg, #d0e7ff55, #a0d8ff);
   box-shadow:
-    0 0 18px rgba(255, 215, 0, 0.5),
-    0 0 10px rgba(255, 235, 150, 0.4) inset;
+    0 0 18px rgba(160, 216, 255, 0.5),
+    0 0 10px rgba(200, 240, 255, 0.4) inset;
 }
 
 /* Platinum */
@@ -1217,8 +1217,8 @@ body {
 /* Estadísticas */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
 }
 
 .stat-item {
@@ -1248,6 +1248,14 @@ body {
 
 .books-icon {
     background: linear-gradient(135deg, #0984e3, #74b9ff);
+}
+
+.reading-icon {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+}
+
+.pending-icon {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
 }
 
 .categories-icon {
@@ -1316,6 +1324,7 @@ body {
     display: flex;
     gap: 1rem;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .search-box {
@@ -1343,6 +1352,43 @@ body {
 .search-box input:focus {
     outline: none;
     border-color: #0984e3;
+}
+
+/* Filtro de estado */
+.estado-filter {
+    display: flex;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 0.8rem 1rem;
+    border: 2px solid rgba(44, 90, 145, 0.1);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: white;
+    color: #2c5a91;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 180px;
+    outline: none;
+}
+
+.filter-select:hover {
+    border-color: rgba(44, 90, 145, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(44, 90, 145, 0.15);
+}
+
+.filter-select:focus {
+    border-color: #0984e3;
+    box-shadow: 0 0 0 3px rgba(9, 132, 227, 0.1);
+}
+
+.filter-select option {
+    padding: 8px;
+    background: white;
+    color: #2c5a91;
 }
 
 /* Grid de libros */
@@ -1530,7 +1576,8 @@ body {
     }
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
     
     .actions-header {
@@ -1538,8 +1585,19 @@ body {
         align-items: stretch;
     }
     
+    .search-filter-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+    
     .search-box input {
         width: 100%;
+    }
+    
+    .filter-select {
+        width: 100%;
+        min-width: auto;
     }
     
     .notifications-summary {
@@ -1566,6 +1624,20 @@ body {
         grid-template-columns: 1fr;
     }
     
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    
+    .stat-item {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
     .card-header {
         flex-direction: column;
         align-items: stretch;
@@ -1579,5 +1651,538 @@ body {
     .section-title,
     .card-title {
         font-size: 1.2rem;
+    }
+}
+
+/* Estilos para el selector de estado de libros */
+.estado-selector {
+    transition: all 0.3s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.estado-selector:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.estado-selector:focus {
+    outline: 2px solid #74b9ff;
+    outline-offset: 2px;
+}
+
+.estado-selector option {
+    padding: 8px;
+    background: white;
+    color: #2c5a91;
+}
+
+/* Estilos para la leyenda del gráfico */
+.chart-legend {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.legend-item:hover {
+    background-color: #f8f9fa;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.legend-info {
+    flex: 1;
+}
+
+.legend-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.legend-value {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+/* ==================== SECCIÓN HISTORIAL DEL CLUB ==================== */
+
+.historial-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.historial-top-row {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.historial-main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.historial-header-card,
+.historial-filters-card,
+.historial-timeline-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(44, 90, 145, 0.08);
+    padding: 2rem;
+    border: 1px solid rgba(44, 90, 145, 0.06);
+}
+
+/* Sidebar del club en historial */
+.club-info-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-club-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(44, 90, 145, 0.08);
+    padding: 1.5rem;
+    border: 1px solid rgba(44, 90, 145, 0.06);
+    text-align: center;
+}
+
+.sidebar-club-image {
+    margin-bottom: 1rem;
+}
+
+.sidebar-club-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(44, 90, 145, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.sidebar-club-img:hover {
+    transform: scale(1.05);
+}
+
+.sidebar-club-title {
+    color: #2c5a91;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.sidebar-club-desc {
+    color: #636e72;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin: 0;
+    max-height: 4.2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.user-active-icon {
+    background: linear-gradient(135deg, #fdcb6e, #e17055);
+}
+
+/* Filtros de historial */
+.historial-filters {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #2c5a91;
+    font-size: 0.9rem;
+}
+
+.filter-input {
+    padding: 0.8rem;
+    border: 2px solid rgba(44, 90, 145, 0.1);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #0984e3;
+}
+
+/* Toggles de vista */
+.view-toggles {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(44, 90, 145, 0.05);
+    padding: 0.3rem;
+    border-radius: 12px;
+}
+
+.view-toggle {
+    padding: 0.6rem 1rem;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #636e72;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-toggle:hover,
+.view-toggle.active {
+    background: white;
+    color: #2c5a91;
+    box-shadow: 0 2px 8px rgba(44, 90, 145, 0.1);
+}
+
+/* Vista Timeline */
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+/* Vista Lista */
+.list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.list-item {
+    background: rgba(44, 90, 145, 0.02);
+    border: 1px solid rgba(44, 90, 145, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(44, 90, 145, 0.1);
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.list-header h4 {
+    margin: 0;
+    color: #2c5a91;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.list-date {
+    color: #636e72;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.list-author {
+    color: #636e72;
+    margin: 0 0 1rem 0;
+    font-style: italic;
+}
+
+.list-action {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 1rem;
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 50px;
+    width: 2px;
+    height: calc(100% + 1.5rem);
+    background: rgba(44, 90, 145, 0.1);
+}
+
+.timeline-marker {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+    position: relative;
+}
+
+.timeline-content {
+    flex: 1;
+    background: rgba(44, 90, 145, 0.02);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(44, 90, 145, 0.05);
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-header h4 {
+    margin: 0;
+    color: #2c5a91;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.timeline-date {
+    color: #636e72;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.timeline-author {
+    color: #636e72;
+    margin: 0 0 1rem 0;
+    font-style: italic;
+}
+
+.timeline-action {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.timeline-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #2c5a91;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.user-name {
+    font-weight: 600;
+    color: #2c5a91;
+    font-size: 0.9rem;
+}
+
+.action-text {
+    color: #636e72;
+    font-style: italic;
+    font-size: 0.85rem;
+    margin: 0 0.5rem;
+}
+
+.reading-duration {
+    margin-top: 0.8rem;
+    color: #636e72;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Vista de estadísticas */
+.stats-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.stats-card {
+    background: rgba(44, 90, 145, 0.02);
+    border: 1px solid rgba(44, 90, 145, 0.05);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.stats-card.full-width {
+    grid-column: 1 / -1;
+}
+
+.stats-card h4 {
+    margin: 0 0 1rem 0;
+    color: #2c5a91;
+    font-size: 1.1rem;
+}
+
+.stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.stats-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(44, 90, 145, 0.1);
+}
+
+.stats-item:last-child {
+    border-bottom: none;
+}
+
+.stats-label {
+    color: #636e72;
+    font-weight: 500;
+}
+
+.stats-value {
+    color: #2c5a91;
+    font-weight: 600;
+}
+
+.no-data {
+    color: #636e72;
+    font-style: italic;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+/* Actualizar el glider para 4 tabs */
+.glass-glider {
+    width: calc(100% / 4);
+}
+
+#glass-historial:checked ~ .glass-glider {
+    transform: translateX(300%);
+    background: linear-gradient(135deg, #ffeaa755, #fdcb6e55);
+    box-shadow:
+        0 0 18px rgba(253, 203, 110, 0.5),
+        0 0 10px rgba(255, 234, 167, 0.4) inset;
+}
+
+/* Responsive para historial del club */
+@media (max-width: 1024px) {
+    .historial-top-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .stats-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .historial-filters {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .timeline-user {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+    }
+    
+    .action-text {
+        margin: 0;
+    }
+    
+    .stats-card {
+        padding: 1rem;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .timeline-marker {
+        align-self: flex-start;
+    }
+    
+    .timeline-header {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .view-toggles {
+        flex-direction: column;
+    }
+    
+    .timeline-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 }
