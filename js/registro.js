@@ -1,28 +1,13 @@
-const API_URL = "http://127.0.0.1:5000"; // Express + Prisma (tu server.js)
+import { API_URL } from "./env.js"; // Express + Prisma (tu server.js)
+import { showNotification } from "../componentes/notificacion.js";
+
 
 const registerForm = document.getElementById("registerForm");
 if (registerForm) {
-    // Modal helpers
-    function showModalError(msg) {
-        const modal = document.getElementById("modalError");
-        const modalMsg = document.getElementById("modalErrorMsg");
-        modalMsg.textContent = msg;
-        modal.style.display = "flex";
-    }
-    document.getElementById("closeModalError").onclick = function() {
-        document.getElementById("modalError").style.display = "none";
-    };
 
-    function showModalSuccess(msg) {
-        const modal = document.getElementById("modalSuccess");
-        const modalMsg = document.getElementById("modalSuccessMsg");
-        modalMsg.textContent = msg;
-        modal.style.display = "flex";
-    }
-    document.getElementById("closeModalSuccess").onclick = function() {
-        document.getElementById("modalSuccess").style.display = "none";
-        window.location.href = '../html/login.html';
-    };
+  
+   
+   
 
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -37,11 +22,11 @@ if (registerForm) {
         const minLength = password.length >= 8;
         const hasUpper = /[A-Z]/.test(password);
         if (!minLength || !hasUpper) {
-            showModalError("La contraseña debe tener al menos 8 caracteres y una mayúscula.");
+            showNotification("error", "La contraseña debe tener al menos 8 caracteres y una mayúscula.");
             return;
         }
         if (password !== passwordRepeat) {
-            showModalError("Las contraseñas no coinciden.");
+            showNotification("error", "Las contraseñas no coinciden.");
             return;
         }
 
@@ -53,13 +38,13 @@ if (registerForm) {
             });
             const result = await response.json();
             if (result.success) {
-                showModalSuccess(result.message || "¡Usuario creado exitosamente!");
+                showNotification("success", result.message || "¡Usuario creado exitosamente!");
             } else {
-                showModalError(result.message || "Error en el registro");
+                showNotification("error", result.message || "Error en el registro");
             }
         } catch (error) {
-            console.error("Error en registro:", error);
-            showModalError("Error de conexión con el servidor");
+            
+            showNotification("error", "Error de conexión con el servidor");
         }
     });
 }
