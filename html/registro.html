@@ -2,27 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" href="images/desk.jpg">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <title>Registro</title>
-  <link rel="stylesheet" href="../css/registerstyles.css">
-</head>
+  
+  <link rel="stylesheet" href="../css/registerstyles.css"> 
+  <link rel="stylesheet" href="../css/componentes/notificaciones.css">
+  </head>
+
 
 <body>
-  <div class="register-container">
-    <img src="../images/BooksyLogo.png" class="BooksyLogo" style="width: 100px; height: 50px;">
-    <h2>Registro</h2>
+  <p id="registerErrorMsg" style="color:red; display:none;">Error en el registro</p>
+      <p id="registerPasswordMsg" style="color:red; display:none;"></p>
+      
+  <div class="register-box">
     <form id="registerForm">
-      <input type="text" id="username" placeholder="Usuario" required>
-      <input type="password" id="password" placeholder="Contraseña" required>
-
+      <img src="../images/BooksyLogo.png" class="BooksyLogo" style="display:block; margin:0 auto 10px auto; max-width:200px;">
+      <h1 style="color:#000; text-align:center; font-size:1.5rem; margin-bottom:10px;">Crea tu cuenta</h1>
+      
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-user"></i>
+        </span>
+        <input type="text" id="reg-username" name="reg-username" placeholder="Usuario" required>
+        <label for="reg-username">Usuario</label>
+      </div>
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-envelope"></i>
+        </span>
+        <input type="email" id="reg-email" name="reg-email" placeholder="Email" required>
+        <label for="reg-email">Email</label>
+      </div>
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-lock"></i>
+        </span>
+        <input type="password" id="reg-password" name="reg-password" placeholder="Contraseña" required>
+        <label for="reg-password">Contraseña</label>
+      </div>
+      <div class="input-box">
+        <span class="icon">
+          <i class="fa-solid fa-lock"></i>
+        </span>
+        <input type="password" id="reg-password-repeat" name="reg-password-repeat" placeholder="Repetir contraseña" required>
+        <label for="reg-password-repeat">Repetir contraseña</label>
+      </div>
       <button type="submit">Registrarse</button>
+      
+      <div class="link">
+        ¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a>
+      </div>
     </form>
-    <div class="register-link">
-            Tenes cuenta? <a href="login.html">Inicia sesión</a>
-        </div>
-    <p id="message"></p>
+    </div>
   </div>
 
- <script src="../js/registro.js"></script>
+  <div id="notifications" class="notification-container"></div>
+ <script type="module" src="../js/registro.js"></script>
 </body>
 
 </html>

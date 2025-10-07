@@ -1,0 +1,159 @@
+/* Componente de Confirmación - Inspirado en Uiverse.io */
+
+.warning-general {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(44, 90, 145, 0.18);
+  backdrop-filter: blur(3px);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeInBg 0.3s ease-out;
+}
+
+.confirm-div {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(44, 90, 145, 0.25);
+  max-width: 450px;
+  width: 90%;
+  animation: slideIn 0.3s ease-out;
+  border: 1px solid #eaf6ff;
+}
+
+.confirm-div p {
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.confirm-div strong {
+  display: block;
+  color: #2c5a91;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+.confirm-div span {
+  color: #636e72;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.modals-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.red-btn, .green-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 0.8rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.red-btn {
+  background: #d63031;
+  color: #fff;
+}
+
+.red-btn:hover {
+  background: #b71c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+}
+
+.green-btn {
+  background: #00b894;
+  color: #fff;
+}
+
+.green-btn:hover {
+  background: #00a085;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+}
+
+.red-btn:active, .green-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Animaciones */
+@keyframes fadeInBg {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .confirm-div {
+    margin: 1rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .modals-container {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .red-btn, .green-btn {
+    width: 100%;
+  }
+}
+
+.green-btn:disabled {
+  background-color: #c8eac9;
+  color: #1b7a43;
+}
+
+.red-btn {
+  background-color: #f93a3a;
+}
+
+.red-btn:hover {
+  background-color: #e71f1f;
+}
+
+.red-btn:active {
+  background-color: #c21313;
+}
+
+/* Estados disabled para botones - mantener solo estos */
+.red-btn:disabled {
+  background-color: #ffc7c7;
+  color: #c21313;
+}
+
+.green-btn:disabled {
+  background-color: #c8eac9;
+  color: #1b7a43;
+}

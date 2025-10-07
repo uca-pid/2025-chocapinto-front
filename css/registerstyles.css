@@ -1,74 +1,186 @@
+     * {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  -webkit-tap-highlight-color: transparent;
+}
 body {
-	background: #f5f6fa;
-	font-family: 'Roboto', Arial, sans-serif;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-	margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-image: url(../images/FondoLoginBooksyNegro.png);
+    background-repeat: no-repeat;
+    background-size:cover;
+  font-family: sans-serif;
+}
+.register-box {
+ position: relative;
+  width: 400px;
+  max-width: 95vw;
+  min-width: 280px;
+  height: 600px;
+  border: 1px solid #0c0b0b;
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.12);
+}
+h2 {
+  color: #000000;
+  font-size: 2rem;
+  text-align: center;
+}
+.input-box {
+  position: relative;
+  width: 95%;
+  margin: 30px 0;
+  border-bottom: 2px solid #141212;
+
+}
+.input-box label {
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  color: #000000;
+  font-size: 16px;
+  transition: all 0.5s ease;
+}
+.input-box input:focus~label,
+.input-box input:valid~label {
+  top: -5px;
 }
 
-.register-container {
-	background: #fff;
-	padding: 2.5rem 2rem;
-	border-radius: 10px;
-	box-shadow: 0 4px 24px rgba(44, 62, 80, 0.12);
-	width: 350px;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+.input-box input {
+  width: 100%;
+  height: 50px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 1em;
+  color: #000000;
+  padding: 0 35px 0 5px;
+}
+.input-box .icon {
+  position: absolute;
+  right: 8px;
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+  line-height: 57px;
+}
+.remember-forgot {
+  color: #000000;
+  display: flex;
+  justify-content: space-between;
+}
+.remember-forgot label,
+.remember-forgot a {
+  margin: -15px 0 15px 0;
+}
+.remember-forgot label input {
+  margin-right: 3px;
+}
+.remember-forgot a {
+  color: #070101;
+  text-decoration: none;
+}
+.remember-forgot a:hover {
+  text-decoration: underline;
 }
 
-.register-container h2 {
-	text-align: center;
-	margin-bottom: 1.5rem;
-	color: #2d3436;
-	font-weight: 700;
+button {
+  padding: 17px 40px;
+  border-radius: 50px;
+  cursor: pointer;
+  border: 0;
+  display: block; 
+  margin: 0 auto;
+  background-color: #2b598f;
+  box-shadow: rgb(0 0 0 / 5%) 0 0 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 15px;
+  transition: all 0.5s ease;
 }
 
-#registerForm {
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
+button:hover {
+  letter-spacing: 3px;
+  background-color: hsl(261deg 80% 48%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(93 24 220) 0px 7px 29px 0px;
 }
 
-#registerForm input {
-	width: auto;
-	padding: 10px;
-    
-	border: 1px solid #dfe6e9;
-	border-radius: 5px;
-	font-size: 1rem;
-	background: #f9fafb;
-	transition: border 0.2s;
+button:active {
+  letter-spacing: 3px;
+  background-color: hsl(261deg 80% 48%);
+  color: hsl(0, 0%, 100%);
+  box-shadow: rgb(93 24 220) 0px 0px 0px 0px;
+  transform: translateY(10px);
+  transition: 100ms;
 }
-
-#registerForm input:focus {
-	border-color: #0984e3;
-	outline: none;
+.link {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #070505;
+  text-align: center;
 }
-
-#registerForm button {
-	width: 100%;
-	padding: 0.8rem;
-	background: #0984e3;
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	font-size: 1.1rem;
-	font-weight: 700;
-	cursor: pointer;
-	transition: background 0.2s;
+.link p a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: 600;
 }
-
-#registerForm button:hover {
-	background: #74b9ff;
+.link p a:hover {
+  text-decoration: underline;
 }
-
-#message {
-	margin-top: 1rem;
-	text-align: center;
-	color: #d63031;
-	font-size: 1rem;
+/* start  mobile */
+@media (max-width: 375px) {
+  .register-box {
+    width: 350px;
+    height: 500px;
+  }
+  .input-box {
+    position: relative;
+    width: 100%;
+    margin: 30px 0;
+    border-bottom: 2px solid #0a0707;
+  }
+}@media (max-width: 600px) {
+  body {
+    justify-content: center !important;
+    align-items: center !important;
+    background-size: cover !important;
+  }
+.register-box {
+    width: 98vw !important;
+    min-width: 0 !important;
+    max-width: 98vw !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 20px auto !important;
+    padding: 20px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.input-box {
+    width: 90vw !important;
+    min-width: 0 !important;
+    border-bottom: 2px solid #0a0707;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+button {
+    width: 95% !important;
+    min-width: 0 !important;
+    border-bottom: 2px solid #0a0707;
+    display: block;
+    margin: 0 auto;
+}
 }

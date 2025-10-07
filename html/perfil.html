@@ -2,31 +2,96 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Perfil - Booksy</title>
+    <title>Mi Perfil - Booksy</title>
+    
     <link rel="stylesheet" href="../css/perfilstyles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/componentes/loader.css">
+    <link rel="stylesheet" href="../css/componentes/notificaciones.css">
 </head>
 <body>
-    <div class="perfil-container">
-        <img src="../images/BooksyLogo.png" class="BooksyLogo" style="width: 100px; height: 50px;">
-        <h2>Mi Perfil</h2>
-        <form id="perfilForm">
-            <label for="username">Usuario</label>
-            <input type="text" id="username" required>
 
-            <label for="password">Contraseña</label>
-            <input type="password" id="password" placeholder="Dejar vacío si no cambia">
 
-            <label for="role">Rol</label>
-            <input type="text" id="role" readonly>
+    <div class="perfil-wrapper">
+        <div class="perfil-layout">
+            <aside class="perfil-sidebar">
+                <div class="profile-photo">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h3 id="sidebar-name">@usuario</h3>
+                <span id="sidebar-tag">Rol: <strong id="info-role">Cargando...</strong></span>
 
-            <button type="submit">Guardar cambios</button>
-        </form>
-    <button onclick="window.location.href='main.html'">Volver</button>
-    <button id="deleteAccountBtn" style="margin-top:1.2rem; background:#d63031; color:#fff; border:none; border-radius:5px; padding:0.7rem 1.2rem; font-weight:600; cursor:pointer;">Eliminar mi cuenta</button>
+                <div class="sidebar-actions">
+                    <button id="showEditProfileBtn" class="btn-primary-sidebar active-btn" data-target="edit-profile">Editar perfil</button>
+                    <button id="showChangePasswordBtn" class="btn-secondary-sidebar" data-target="change-password">Cambiar contraseña</button>
+                </div>
+                
+                <div class="sidebar-info">
+                    <h4>Información</h4>
+                    <p>Email: <span id="info-email">cargando@email.com</span></p>
+                </div>
+
+                <div class="global-actions">
+                    <button onclick="window.location.href='main.html'" class="btn-back">Volver a inicio</button>
+                    <button id="deleteAccountBtn" class="btn-danger">Eliminar mi cuenta</button>
+                </div>
+            </aside>
+
+            <main class="perfil-main-content">
+                
+                <section id="edit-profile" class="form-section active">
+                    <h2>Mi Perfil</h2>
+                    <p class="subtitle">Aquí puedes ver y editar tus datos de usuario.</p>
+                    
+                    <form id="perfilForm" class="edit-form">
+                        <div class="form-group full-width">
+                            <label for="username">Usuario</label>
+                            <input type="text" id="username" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" readonly>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Guardar cambios</button>
+                            </div>
+                        
+                        <p class="form-note">Nota: El email no es editable. La contraseña se cambia en la sección separada.</p>
+                    </form>
+                </section>
+
+                <section id="change-password" class="form-section" style="display:none;">
+                    <h2><i class="fa-solid fa-lock"></i> Cambiar contraseña</h2>
+                    <p class="subtitle">Actualiza tu contraseña para mantener tu cuenta segura.</p>
+
+                    <form id="passwordForm" class="edit-form">
+                        <div class="form-group full-width">
+                            <label for="currentPassword">Contraseña actual</label>
+                            <input type="password" id="currentPassword" required placeholder="Ingresa tu contraseña actual">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="newPassword">Nueva contraseña</label>
+                                <input type="password" id="newPassword" required placeholder="Mínimo 8 caracteres">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirmar contraseña</label>
+                                <input type="password" id="confirmPassword" required placeholder="Repite la nueva contraseña">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Cambiar contraseña</button>
+                            <button type="button" id="cancelPasswordBtn" class="btn-secondary">Cancelar</button>
+                        </div>
+                        <p class="form-note">Recomendación: usa una contraseña segura con al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números.</p>
+                    </form>
+                </section>
+            </main>
+        </div>
     </div>
-
-   <script src="../js/perfil.js"></script>
-
-
+<div id="notifications" class="notification-container"></div>
+   <script type="module" src="../js/perfil.js"></script>
 </body>
 </html>
