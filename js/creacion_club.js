@@ -1,4 +1,18 @@
 import { API_URL } from "./env.js";
+import { showNotification } from "../componentes/notificacion.js";
+import { showLoader, hideLoader } from "../componentes/loader.js";
+
+// ========== INICIALIZACIÓN ==========
+// Mostrar loader al cargar la página
+showLoader("Cargando formulario...");
+
+// Ocultar loader cuando el DOM esté listo
+document.addEventListener("DOMContentLoaded", () => {
+    // Simular un pequeño delay para mostrar el loader
+    setTimeout(() => {
+        hideLoader();
+    }, 800);
+});
 
 const fileInput = document.getElementById("imagenClubUrl");
 const previewImg = document.getElementById("previewClubImg");
@@ -31,8 +45,10 @@ fileInput.addEventListener("change", () => {
         }
 
         try {
-            const body = { name, description, ownerUsername, imagen };
+            // Mostrar loader durante la creación
+            showLoader("Creando club...");
             
+            const body = { name, description, ownerUsername, imagen };
 
             const res = await fetch(`${API_URL}/createClub`, {
                 method: "POST",
@@ -43,39 +59,19 @@ fileInput.addEventListener("change", () => {
             const data = await res.json();
 
             if (data.success) {
-                msg.textContent = "Club creado con éxito. Ahora eres moderador!";
-                msg.style.background = "#eaf6ff";
-                msg.style.color = "#0984e3";
-                msg.style.borderRadius = "8px";
-                msg.style.padding = "14px";
-                msg.style.margin = "18px 0";
-                msg.style.fontWeight = "bold";
-                msg.style.display = "block";
-                msg.style.boxShadow = "0 2px 12px #0984e340";
-                msg.style.transition = "all 0.3s";
-                setTimeout(() => window.location.href = "main.html", 1500);
+                // Cambiar mensaje del loader
+                showLoader("Club creado! Redirigiendo...");
+                showNotification("success","Club creado con éxito. Ahora eres moderador!");
+                setTimeout(() => {
+                    hideLoader();
+                    window.location.href = "main.html";
+                }, 1500);
             } else {
-                msg.textContent = data.message || "Error al crear club";
-                msg.style.background = "#ffeaea";
-                msg.style.color = "#d63031";
-                msg.style.borderRadius = "8px";
-                msg.style.padding = "12px";
-                msg.style.margin = "16px 0";
-                msg.style.fontWeight = "bold";
-                msg.style.display = "block";
-                msg.style.boxShadow = "0 2px 12px #d6303140";
-                msg.style.transition = "all 0.3s";
+                hideLoader();
+                showNotification("error", data.message || "Error al crear club");
             }
         } catch (error) {
-            msg.textContent = "Error de conexión con el servidor";
-            msg.style.background = "#ffeaea";
-            msg.style.color = "#d63031";
-            msg.style.borderRadius = "8px";
-            msg.style.padding = "12px";
-            msg.style.margin = "16px 0";
-            msg.style.fontWeight = "bold";
-            msg.style.display = "block";
-            msg.style.boxShadow = "0 2px 12px #d6303140";
-            msg.style.transition = "all 0.3s";
+            hideLoader();
+            showNotification("error", "Error de conexión con el servidor");
         }
     });

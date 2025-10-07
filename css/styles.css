@@ -10,6 +10,7 @@
   border-color: #74b9ff;
   background: #eaf6ff;
 }
+
 /* --- CAMBIO: Estilos para resultados de búsqueda de libros --- */
 .resultados-busqueda-libros {
   position: absolute;
@@ -81,36 +82,100 @@ body.main-body {
   display: inline-block;
 }
 
-.profile-btn {
-  background: #fff;
-  border: 1px solid #2c5a91;
-  color: #2c5a91;
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+/* === Animated Profile Button Styles === */
+/* From Uiverse.io by satyamchaudharydev */
+/* === removing default button style ===*/
+.button {
+  margin: 0;
+  height: auto;
+  background: transparent;
+  padding: 0;
+  border: none;
   cursor: pointer;
 }
 
+/* button styling */
+.profile-btn.button {
+  --border-right: 4px;
+  --text-stroke-color: rgba(44, 90, 145, 0.6);
+  --animation-color: #4c4ac4;
+  --fs-size: 1.2em;
+  letter-spacing: 2px;
+  text-decoration: none;
+  font-size: var(--fs-size);
+  font-family: "Arial", sans-serif;
+  position: relative;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-stroke-color);
+  font-weight: 700;
+}
+
+/* this is the text, when you hover on button */
+.hover-text {
+  position: absolute;
+  box-sizing: border-box;
+  content: attr(data-text);
+  color: var(--animation-color);
+  width: 0%;
+  inset: 0;
+  border-right: var(--border-right) solid var(--animation-color);
+  overflow: hidden;
+  transition: 0.5s;
+  -webkit-text-stroke: 1px var(--animation-color);
+}
+
+/* hover */
+.button:hover .hover-text {
+  width: 100%;
+  filter: drop-shadow(0 0 23px var(--animation-color));
+}
+
+/* Dropdown Content Styles */
 .dropdown-content {
   display: none;
   position: absolute;
   right: 0;
   background: #fff;
-  min-width: 150px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-  border-radius: 6px;
-  margin-top: 0.4rem;
+  min-width: 180px;
+  box-shadow: 0 8px 32px rgba(44, 90, 145, 0.25);
+  border-radius: 12px;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid #eaf6ff;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-content a {
   color: #2c5a91;
-  padding: 0.6rem 1rem;
+  padding: 0.8rem 1.2rem;
   text-decoration: none;
-  display: block;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f0f4fa;
+}
+
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content a:hover {
+  background: #eaf6ff;
+  color: #0984e3;
+  transform: translateX(4px);
 }
 
 .profile-dropdown:hover .dropdown-content {
@@ -163,6 +228,8 @@ body.main-body {
   display: flex;
   flex-direction: row;
   gap: 1rem;
+  padding-top:15px ;
+  padding-left: 20px;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
@@ -343,5 +410,127 @@ body.main-body {
   .recomendacion-card p {
     font-size: clamp(0.9rem, 4vw, 1.1rem);
   }
+}
+
+/* === Estilos para libros 3D === */
+.book {
+  position: relative;
+  border-radius: 10px;
+  width: 200px !important;
+  height: 280px !important;
+  min-width: 200px;
+  max-width: 200px;
+  min-height: 280px;
+  max-height: 280px;
+  background-color: whitesmoke;
+  flex-shrink: 0;
+  -webkit-box-shadow: 1px 1px 12px #000;
+  box-shadow: 1px 1px 12px #000;
+  -webkit-transform: preserve-3d;
+  -ms-transform: preserve-3d;
+  transform: preserve-3d;
+  -webkit-perspective: 2000px;
+  perspective: 2000px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  color: #000;
+  margin: 10px;
+}
+
+.book .book-content {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.book .book-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c5a91;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.book .book-author {
+  font-size: 14px;
+  color: #636e72;
+  font-style: italic;
+}
+
+.cover {
+  top: 0;
+  position: absolute;
+  background-color: lightgray;
+  width: 200px !important;
+  height: 280px !important;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
+  -webkit-transform-origin: 0;
+  -ms-transform-origin: 0;
+  transform-origin: 0;
+  -webkit-box-shadow: 1px 1px 12px #000;
+  box-shadow: 1px 1px 12px #000;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cover img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: fill;
+  object-position: center;
+  display: block;
+}
+
+.cover .default-cover {
+  background: linear-gradient(135deg, #eaf6ff 0%, #d1e7ff 100%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.cover .cover-text {
+  background: rgba(44, 90, 145, 0.9);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0.95;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.book:hover .cover {
+  -webkit-transition: all 0.5s;
+  transition: all 0.5s;
+  -webkit-transform: rotatey(-80deg);
+  -ms-transform: rotatey(-80deg);
+  transform: rotatey(-80deg);
 }
 

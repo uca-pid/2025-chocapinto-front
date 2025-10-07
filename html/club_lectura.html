@@ -1,20 +1,69 @@
-<!-- Modal de confirmación para eliminar libro -->
-    <div id="modalEliminarLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
-        <div style="background:#fff; padding:2rem 1.5rem; border-radius:16px; box-shadow:0 4px 32px #0003; min-width:280px; max-width:90vw; text-align:center; position:relative;">
-            <span id="closeModalEliminar" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031;">&times;</span>
-            <div id="modalEliminarMsg" style="color:#2c5a91; font-size:1.15rem; margin-bottom:18px;">¿Seguro que querés eliminar este libro?</div>
-            <button id="confirmEliminarBtn" style="background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.7rem 1.5rem;font-weight:600;cursor:pointer;margin-right:10px;">Eliminar</button>
-            <button id="cancelEliminarBtn" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.7rem 1.5rem;font-weight:600;cursor:pointer;">Cancelar</button>
-        </div>
-    </div>
-    <!-- Modal de comentarios -->
+
 <div id="modalComentarios" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
-  <div style="background:#fff; padding:2rem 1.5rem; border-radius:16px; box-shadow:0 4px 32px #0003; min-width:300px; max-width:90vw; max-height:80vh; overflow-y:auto; position:relative;">
-    <span id="closeModalComentarios" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031;">&times;</span>
-    <h3 style="color:#2c5a91;margin-bottom:1rem;">Comentarios</h3>
-    <div id="comentariosList" style="margin-bottom:1rem; display:flex; flex-direction:column; gap:0.8rem;"></div>
-    <textarea id="nuevoComentario" placeholder="Escribí un comentario..." style="width:100%;border-radius:8px;border:1px solid #eaf6ff;padding:0.7rem;resize:none;min-height:60px;"></textarea>
-    <button id="enviarComentarioBtn" style="margin-top:1rem;background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.6rem 1.2rem;font-weight:600;cursor:pointer;">Enviar</button>
+  <div class="comments-card">
+    <span id="closeModalComentarios" style="position:absolute; top:10px; right:18px; font-size:2rem; cursor:pointer; color:#d63031; z-index:10;">&times;</span>
+    <span class="title">Comentarios</span>
+    <div class="comments">
+      <div class="comment-react">
+        <button>
+          <svg fill="none" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#707277" stroke-linecap="round" stroke-width="2" stroke="#707277" d="M19.4626 3.99415C16.7809 2.34923 14.4404 3.01211 13.0344 4.06801C12.4578 4.50096 12.1696 4.71743 12 4.71743C11.8304 4.71743 11.5422 4.50096 10.9656 4.06801C9.55962 3.01211 7.21909 2.34923 4.53744 3.99415C1.01807 6.15294 0.221721 13.2749 8.33953 19.2834C9.88572 20.4278 10.6588 21 12 21C13.3412 21 14.1143 20.4278 15.6605 19.2834C23.7783 13.2749 22.9819 6.15294 19.4626 3.99415Z"></path>
+          </svg>
+        </button>
+        <hr>
+        <span id="comments-count">0</span>
+      </div>
+      <div id="comentariosList" class="comment-container">
+        <!-- Los comentarios se cargarán aquí dinámicamente -->
+      </div>
+    </div>
+    <div class="text-box">
+      <div class="box-container">
+        <textarea id="nuevoComentario" placeholder="Escribí un comentario..."></textarea>
+        <div>
+          <div class="formatting">
+            <button type="button">
+              <svg fill="none" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M5 6C5 4.58579 5 3.87868 5.43934 3.43934C5.87868 3 6.58579 3 8 3H12.5789C15.0206 3 17 5.01472 17 7.5C17 9.98528 15.0206 12 12.5789 12H5V6Z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M12.4286 12H13.6667C16.0599 12 18 14.0147 18 16.5C18 18.9853 16.0599 21 13.6667 21H8C6.58579 21 5.87868 21 5.43934 20.5607C5 20.1213 5 19.4142 5 18V12"></path>
+              </svg>
+            </button>
+            <button type="button">
+              <svg fill="none" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M12 4H19"></path>
+                <path stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M8 20L16 4"></path>
+                <path stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M5 20H12"></path>
+              </svg>
+            </button>
+            <button type="button">
+              <svg fill="none" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M5.5 3V11.5C5.5 15.0899 8.41015 18 12 18C15.5899 18 18.5 15.0899 18.5 11.5V3"></path>
+                <path stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M3 21H21"></path>
+              </svg>
+            </button>
+            <button type="button">
+              <svg fill="none" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M4 12H20"></path>
+              <path stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M17.5 7.66667C17.5 5.08934 15.0376 3 12 3C8.96243 3 6.5 5.08934 6.5 7.66667C6.5 8.15279 6.55336 8.59783 6.6668 9M6 16.3333C6 18.9107 8.68629 21 12 21C15.3137 21 18 19.6667 18 16.3333C18 13.9404 16.9693 12.5782 14.9079 12"></path>
+              </svg>
+            </button>
+            <button type="button">
+              <svg fill="none" viewBox="0 0 24 24" height="16" width="16" xmlns="http://www.w3.org/2000/svg">
+                <circle stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#707277" r="10" cy="12" cx="12"></circle>
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#707277" d="M8 15C8.91212 16.2144 10.3643 17 12 17C13.6357 17 15.0879 16.2144 16 15"></path>
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="3" stroke="#707277" d="M8.00897 9L8 9M16 9L15.991 9"></path>
+              </svg>
+            </button>
+            <button type="submit" class="send" title="Send" id="enviarComentarioBtn">
+              <svg fill="none" viewBox="0 0 24 24" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M12 5L12 20"></path>
+                <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#ffffff" d="M7 9L11.2929 4.70711C11.6262 4.37377 11.7929 4.20711 12 4.20711C12.2071 4.20711 12.3738 4.37377 12.7071 4.70711L17 9"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -25,6 +74,9 @@
     <title>Club de Lectura</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/clubstyles.css">
+    <link rel="stylesheet" href="../css/componentes/notificaciones.css">
+    <link rel="stylesheet" href="../css/componentes/loader.css">
+    <link rel="stylesheet" href="../css/componentes/confirmacion.css">
 </head>
 <body>
     <header class="main-header">
@@ -34,47 +86,361 @@
         </nav>
     </header>
    <main>
-    <div class="club-layout" style="display:flex;gap:2.5rem;justify-content:center;align-items:flex-start;width:100vw;max-width:1400px;margin:0 auto;">
-        <!-- Columna 1: Info club + integrantes -->
-        <div class="club-info-col" style="flex:1;min-width:260px;max-width:340px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
-            <img id="club-imagen" src="" alt="Imagen del club" style="width:100%; border-radius:12px; margin:1rem 0;">
-            <h2 id="club-name"></h2>            
-            <p id="club-description"></p>
-            <p id="club-owner" style="color:#636e72;font-size:1.05em;margin-top:0.5em;"></p>
+    
+<div class="glass-radio-group">
+  <input type="radio" name="plan" id="glass-silver" checked="" />
+  <label for="glass-silver">Club</label>
 
-            <button id="eliminarClubBtn" style="display:none; background:#d63031; color:#fff; border:none; border-radius:8px; padding:0.6rem 1.2rem; font-weight:600; cursor:pointer; margin-top:1rem;" onclick="eliminarClub()">Eliminar club</button>
-            <button id="salirClubBtn" style="display:none; background:#636e72; color:#fff; border:none; border-radius:8px; padding:0.6rem 1.2rem; font-weight:600; cursor:pointer; margin-top:1rem;" onclick="salirDelClub()">Salir del club</button>
+  <input type="radio" name="plan" id="glass-gold" />
+  <label for="glass-gold">Principal</label>
 
-            <h3 style="margin-top:2rem;color:#2c5a91;">Integrantes</h3>
-            <ul id="club-members-list" style="list-style:none;padding:0;margin-top:1rem;"></ul>
+  <input type="radio" name="plan" id="glass-platinum" />
+  <label for="glass-platinum">Notificaciones</label>
+
+  <div class="glass-glider"></div>
+ 
+</div>
+  <button class="volver-btn-fixed" onclick="window.location.href='main.html'">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M19 12H5"/>
+      <path d="M12 19l-7-7 7-7"/>
+    </svg>
+    Volver
+  </button>
+
+<div id="menuClub" class="menu-section">
+  <div class="club-container">
+    <!-- Fila Superior: Información del Club + Botones de Acción -->
+    <div class="club-top-row">
+      <!-- Información Principal del Club -->
+      <div class="club-header-card">
+        <div class="club-imagen-container">
+          <img id="club-imagen" src="" alt="Imagen del club" class="club-imagen">
+          <div class="club-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>0</span>
+          </div>
         </div>
-        <!-- Columna 2: Libros -->
-        <div class="club-libros-col" style="flex:2;min-width:340px;max-width:700px;background:#fff;border-radius:18px;box-shadow:0 2px 16px #2c5a9140;padding:2rem 1.5rem;">
-            <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;">
-                <h3 style="color:#2c5a91;">Libros leídos</h3>
-                
-            </div>
-        
-
-           <div id="libros-leidos-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;justify-items:center;width:100%;margin:2rem auto 0 auto;"></div>
+        <div class="club-info-content">
+          <h2 id="club-name" class="club-title" style="min-height: 2rem;">Cargando...</h2>
+          <p id="club-description" class="club-description" style="min-height: 1.5rem;">Cargando descripción...</p>
+          <div class="club-owner-info">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span id="club-owner">Cargando moderador...</span>
+          </div>
         </div>
-        <!-- Columna 3: Extra -->
-        <div class="club-extra-col" style="flex:1; min-width:220px; max-width:340px; background:#fff; border-radius:18px; box-shadow:0 2px 16px #2c5a9140; padding:2rem 1.5rem; display:flex; flex-direction:column; gap:1.5rem;">
-  <button class="agregar-libro-btn" style="background:#0984e3; color:#fff; border:none; border-radius:12px; padding:0.7rem 1.5rem; font-size:1rem; font-weight:700; box-shadow:0 2px 12px #0984e340; cursor:pointer; transition:background 0.2s;" onclick="document.getElementById('modalLibro').style.display='block'">Agregar libro</button>
-  <button class="volver-btn" style="background:#eaf6ff; color:#2c5a91; border:none; border-radius:12px; padding:0.7rem 1.5rem; font-size:1rem; font-weight:700; box-shadow:0 2px 12px #2c5a9140; cursor:pointer; transition:background 0.2s;"onclick="window.location.href='main.html'">Volver</button>
+      </div>
 
-  <!-- SOLO PARA EL OWNER: Lista de solicitudes de ingreso -->
-  <div id="solicitudes-container" style="display:none; background:#fff; border-radius:16px; box-shadow:0 2px 16px #2c5a9140; padding:1.5rem; margin-top:1rem;">
-    <h3 style="color:#d63031; margin-bottom:1rem; font-size:clamp(1rem, 4vw, 1.2rem);">Solicitudes de ingreso</h3>
-    <div id="solicitudes-list" style="display:flex; flex-direction:column; gap:1rem; max-height:400px; overflow-y:auto; min-height:60px;"></div>
-  </div>
+      <!-- Botones de Acción -->
+      <div class="club-actions-card">
+        <button id="eliminarClubBtn" class="action-btn danger-btn" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3,6 5,6 21,6"/>
+            <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/>
+            <line x1="10" y1="11" x2="10" y2="17"/>
+            <line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+          Eliminar club
+        </button>
+        <button id="salirClubBtn" class="action-btn secondary-btn" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16,17 21,12 16,7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Salir del club
+        </button>
+      </div>
+    </div>
 
-  <!-- Contenido adicional -->
-  <div id="contenido-extra" style="margin-top:auto;">
-    <p style="color:#636e72; font-size:0.9rem; text-align:center;">Aquí puedes agregar contenido adicional.</p>
+    <!-- Fila Inferior: Integrantes + Solicitudes -->
+    <div class="club-bottom-row">
+      <!-- Lista de Integrantes -->
+      <div class="club-members-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Integrantes
+          </h3>
+        </div>  
+        <div class="members-list-container">
+          <ul id="club-members-list" class="members-list"></ul>
+        </div>
+      </div>
+
+      <!-- Solicitudes de Ingreso (Solo para Owner) -->
+      <div id="solicitudes-container" class="club-requests-card" style="display:none;">
+        <div class="card-header">
+          <h3 class="card-title requests-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/>
+              <path d="M17 11l2 2 4-4"/>
+            </svg>
+            Solicitudes de ingreso
+          </h3>
+        </div>
+        <div id="solicitudes-list" class="requests-list"></div>
+      </div>
+    </div>
   </div>
 </div>
+
+<div id="menuPrincipal" class="menu-section" style="display:none;">
+  <div class="principal-container">
+    <!-- Fila Superior: Estadísticas + Gestión de Libros + Información del Club -->
+    <div class="principal-top-row">
+      <!-- Contenido Principal -->
+      <div class="principal-main-content">
+        <!-- Estadísticas -->
+        <div class="principal-stats-section">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-icon books-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number" id="total-books">0</div>
+                <div class="stat-label">Libros leídos</div>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon categories-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"/>
+                  <rect x="14" y="3" width="7" height="7"/>
+                  <rect x="14" y="14" width="7" height="7"/>
+                  <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number" id="total-categories">0</div>
+                <div class="stat-label">Categorías</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de acciones -->
+        <div class="principal-actions-card">
+          <div class="actions-header">
+            <h3 class="section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              Gestión de Libros
+            </h3>
+            <button class="primary-action-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Agregar libro
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Club (Fija a la derecha) -->
+      <div class="club-info-sidebar">
+        <div class="sidebar-club-card">
+          <div class="sidebar-club-image">
+            <img id="sidebar-club-imagen" src="" alt="Imagen del club" class="sidebar-club-img">
+          </div>
+          <div class="sidebar-club-details">
+            <h3 id="sidebar-club-name" class="sidebar-club-title">Cargando...</h3>
+            <p id="sidebar-club-description" class="sidebar-club-desc">Cargando descripción...</p>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Biblioteca de Libros -->
+    <div class="libros-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          Biblioteca del Club
+        </h3>
+        <div class="search-filter-container">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" placeholder="Buscar libros..." id="search-books">
+          </div>
+        </div>
+      </div>
+      <div class="libros-grid-container">
+        <!-- El filtro se insertará aquí dinámicamente por JavaScript -->
+        <div id="libros-leidos-list" class="libros-grid"></div>
+        <div id="empty-state" class="empty-state" style="display:none;">
+          <div class="empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <h4>No hay libros aún</h4>
+          <p>Comienza agregando el primer libro al club</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="menuNotificaciones" class="menu-section" style="display:none;">
+  <div class="notificaciones-container">
+    <!-- Fila Superior: Estadísticas + Acciones + Filtros + Información del Club -->
+    <div class="notifications-top-row">
+      <!-- Contenido Principal -->
+      <div class="notifications-main-content">
+        <!-- Estadísticas de Notificaciones -->
+        <div class="notificaciones-header-card">
+          <div class="notifications-summary">
+            <div class="summary-item unread">
+              <div class="summary-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </div>
+              <div class="summary-content">
+                <span class="summary-number" id="unread-count">0</span>
+                <span class="summary-label">Sin leer</span>
+              </div>
+            </div>
+            <div class="summary-item all">
+              <div class="summary-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </div>
+              <div class="summary-content">
+                <span class="summary-number" id="total-notifications">0</span>
+                <span class="summary-label">Total</span>
+              </div>
+            </div>
+          </div>
+          <div class="notifications-actions">
+            <button class="action-btn secondary-btn" id="mark-all-read">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+              </svg>
+              Marcar todo como leído
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtros de Notificaciones -->
+        <div class="notifications-filters-card">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+              Todas
+            </button>
+            <button class="filter-tab" data-filter="unread">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              Sin leer
+            </button>
+            <button class="filter-tab" data-filter="club">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              Club
+            </button>
+            <button class="filter-tab" data-filter="books">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              Libros
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Club (Fija a la derecha) -->
+      <div class="club-info-sidebar">
+        <div class="sidebar-club-card">
+          <div class="sidebar-club-image">
+            <img id="sidebar-club-imagen-2" src="" alt="Imagen del club" class="sidebar-club-img">
+          </div>
+          <div class="sidebar-club-details">
+            <h3 id="sidebar-club-name-2" class="sidebar-club-title">Cargando...</h3>
+            <p id="sidebar-club-description-2" class="sidebar-club-desc">Cargando descripción...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Notificaciones -->
+    <div class="notifications-list-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          Notificaciones Recientes
+        </h3>
+      </div>
+      <div id="notifications-list" class="notifications-list">
+        <!-- Las notificaciones se cargarán aquí dinámicamente -->
+      </div>
+      <div id="notifications-empty-state" class="empty-state">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <h4>No hay notificaciones</h4>
+        <p>Cuando haya actividad en el club, aparecerán aquí</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  
+
+ 
+
+  
+
+ 
+   
     
     <!-- Modal para agregar libro -->
     <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
@@ -114,9 +480,568 @@
         0% { opacity:0; }
         100% { opacity:1; }
     }
+    
+    /* Estilos del Modal de Comentarios */
+    .comments-card {
+      width: 450px;
+      max-width: 90vw;
+      height: fit-content;
+      background-color: white;
+      box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01), 0px 105px 63px rgba(0, 0, 0, 0.05), 0px 47px 47px rgba(0, 0, 0, 0.09), 0px 12px 26px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
+      border-radius: 17px 17px 27px 27px;
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .comments-card .title {
+      width: 100%;
+      height: 50px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding-left: 20px;
+      border-bottom: 1px solid #f1f1f1;
+      font-weight: 700;
+      font-size: 13px;
+      color: #47484b;
+    }
+
+    .comments-card .title::after {
+      content: '';
+      width: 8ch;
+      height: 1px;
+      position: absolute;
+      bottom: -1px;
+      background-color: #47484b;
+    }
+
+    .comments-card .comments {
+      display: grid;
+      grid-template-columns: 35px 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .comments-card .comment-react {
+      width: 35px;
+      height: fit-content;
+      display: grid;
+      grid-template-columns: auto;
+      margin: 0;
+      background-color: #f1f1f1;
+      border-radius: 5px;
+    }
+
+    .comments-card .comment-react button {
+      width: 35px;
+      height: 35px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border: 0;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .comments-card .comment-react button:after {
+      content: '';
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      left: -2.5px;
+      top: -2.5px;
+      background-color: #f5356e;
+      border-radius: 50%;
+      z-index: 0;
+      transform: scale(0);
+    }
+
+    .comments-card .comment-react button svg {
+      position: relative;
+      z-index: 9;
+    }
+
+    .comments-card .comment-react button:hover:after {
+      animation: ripple 0.6s ease-in-out forwards;
+    }
+
+    .comments-card .comment-react button:hover svg {
+      fill: #f5356e;
+    }
+
+    .comments-card .comment-react button:hover svg path {
+      stroke: #f5356e;
+      fill: #f5356e;
+    }
+
+    .comments-card .comment-react hr {
+      width: 80%;
+      height: 1px;
+      background-color: #dfe1e6;
+      margin: auto;
+      border: 0;
+    }
+
+    .comments-card .comment-react span {
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      font-size: 13px;
+      font-weight: 600;
+      color: #707277;
+    }
+
+    .comments-card .comment-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding: 0;
+      margin: 0;
+    }
+
+    .comments-card .comment-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .comments-card .comment-item .user {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+    }
+
+    .comments-card .comment-item .user .user-pic {
+      width: 40px;
+      height: 40px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #2c5a91;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .comments-card .comment-item .user .user-pic:after {
+      content: '';
+      width: 9px;
+      height: 9px;
+      position: absolute;
+      right: 0px;
+      bottom: 0px;
+      border-radius: 50%;
+      background-color: #0fc45a;
+      border: 2px solid #ffffff;
+    }
+
+    .comments-card .comment-item .user .user-info {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .comments-card .comment-item .user .user-info span {
+      font-weight: 700;
+      font-size: 12px;
+      color: #47484b;
+    }
+
+    .comments-card .comment-item .user .user-info p {
+      font-weight: 600;
+      font-size: 10px;
+      color: #acaeb4;
+    }
+
+    .comments-card .comment-item .comment-content {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 600;
+      color: #5f6064;
+      margin-left: 10px;
+    }
+
+    .comments-card .comment-item .delete-comment {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      color: #d63031;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .comments-card .comment-item .delete-comment:hover {
+      background-color: #ffeaea;
+    }
+
+    .comments-card .text-box {
+      width: 100%;
+      height: fit-content;
+      background-color: #f1f1f1;
+      padding: 8px;
+    }
+
+    .comments-card .text-box .box-container {
+      background-color: #ffffff;
+      border-radius: 8px 8px 21px 21px;
+      padding: 8px;
+    }
+
+    .comments-card .text-box textarea {
+      width: 100%;
+      height: 40px;
+      resize: none;
+      border: 0;
+      border-radius: 6px;
+      padding: 12px 12px 10px 12px;
+      font-size: 13px;
+      outline: none;
+      caret-color: #0a84ff;
+      background-color: #f8f9fa;
+    }
+
+    .comments-card .text-box .formatting {
+      display: grid;
+      grid-template-columns: auto auto auto auto auto 1fr;
+    }
+
+    .comments-card .text-box .formatting button {
+      width: 30px;
+      height: 30px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: transparent;
+      border-radius: 50%;
+      border: 0;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .comments-card .text-box .formatting button:hover {
+      background-color: #f1f1f1;
+    }
+
+    .comments-card .text-box .formatting .send {
+      width: 30px;
+      height: 30px;
+      background-color: #0a84ff;
+      margin: 0 0 0 auto;
+    }
+
+    .comments-card .text-box .formatting .send:hover {
+      background-color: #026eda;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 0.6;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* Estilos para layouts horizontales */
+    
+    /* Sección Club - Layout Horizontal */
+    .club-top-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .club-bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .club-bottom-row .club-requests-card {
+      min-height: 300px;
+    }
+
+    /* Sección Principal - Layout Horizontal con Sidebar */
+    .principal-top-row {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .principal-main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .principal-stats-section {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .principal-actions-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* Sección Notificaciones - Layout Horizontal con Sidebar */
+    .notifications-top-row {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .notifications-main-content {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+    }
+
+    .notifications-filters-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Estilos del Sidebar de Información del Club */
+    .club-info-sidebar {
+      position: sticky;
+      top: 2rem;
+      height: fit-content;
+    }
+
+    .sidebar-club-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      border: 1px solid #eaf6ff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+    }
+
+    .sidebar-club-image {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(44, 90, 145, 0.2);
+    }
+
+    .sidebar-club-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .sidebar-club-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .sidebar-club-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2c5a91;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .sidebar-club-desc {
+      font-size: 0.9rem;
+      color: #636e72;
+      margin: 0;
+      line-height: 1.4;
+      max-height: 4.2rem;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    /* Responsive para tablets */
+    @media (max-width: 1024px) {
+      .club-top-row,
+      .principal-top-row,
+      .notifications-top-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .club-bottom-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .principal-main-content,
+      .notifications-main-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      .club-info-sidebar {
+        position: static;
+      }
+
+      .sidebar-club-card {
+        flex-direction: row;
+        text-align: left;
+        padding: 1rem;
+      }
+
+      .sidebar-club-image {
+        width: 60px;
+        height: 60px;
+      }
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+      .club-top-row,
+      .club-bottom-row,
+      .principal-top-row,
+      .notifications-top-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .principal-main-content,
+      .notifications-main-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .principal-stats-section .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .volver-btn-fixed {
+        left: 10px !important;
+        padding: 0.5rem 1rem !important;
+        font-size: 0.9rem !important;
+      }
+
+      .volver-btn-fixed svg {
+        width: 16px !important;
+        height: 16px !important;
+      }
+
+      .sidebar-club-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1rem;
+      }
+
+      .sidebar-club-image {
+        width: 50px;
+        height: 50px;
+      }
+
+      .sidebar-club-title {
+        font-size: 1rem;
+      }
+
+      .sidebar-club-desc {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Estilos para el botón volver fijo */
+    .volver-btn-fixed {
+      position: fixed;
+      
+      left: 20px;
+      transform: translateY(-50%);
+      background: #eaf6ff;
+      color: #2c5a91;
+      border: none;
+      border-radius: 12px;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      box-shadow: 0 4px 20px rgba(44, 90, 145, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(44, 90, 145, 0.2);
+      writing-mode: horizontal-tb;
+    }
+
+    .volver-btn-fixed:hover {
+      background: #2c5a91;
+      color: #fff;
+      transform: translateY(-50%) translateX(5px);
+      box-shadow: 0 6px 25px rgba(44, 90, 145, 0.4);
+    }
+
+    .volver-btn-fixed svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    .volver-btn-fixed:hover svg {
+      transform: translateX(-2px);
+    }
+
+    /* Animación de entrada */
+    @keyframes slideInLeft {
+      from {
+        transform: translateY(-50%) translateX(-100px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(-50%) translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .volver-btn-fixed {
+      animation: slideInLeft 0.5s ease-out;
+    }
     </style>
 
 </main>
+<div id="notifications" class="notification-container"></div>
    <script type="module" src="../js/club.js"></script>
 
 </body>
