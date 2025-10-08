@@ -80,10 +80,35 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header class="main-header">
+<header class="main-header">
+        <a href="main.html">
         <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
+        
+          </a>
         <nav class="main-nav">
-          
+            <div class="profile-dropdown">
+                <button class="button profile-btn" id="profileDropdownBtn" data-text="Perfil">
+                    <span class="actual-text">&nbsp;<span id="usernameDisplay">Perfil</span>&nbsp;</span>
+                    <span aria-hidden="true" class="hover-text">&nbsp;<span id="usernameDisplayHover">Perfil</span>&nbsp;</span>
+                </button>
+                <div class="dropdown-content" id="profileDropdownContent">
+                    <a href="perfil.html">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 8px;">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Editar perfil
+                    </a>
+                    <a href="#" onclick="logout()">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 8px;">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16,17 21,12 16,7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Cerrar sesión
+                    </a>
+                </div>
+            </div>
         </nav>
     </header>
    <main>
@@ -220,6 +245,13 @@
               </svg>
               Ver Gráfico
             </button>
+            <button id="ver-ranking-btn" class="chart-btn" onclick="mostrarRanking()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 4v12l-4-2-4 2V4"/>
+                <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+              </svg>
+              Ver Ranking
+            </button>
           </div>
           <div class="stats-grid">
             <div class="stat-item">
@@ -331,6 +363,7 @@
             <input type="text" placeholder="Buscar libros..." id="search-books">
           </div>
           <div class="estado-filter">
+            
             <select id="estado-filter" class="filter-select">
               <option value="todos">📚 Todos los estados</option>
               <option value="por_leer">📚 Por leer</option>
@@ -673,6 +706,45 @@
     <div id="msgLibro" style="margin-top:1rem; text-align:center; color:#d63031;"></div>
   </div>
 </div>
+
+<!-- Modal de Ranking -->
+<div id="modalRanking" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:150; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
+  <div class="ranking-card">
+    <button onclick="document.getElementById('modalRanking').style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:2rem; color:#d63031; cursor:pointer; z-index:10;">&times;</button>
+    
+    <div class="ranking-header">
+      <div class="ranking-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 4v12l-4-2-4 2V4"/>
+          <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+        </svg>
+      </div>
+      <h2>🏆 Ranking de Usuarios Más Activos</h2>
+      <p class="ranking-subtitle">Usuarios con mayor actividad en el club</p>
+    </div>
+
+    <div class="ranking-content">
+      <div id="rankingLoader" class="ranking-loader">
+        <div class="spinner"></div>
+        <p>Calculando ranking...</p>
+      </div>
+      
+      <div id="rankingList" class="ranking-list" style="display:none;">
+        <!-- Los usuarios del ranking se cargarán aquí -->
+      </div>
+      
+      <div id="rankingEmpty" class="ranking-empty" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <h3>Sin actividad registrada</h3>
+        <p>Aún no hay usuarios con comentarios o libros agregados en este club.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
     <style>
     @keyframes fadeInModal {
         0% { opacity:0; transform:scale(0.95); }
@@ -1427,6 +1499,255 @@
         align-self: flex-end;
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem;
+      }
+    }
+
+    /* Estilos del Modal de Ranking */
+    .ranking-card {
+      width: 500px;
+      max-width: 90vw;
+      max-height: 80vh;
+      background: white;
+      border-radius: 20px;
+      position: relative;
+      animation: fadeInModal 0.4s;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .ranking-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 2rem 1.5rem 1.5rem;
+      position: relative;
+    }
+
+    .ranking-icon {
+      display: inline-block;
+      margin-bottom: 0.5rem;
+      opacity: 0.9;
+    }
+
+    .ranking-header h2 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .ranking-subtitle {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .ranking-content {
+      max-height: calc(80vh - 150px);
+      overflow-y: auto;
+    }
+
+    .ranking-loader {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #666;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-left: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .ranking-empty {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #666;
+    }
+
+    .ranking-empty svg {
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .ranking-empty h3 {
+      margin: 0 0 0.5rem 0;
+      color: #333;
+    }
+
+    .ranking-list {
+      padding: 1rem;
+    }
+
+    .club-info {
+      text-align: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 1rem;
+    }
+
+    .club-info h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.1rem;
+    }
+
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+
+    .ranking-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .podium-1 {
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      border-left-color: #d4af37;
+      color: #8b7a00;
+    }
+
+    .podium-2 {
+      background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
+      border-left-color: #999;
+      color: #555;
+    }
+
+    .podium-3 {
+      background: linear-gradient(135deg, #cd7f32, #deb887);
+      border-left-color: #8b4513;
+      color: #5d2f0a;
+    }
+
+    .ranking-position {
+      display: flex;
+      align-items: center;
+      margin-right: 1rem;
+      min-width: 60px;
+    }
+
+    .position-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-right: 0.5rem;
+    }
+
+    .trophy {
+      font-size: 1.2rem;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .username {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: #333;
+    }
+
+    .podium-1 .username,
+    .podium-2 .username,
+    .podium-3 .username {
+      color: inherit;
+    }
+
+    .user-stats {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .podium-1 .stat-item,
+    .podium-2 .stat-item,
+    .podium-3 .stat-item {
+      color: inherit;
+      opacity: 0.8;
+    }
+
+    .stat-item svg {
+      opacity: 0.7;
+    }
+
+    .total-score {
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .score-number {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .podium-1 .score-number,
+    .podium-2 .score-number,
+    .podium-3 .score-number {
+      color: inherit;
+    }
+
+    .score-label {
+      font-size: 0.75rem;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .podium-1 .score-label,
+    .podium-2 .score-label,
+    .podium-3 .score-label {
+      color: inherit;
+      opacity: 0.7;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .ranking-card {
+        width: 95vw;
+        margin: 1rem;
+      }
+      
+      .ranking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .ranking-position {
+        margin-right: 0;
+      }
+      
+      .user-stats {
+        gap: 0.5rem;
+      }
+      
+      .total-score {
+        align-self: flex-end;
+        margin-top: -2rem;
       }
     }
     </style>

@@ -6,6 +6,64 @@ import { mostrarConfirmacion, confirmarEliminacion } from "../componentes/confir
 // Variable global para almacenar datos del club
 window.clubData = null;
 
+// ========== FUNCIONES DEL HEADER ==========
+
+/**
+ * Cierra sesión del usuario
+ */
+function logout() {
+    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    window.location.href = "index.html";
+}
+
+/**
+ * Configura el dropdown del perfil
+ */
+function configurarDropdownPerfil() {
+    const dropdownBtn = document.getElementById("profileDropdownBtn");
+    const dropdownContent = document.getElementById("profileDropdownContent");
+    
+    if (dropdownBtn && dropdownContent) {
+        dropdownBtn.addEventListener("mouseenter", () => {
+            dropdownContent.style.display = "block";
+        });
+        
+        dropdownBtn.addEventListener("mouseleave", () => {
+            setTimeout(() => {
+                if (!dropdownContent.matches(':hover')) {
+                    dropdownContent.style.display = "none";
+                }
+            }, 100);
+        });
+        
+        dropdownContent.addEventListener("mouseleave", () => {
+            dropdownContent.style.display = "none";
+        });
+        
+        dropdownContent.addEventListener("mouseenter", () => {
+            dropdownContent.style.display = "block";
+        });
+    }
+}
+/**
+ * Actualiza el display del username en el header
+ */
+function updateUsernameDisplay() {
+    const username = localStorage.getItem("username");
+    const usernameDisplay = document.getElementById("usernameDisplay");
+    const usernameDisplayHover = document.getElementById("usernameDisplayHover");
+    
+    if (username && usernameDisplay && usernameDisplayHover) {
+        usernameDisplay.textContent = username;
+        usernameDisplayHover.textContent = username;
+    }
+}
+
+// Exponer funciones al ámbito global
+window.logout = logout;
+
 //inicializador de pagina
 console.log("Cargando archivo club.js...");
 console.log("API_URL:", API_URL);
@@ -15,6 +73,9 @@ showLoader("Cargando club...");
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded");
     
+    // Configurar header
+    updateUsernameDisplay();
+    configurarDropdownPerfil();
     // Configurar event listeners para cambio de tabs
     setupTabNavigation();
     
@@ -514,183 +575,6 @@ async function renderClub() {
     }
 }
 
-// Nueva función para mostrar libros filtrados
-function mostrarLibrosLeidosFiltrados(club, filtroCategoriaId) {
-    const librosList = document.getElementById('libros-leidos-list');
-    librosList.innerHTML = "";
-    const userId = localStorage.getItem("userId");
-    const isOwner = club.id_owner == userId;
-    let libros = club.readBooks || [];
-    if (filtroCategoriaId) {
-        libros = libros.filter(libro =>
-            libro.categorias.some(cat => String(cat.id) === String(filtroCategoriaId))
-        );
-    }
-    if (libros.length > 0) {
-        libros.forEach(libro => {
-            const card = document.createElement('div');
-            card.className = 'libro-card';
-            card.style.background = '#fff';
-            card.style.borderRadius = '16px';
-            card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
-            card.style.padding = '1rem';
-            card.style.display = 'flex';
-            card.style.flexDirection = 'column';
-            card.style.alignItems = 'center';
-            card.style.justifyContent = 'flex-start';
-            card.style.border = '1px solid #eaf6ff';
-            card.style.width = '100%';
-            card.style.maxWidth = '200px';
-            card.style.minHeight = '320px';
-            card.style.position = 'relative';
-
-            const categoriasHTML = libro.categorias
-                .map(cat => `<span style="background:#eaf6ff;color:#2c5a91;padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;">${cat.nombre}</span>`)
-                .join(" ");
-
-            // Obtener color y emoji según el estado
-            const estadoInfo = getEstadoInfo(libro.estado);
-
-            card.innerHTML = `
-                <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
-                    ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;'></div>`}
-                    <div style='text-align:center;'>
-                        <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
-                        ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
-                        
-                        <div style="margin-top:8px;">
-                            <select class="estado-selector" data-bookid="${libro.id}" style="
-                                background: ${estadoInfo.background};
-                                color: ${estadoInfo.color};
-                                border: 1px solid ${estadoInfo.border};
-                                border-radius: 8px;
-                                padding: 4px 8px;
-                                font-size: 0.8rem;
-                                font-weight: 600;
-                                cursor: pointer;
-                                width: 100%;
-                                margin-bottom: 8px;
-                            ">
-                                <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
-                                <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
-                                <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-top:6px;">${categoriasHTML}</div>
-                        <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
-                    </div>
-                </div>
-            `;
-
-            if (isOwner) {
-                agregarBotonEliminarLibro(card, libro.id);
-            }
-
-            librosList.appendChild(card);
-        });
-    } else {
-        librosList.innerHTML = '<div style="color:#636e72;">No hay libros leídos en esta categoría.</div>';
-    }
-}
-
-// Nueva función para mostrar libros con filtros múltiples
-function mostrarLibrosLeidosMultipleFiltro(club, categoriasSeleccionadas) {
-    const librosList = document.getElementById('libros-leidos-list');
-    librosList.innerHTML = "";
-    const userId = localStorage.getItem("userId");
-    const isOwner = club.id_owner == userId;
-    
-    // Actualizar estadísticas
-    actualizarEstadisticas(club);
-    let libros = club.readBooks || [];
-    
-    // Si hay categorías seleccionadas, filtrar libros
-    if (categoriasSeleccionadas.length > 0) {
-        libros = libros.filter(libro => {
-            // El libro debe tener AL MENOS UNA de las categorías seleccionadas
-            return libro.categorias.some(catLibro => 
-                categoriasSeleccionadas.some(catSel => catSel.id === catLibro.id)
-            );
-        });
-    }
-    
-    if (libros.length > 0) {
-        libros.forEach(libro => {
-            const card = document.createElement('div');
-            card.className = 'libro-card';
-            card.style.background = '#fff';
-            card.style.borderRadius = '16px';
-            card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
-            card.style.padding = '1rem';
-            card.style.display = 'flex';
-            card.style.flexDirection = 'column';
-            card.style.alignItems = 'center';
-            card.style.justifyContent = 'flex-start';
-            card.style.border = '1px solid #eaf6ff';
-            card.style.width = '100%';
-            card.style.maxWidth = '200px';
-            card.style.minHeight = '320px';
-            card.style.position = 'relative';
-
-            const categoriasHTML = libro.categorias
-                .map(cat => {
-                    // Destacar categorías que están siendo filtradas
-                    const isFiltered = categoriasSeleccionadas.some(catSel => catSel.id === cat.id);
-                    const bgColor = isFiltered ? '#5fa8e9' : '#eaf6ff';
-                    const textColor = isFiltered ? '#fff' : '#2c5a91';
-                    return `<span style="background:${bgColor};color:${textColor};padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;font-weight:${isFiltered ? '600' : '500'};">${cat.nombre}</span>`;
-                })
-                .join(" ");
-
-            // Obtener color y emoji según el estado
-            const estadoInfo = getEstadoInfo(libro.estado);
-
-            card.innerHTML = `
-                <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
-                    ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;'></div>`}
-                    <div style='text-align:center;'>
-                        <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
-                        ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
-                        
-                        <div style="margin-top:8px;">
-                            <select class="estado-selector" data-bookid="${libro.id}" style="
-                                background: ${estadoInfo.background};
-                                color: ${estadoInfo.color};
-                                border: 1px solid ${estadoInfo.border};
-                                border-radius: 8px;
-                                padding: 4px 8px;
-                                font-size: 0.8rem;
-                                font-weight: 600;
-                                cursor: pointer;
-                                width: 100%;
-                                margin-bottom: 8px;
-                            ">
-                                <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
-                                <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
-                                <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-top:6px;">${categoriasHTML}</div>
-                        <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
-                    </div>
-                </div>
-            `;
-
-            if (isOwner) {
-                agregarBotonEliminarLibro(card, libro.id);
-            }
-
-            librosList.appendChild(card);
-        });
-    } else {
-        const mensaje = categoriasSeleccionadas.length > 0 
-            ? `No hay libros que coincidan con los filtros seleccionados.`
-            : `No hay libros leídos aún.`;
-        librosList.innerHTML = `<div style="color:#636e72;">${mensaje}</div>`;
-    }
-}
 
 // Variables para filtros
 let filtroTexto = '';
@@ -773,22 +657,38 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
                         ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
                         
                         <div style="margin-top:8px;">
-                            <select class="estado-selector" data-bookid="${libro.id}" style="
-                                background: ${estadoInfo.background};
-                                color: ${estadoInfo.color};
-                                border: 1px solid ${estadoInfo.border};
-                                border-radius: 8px;
-                                padding: 4px 8px;
-                                font-size: 0.8rem;
-                                font-weight: 600;
-                                cursor: pointer;
-                                width: 100%;
-                                margin-bottom: 8px;
-                            ">
-                                <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
-                                <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
-                                <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
-                            </select>
+                            ${
+                                isOwner
+                                ? `<select class="estado-selector" data-bookid="${libro.id}" style="
+                                    background: ${estadoInfo.background};
+                                    color: ${estadoInfo.color};
+                                    border: 1px solid ${estadoInfo.border};
+                                    border-radius: 8px;
+                                    padding: 4px 8px;
+                                    font-size: 0.8rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    width: 100%;
+                                    margin-bottom: 8px;
+                                ">
+                                    <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
+                                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
+                                    <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
+                                </select>`
+                                : `<div style="
+                                    background: ${estadoInfo.background};
+                                    color: ${estadoInfo.color};
+                                    border: 1px solid ${estadoInfo.border};
+                                    border-radius: 8px;
+                                    padding: 4px 8px;
+                                    font-size: 0.8rem;
+                                    font-weight: 600;
+                                    
+                                    margin-bottom: 8px;
+                                    margin-right: 2px;
+                                    display: inline-block;
+                                ">${estadoInfo.icon} ${estadoInfo.label}</div>`
+                            }
                         </div>
                         
                         <div style="margin-top:6px;">${categoriasHTML}</div>
@@ -2556,4 +2456,93 @@ function aplicarFiltrosLocal(data, filtros) {
     console.log('✅ Filtrado completado:', datosFiltrados.length, 'elementos finales');
     return datosFiltrados;
 }
+
+// Función para mostrar el modal de ranking
+async function mostrarRanking() {
+    const clubId = getClubId();
+    const modal = document.getElementById('modalRanking');
+    const loader = document.getElementById('rankingLoader');
+    const lista = document.getElementById('rankingList');
+    const empty = document.getElementById('rankingEmpty');
+
+    // Mostrar modal y loader
+    modal.style.display = 'flex';
+    loader.style.display = 'block';
+    lista.style.display = 'none';
+    empty.style.display = 'none';
+
+    try {
+        const response = await fetch(`${API_URL}/api/ranking/club/${clubId}/ranking`);
+        const data = await response.json();
+
+        if (data.success && data.ranking && data.ranking.length > 0) {
+            // Mostrar ranking
+            mostrarListaRanking(data.ranking, data.club);
+            loader.style.display = 'none';
+            lista.style.display = 'block';
+        } else {
+            // Mostrar estado vacío
+            loader.style.display = 'none';
+            empty.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error al cargar ranking:', error);
+        loader.style.display = 'none';
+        empty.style.display = 'block';
+        
+        // Cambiar el mensaje de error
+        const emptyTitle = empty.querySelector('h3');
+        const emptyText = empty.querySelector('p');
+        emptyTitle.textContent = 'Error al cargar ranking';
+        emptyText.textContent = 'No se pudo conectar al servidor. Intenta nuevamente.';
+    }
+}
+
+// Función para renderizar la lista de ranking
+function mostrarListaRanking(ranking, club) {
+    const lista = document.getElementById('rankingList');
+    
+    const html = `
+        <div class="club-info">
+            <h3>Club: ${club.name}</h3>
+        </div>
+        ${ranking.map((usuario, index) => `
+            <div class="ranking-item ${index < 3 ? 'podium-' + (index + 1) : ''}">
+                <div class="ranking-position">
+                    <span class="position-number">${index + 1}</span>
+                    ${index === 0 ? '<div class="trophy gold">🥇</div>' : 
+                      index === 1 ? '<div class="trophy silver">🥈</div>' : 
+                      index === 2 ? '<div class="trophy bronze">🥉</div>' : ''}
+                </div>
+                <div class="user-info">
+                    <div class="username">${usuario.username}</div>
+                    <div class="user-stats">
+                        <span class="stat-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                            ${usuario.commentsCount} comentarios
+                        </span>
+                        <span class="stat-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                            </svg>
+                            ${usuario.booksAddedCount} libros agregados
+                        </span>
+                    </div>
+                </div>
+                <div class="total-score">
+                    <div class="score-number">${usuario.totalScore}</div>
+                    <div class="score-label">puntos</div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+    
+    lista.innerHTML = html;
+}
+
+// Hacer la función global para que funcione el onclick
+window.mostrarRanking = mostrarRanking;
 
