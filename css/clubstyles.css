@@ -2262,3 +2262,135 @@ body {
         gap: 0.5rem;
     }
 }
+
+/* ====== Historial del Club (cards + grid) ====== */
+.historial-container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.historial-header-card{
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(2, 6, 23, .06);
+  padding: 1.25rem;
+  border: 1px solid rgba(15,23,42,.06);
+}
+
+.historial-header-card .section-title{
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: clamp(1.1rem, 2.3vw, 1.35rem);
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 .9rem;
+}
+.historial-header-card .section-title::after{
+  content:"";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, rgba(15,23,42,.06), transparent 60%);
+  margin-left: .75rem;
+}
+
+/* Grid responsivo */
+.stats-quick-view{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* Tarjeta de cada métrica */
+.quick-stat{
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding: .9rem 1rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fff, #fbfbff);
+  border: 1px solid rgba(15,23,42,.06);
+  box-shadow: 0 2px 10px rgba(2,6,23,.03);
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.quick-stat:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(2,6,23,.07);
+  border-color: rgba(79,70,229,.15);
+}
+
+/* Icono redondeado */
+.stat-icon{
+  flex: 0 0 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  background: rgba(79,70,229,.08);
+  outline: 1px solid rgba(79,70,229,.15);
+}
+
+/* Número + etiqueta */
+.stat-content{ display: grid; gap: 2px; }
+.stat-number{
+  font-size: clamp(1.2rem, 3.2vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: #0f172a;
+  line-height: 1.1;
+}
+.stat-label{
+  font-size: .84rem;
+  color: #64748b;
+}
+
+/* Marcado visual para “vacío” (0 o -) */
+.stat-number[data-empty="true"]{ color: #94a3b8; }
+
+/* Breakpoints */
+@media (max-width: 980px){
+  .stats-quick-view{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+@media (max-width: 520px){
+  .historial-header-card{ padding: .9rem; }
+  .stats-quick-view{ grid-template-columns: 1fr; }
+  .stat-icon{ flex-basis: 40px; height: 40px; font-size: 1.1rem; }
+}
+
+/* (Opcional) dark mode si usás <body class="dark"> */
+.dark .historial-header-card{
+  background: #0b1220;
+  border-color: rgba(255,255,255,.06);
+}
+.dark .historial-header-card .section-title,
+.dark .stat-number{ color: #e5e7eb; }
+.dark .stat-label{ color: #94a3b8; }
+.dark .stat-icon{ background: rgba(99,102,241,.15); outline-color: rgba(99,102,241,.25); }
+
+/* --- Restaurar colores en #menuPrincipal (Estadísticas del Club) --- */
+#menuPrincipal .stat-icon{
+  background: none !important;
+  outline: none !important;
+  color: white; /* los SVG usan stroke="currentColor" */
+}
+#menuPrincipal .books-icon{
+  background: linear-gradient(135deg, #0984e3, #74b9ff) !important;
+}
+#menuPrincipal .reading-icon{
+  background: linear-gradient(135deg, #74b9ff, #0984e3) !important;
+}
+#menuPrincipal .pending-icon{
+  background: linear-gradient(135deg, #fdcb6e, #e17055) !important;
+}
+#menuPrincipal .categories-icon{
+  background: linear-gradient(135deg, #00b894, #55efc4) !important;
+}
+
+/* --- Aislar el estilo de icono “pálido” solo al HISTORIAL --- */
+#menuHistorial .stat-icon{
+  background: rgba(79,70,229,.08) !important;
+  outline: 1px solid rgba(79,70,229,.15) !important;
+  color: inherit; /* en historial usás emojis, no SVG */
+}
