@@ -456,21 +456,33 @@
         <a href="#" class="ver-todos-link" onclick="mostrarTodosLosLibros()">Ver todos</a>
       </div>
       <div class="search-filter-container">
-        <div class="search-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" placeholder="Buscar libros..." id="search-books">
-        </div>
-        <div class="estado-filter">
-          <select id="estado-filter" class="filter-select">
-            <option value="todos">📚 Todos los estados</option>
-            <option value="por_leer">📚 Por leer</option>
-            <option value="leyendo">📖 Leyendo</option>
-            <option value="leido">✅ Leído</option>
-          </select>
-        </div>
+        <div class="search-filter-row">
+          <div class="search-box-modern">
+            <div class="search-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+            </div>
+            <input type="text" placeholder="Buscar por título, autor o categoría..." id="search-books" class="search-input-modern">
+            <button type="button" class="clear-search" id="clear-search" style="display: none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div class="estado-filter-modern">
+            <select id="estado-filter" class="filter-select-modern">
+              <option value="todos">📚 Todos los estados</option>
+              <option value="por_leer">📚 Por leer</option>
+              <option value="leyendo">📖 Leyendo</option>
+              <option value="leido">✅ Completado</option>
+            </select>
+          </div>
+          
+      
       </div>
       <div class="biblioteca-grid-container">
         <!-- El filtro se insertará aquí dinámicamente por JavaScript -->
