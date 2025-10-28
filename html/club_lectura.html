@@ -66,6 +66,243 @@
     </div>
   </div>
 </div>
+    <!-- Modal para agregar libro -->
+  <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
+  <div id="modalLibroBox" style=" width: 50%;background:#fff; max-width:500px; margin:8vh auto; padding:2.5rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column;">
+    <h3 style="margin-bottom:1.5rem; color:#2c5a91; font-size:1.6rem; font-weight:700; text-align:center;">Agregar libro</h3>
+    <form id="formLibro" style="width:100%; display:flex; flex-direction:column; gap:1.5rem;">
+      <div>
+        <label for="buscadorLibro" style="font-weight:600; color:#2c5a91;">Buscar libro</label>
+        <input type="text" id="buscadorLibro" autocomplete="off" placeholder="Título, autor..." style="width:100%; border-radius:8px; border:1px solid #eaf6ff; padding:0.7rem;">
+        <div id="resultadosBusquedaLibro" style="width:100%; max-height:180px; overflow-y:auto; margin-top:0.5rem; border:1px solid #eaf6ff; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:0.5rem;"></div>
+      </div>
+      <div>
+        <label style="font-weight:600; color:#2c5a91;">Categorías</label>
+        <div id="categoriasContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.5rem; max-height:150px; overflow-y:auto; border:1px solid #eaf6ff; border-radius:8px; padding:0.5rem; background:#f9f9f9;"></div>
+        <div id="crearCategoriaBox" style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+          <input type="text" id="nuevaCategoriaInput" placeholder="Nueva categoría..." style="flex:1; border-radius:8px; border:1px solid #eaf6ff; padding:0.5rem;">
+           <input type="hidden" id="tituloLibro">
+            <input type="hidden" id="autorLibro">
+            <input type="hidden" id="portadaLibro">
+            <input type="hidden" id="idApiLibro">
+          <button type="button" id="agregarCategoriaBtn" style="background:#5fa8e9; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600; cursor:pointer;">Agregar</button>
+        </div>
+      </div>
+      <button type="submit"  style="background:#0984e3; color:#fff; border:none; border-radius:8px; padding:0.8rem 1.2rem; font-weight:700; cursor:pointer; width:100%; box-shadow:0 2px 12px #0984e340; transition:background 0.2s;">Subir libro</button>
+    </form>
+    <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:2rem; color:#d63031; cursor:pointer;">&times;</button>
+    <div id="msgLibro" style="margin-top:1rem; text-align:center; color:#d63031;"></div>
+  </div>
+</div>
+<!-- Modal de Ranking -->
+<div id="modalRanking" class="modalRanking" style="display:none;">
+  <div class="ranking-card">
+    <button class="close-btn" onclick="document.getElementById('modalRanking').style.display='none'">&times;</button>
+    
+    <div class="ranking-header">
+      <div class="ranking-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 4v12l-4-2-4 2V4"/>
+          <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+        </svg>
+      </div>
+      <h2>🏆 Ranking de Usuarios Más Activos</h2>
+      <p class="ranking-subtitle">Usuarios con mayor actividad en el club</p>
+    </div>
+
+    <div class="ranking-content">
+      <div id="rankingLoader" class="ranking-loader">
+        <div class="spinner"></div>
+        <p>Calculando ranking...</p>
+      </div>
+      
+      <div id="rankingList" class="ranking-list" style="display:none;">
+        <!-- Los usuarios del ranking se cargarán aquí -->
+      </div>
+      
+      <div id="rankingEmpty" class="ranking-empty" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <h3>Sin actividad registrada</h3>
+        <p>Aún no hay usuarios con comentarios o libros agregados en este club.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Miembros -->
+<div id="modalMiembros" class="modalMiembros" style="display:none;">
+  <div class="members-card">
+    <button class="close-btn" onclick="document.getElementById('modalMiembros').style.display='none'">&times;</button>
+    
+    <div class="members-header">
+      <div class="members-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <h2>👥 Miembros del Club</h2>
+      <p class="members-subtitle">Todos los integrantes del club de lectura</p>
+    </div>
+
+    <div class="members-content">
+      <div id="membersLoader" class="members-loader">
+        <div class="spinner"></div>
+        <p>Cargando miembros...</p>
+      </div>
+      
+      <div id="membersList" class="members-list" style="display:none;">
+        <!-- Los miembros se cargarán aquí -->
+      </div>
+      
+      <div id="membersEmpty" class="members-empty" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <h3>No hay miembros</h3>
+        <p>Aún no hay miembros en este club.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Historial -->
+<div id="modalHistorial" class="modalHistorial" style="display:none;">
+  <div class="historial-modal-card">
+    <button class="close-btn" onclick="document.getElementById('modalHistorial').style.display='none'">&times;</button>
+    
+    <div class="historial-modal-header">
+      <div class="historial-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+      </div>
+      <h2>📚 Historial Completo de Actividad</h2>
+      <p class="historial-subtitle">Toda la actividad del club con filtros avanzados</p>
+    </div>
+
+    <!-- Filtros de historial -->
+    <div class="historial-modal-filters">
+      <div class="filters-row">
+        <div class="filter-group">
+          <label for="modal-historial-estado-filter">Estado:</label>
+          <select id="modal-historial-estado-filter" class="filter-select">
+            <option value="">Todos los cambios</option>
+            <option value="leido">📖 Marcados como leídos</option>
+            <option value="leyendo">📚 Empezados a leer</option>
+            <option value="por_leer">⏳ Agregados por leer</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="modal-historial-usuario-filter">Usuario:</label>
+          <select id="modal-historial-usuario-filter" class="filter-select">
+            <option value="">Todos los usuarios</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="modal-historial-periodo-filter">Período:</label>
+          <select id="modal-historial-periodo-filter" class="filter-select">
+            <option value="">Todo el tiempo</option>
+            <option value="semana">Esta semana</option>
+            <option value="mes">Este mes</option>
+            <option value="trimestre">Últimos 3 meses</option>
+            <option value="año">Este año</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="filters-row">
+        <div class="filter-group">
+          <label for="modal-historial-desde">Desde:</label>
+          <input type="date" id="modal-historial-desde" class="filter-input">
+        </div>
+        
+        <div class="filter-group">
+          <label for="modal-historial-hasta">Hasta:</label>
+          <input type="date" id="modal-historial-hasta" class="filter-input">
+        </div>
+        
+        <div class="filter-group">
+          <button id="modal-limpiar-filtros-btn" class="action-btn secondary">
+            🗑️ Limpiar Filtros
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="historial-modal-content">
+      <!-- Vista toggles -->
+      <div class="view-toggles">
+        <button class="view-toggle active" data-view="timeline">Timeline</button>
+        <button class="view-toggle" data-view="list">Lista</button>
+        <button class="view-toggle" data-view="stats">Estadísticas</button>
+      </div>
+
+      <div id="historialModalLoader" class="historial-loader">
+        <div class="spinner"></div>
+        <p>Cargando historial completo...</p>
+      </div>
+      
+      <div id="historialModalContent" class="historial-timeline-content" style="display:none;">
+        <!-- El contenido del historial se cargará aquí -->
+      </div>
+      
+      <div id="historialModalEmpty" class="historial-empty" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        <h3>No hay actividad registrada</h3>
+        <p>Aún no hay actividad en este club con los filtros seleccionados.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <!-- Modal para ver gráfico -->
+<div id="modalGrafico" class="chart-modal" style="display:none;">
+      <div class="chart-modal-box">
+        <div class="chart-header">
+          <h3>📊 Distribución de Libros por Género</h3>
+          <button id="closeModalGrafico" class="close-btn">&times;</button>
+        </div>
+        
+        <div class="chart-filters">
+          <label for="chart-estado-filter">Filtrar por estado:</label>
+          <select id="chart-estado-filter" class="chart-filter-select">
+            <option value="todos">📚 Todos los estados</option>
+            <option value="por_leer">📚 Por leer</option>
+            <option value="leyendo">📖 Leyendo</option>
+            <option value="leido">✅ Leído</option>
+          </select>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="genreChart"></canvas>
+        </div>
+        
+        <div class="chart-legend" id="chartLegend">
+          
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -352,14 +589,15 @@
                 <span>Agregar Libro</span>
               </button>
               
-              <button class="quick-action-btn secondary" onclick="alert('Función de búsqueda en desarrollo')">
+              <button class="quick-action-btn secondary" onclick="alert('Funcion de votacion en desarrollo')">
                 <div class="action-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
+                    <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
+                    <polyline points="9,11 12,8 15,11"/>
+                    <line x1="12" y1="8" x2="12" y2="21"/>
                   </svg>
                 </div>
-                <span>Buscar</span>
+                <span>Votaciones</span>
               </button>
               
               <button class="quick-action-btn secondary" onclick="mostrarRanking()">
@@ -372,7 +610,7 @@
                 <span>Ver Ranking</span>
               </button>
               
-              <button class="quick-action-btn secondary" onclick="alert('Función de miembros en desarrollo')">
+              <button class="quick-action-btn secondary" onclick="mostrarMiembros()">
                 <div class="action-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
@@ -387,28 +625,103 @@
           </div>
         </div>
 
-        <!-- Sección de Categorías -->
-        <div class="categories-section-card">
-          <div class="categories-header">
-            <h3 class="section-title">Categorías</h3>
-            <button id="ver-grafico-btn" class="chart-btn">
-             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-              </svg>
-            </button>
-              
-            </button>
-          </div>
-          <div class="categories-list" id="categories-display-list">
-            <!-- Las categorías se cargarán aquí dinámicamente -->
-            <div class="category-item-display">
-              <div class="category-info">
-                <span class="category-name">Cargando categorías...</span>
-                <span class="category-count">0</span>
+        <!-- Grid con Categorías y Actividad Reciente -->
+        <div class="categories-activity-grid">
+          <!-- Sección de Categorías -->
+          <div class="categories-section-card">
+            <div class="categories-header">
+              <h3 class="section-title">Categorías</h3>
+              <button id="ver-grafico-btn" class="chart-btn">
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                  <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="categories-list" id="categories-display-list">
+              <!-- Las categorías se cargarán aquí dinámicamente -->
+              <div class="category-item-display">
+                <div class="category-info">
+                  <span class="category-name">Cargando categorías...</span>
+                  <span class="category-count">0</span>
+                </div>
+                <div class="category-progress-bar">
+                  <div class="category-progress-fill" style="width: 0%; background-color: #4a90e2;"></div>
+                </div>
               </div>
-              <div class="category-progress-bar">
-                <div class="category-progress-fill" style="width: 0%; background-color: #4a90e2;"></div>
+            </div>
+          </div>
+
+          <!-- Sección de Actividad Reciente -->
+          <div class="recent-activity-card">
+            <div class="activity-header">
+              <h3 class="section-title">Actividad Reciente</h3>
+              <button class="ver-historial-btn" onclick="mostrarHistorialCompleto()">Ver Historial</button>
+            </div>
+            <div class="activity-list" id="recent-activity-list">
+              <!-- Las actividades se cargarán aquí dinámicamente -->
+              <div class="activity-item">
+                <div class="activity-icon trophy">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"/>
+                    <path d="M2 14h20v-2c0-4.4-3.6-8-8-8H10c-4.4 0-8 3.6-8 8v2z"/>
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">
+                    <strong>Completaste</strong> 'Messi: El genio'
+                  </div>
+                  <div class="activity-time">Hace 2 horas</div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon star">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">
+                    <strong>Calificaste</strong> un libro con 5★
+                  </div>
+                  <div class="activity-time">Hace 5 horas</div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon book">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">
+                    <strong>Comenzaste</strong> 'Todo Messi'
+                  </div>
+                  <div class="activity-time">Hace 1 día</div>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon user">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-text">
+                    <strong>Nuevo miembro</strong> en el club
+                  </div>
+                  <div class="activity-time">Hace 2 días</div>
+                </div>
               </div>
             </div>
           </div>
@@ -639,42 +952,7 @@
             
           </div>
           
-          <!-- Estadísticas rápidas del club -->
-          <div class="stats-quick-view">
-            <div class="quick-stat">
-              <div class="stat-icon books-read-icon">📖</div>
-              <div class="stat-content">
-                <div class="stat-number" id="club-total-leidos">0</div>
-                <div class="stat-label">Libros leídos</div>
-              </div>
-            </div>
-            
-            <div class="quick-stat">
-              <div class="stat-icon books-reading-icon">📚</div>
-              <div class="stat-content">
-                <div class="stat-number" id="club-total-cambios">0</div>
-                <div class="stat-label">Total cambios</div>
-              </div>
-            </div>
-            
-            <div class="quick-stat">
-              <div class="stat-icon user-active-icon">👑</div>
-              <div class="stat-content">
-                <div class="stat-number" id="usuario-mas-activo">-</div>
-                <div class="stat-label">Más activo</div>
-              </div>
-            </div>
-            
-            <div class="quick-stat">
-              <div class="stat-icon reading-time-icon">⏱️</div>
-              <div class="stat-content">
-                <div class="stat-number" id="promedio-club">0</div>
-                <div class="stat-label">días promedio</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+          
         <!-- Filtros de historial -->
         <div class="historial-filters-card">
           <div class="historial-filters">
@@ -725,20 +1003,6 @@
         </div>
       </div>
 
-      <!-- Información del Club (Fija a la derecha) -->
-      <div class="club-info-sidebar">
-        <div class="sidebar-club-card">
-          <div class="sidebar-club-image">
-            <img id="sidebar-club-imagen-3" src="" alt="Imagen del club" class="sidebar-club-img">
-          </div>
-          <div class="sidebar-club-details">
-            <h3 id="sidebar-club-name-3" class="sidebar-club-title">Cargando...</h3>
-            <p id="sidebar-club-description-3" class="sidebar-club-desc">Cargando descripción...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <!-- Timeline del historial del club -->
     <div class="historial-timeline-card">
       <div class="card-header">
@@ -761,101 +1025,7 @@
   </div>
 </div>
 
-        <!-- Modal para ver gráfico -->
-    <div id="modalGrafico" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:200; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
-      <div class="chart-modal-box">
-        <div class="chart-header">
-          <h3>📊 Distribución de Libros por Género</h3>
-          <button id="closeModalGrafico" class="close-btn">&times;</button>
-        </div>
-        
-        <div class="chart-filters">
-          <label for="chart-estado-filter">Filtrar por estado:</label>
-          <select id="chart-estado-filter" class="chart-filter-select">
-            <option value="todos">📚 Todos los estados</option>
-            <option value="por_leer">📚 Por leer</option>
-            <option value="leyendo">📖 Leyendo</option>
-            <option value="leido">✅ Leído</option>
-          </select>
-        </div>
-        
-        <div class="chart-container">
-          <canvas id="genreChart"></canvas>
-        </div>
-        
-        <div class="chart-legend" id="chartLegend">
-          <!-- La leyenda se generará dinámicamente -->
-        </div>
-      </div>
-    </div>
-    <!-- Modal para agregar libro -->
-    <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
-  <div id="modalLibroBox" style="background:#fff; max-width:500px; margin:8vh auto; padding:2.5rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column;">
-    <h3 style="margin-bottom:1.5rem; color:#2c5a91; font-size:1.6rem; font-weight:700; text-align:center;">Agregar libro</h3>
-    <form id="formLibro" style="width:100%; display:flex; flex-direction:column; gap:1.5rem;">
-      <div>
-        <label for="buscadorLibro" style="font-weight:600; color:#2c5a91;">Buscar libro</label>
-        <input type="text" id="buscadorLibro" autocomplete="off" placeholder="Título, autor..." style="width:100%; border-radius:8px; border:1px solid #eaf6ff; padding:0.7rem;">
-        <div id="resultadosBusquedaLibro" style="width:100%; max-height:180px; overflow-y:auto; margin-top:0.5rem; border:1px solid #eaf6ff; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:0.5rem;"></div>
-      </div>
-      <div>
-        <label style="font-weight:600; color:#2c5a91;">Categorías</label>
-        <div id="categoriasContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.5rem; max-height:150px; overflow-y:auto; border:1px solid #eaf6ff; border-radius:8px; padding:0.5rem; background:#f9f9f9;"></div>
-        <div id="crearCategoriaBox" style="margin-top:0.5rem; display:flex; gap:0.5rem;">
-          <input type="text" id="nuevaCategoriaInput" placeholder="Nueva categoría..." style="flex:1; border-radius:8px; border:1px solid #eaf6ff; padding:0.5rem;">
-           <input type="hidden" id="tituloLibro">
-            <input type="hidden" id="autorLibro">
-            <input type="hidden" id="portadaLibro">
-            <input type="hidden" id="idApiLibro">
-          <button type="button" id="agregarCategoriaBtn" style="background:#5fa8e9; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600; cursor:pointer;">Agregar</button>
-        </div>
-      </div>
-      <button type="submit"  style="background:#0984e3; color:#fff; border:none; border-radius:8px; padding:0.8rem 1.2rem; font-weight:700; cursor:pointer; width:100%; box-shadow:0 2px 12px #0984e340; transition:background 0.2s;">Subir libro</button>
-    </form>
-    <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:2rem; color:#d63031; cursor:pointer;">&times;</button>
-    <div id="msgLibro" style="margin-top:1rem; text-align:center; color:#d63031;"></div>
-  </div>
-</div>
-
-<!-- Modal de Ranking -->
-<div id="modalRanking" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:150; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
-  <div class="ranking-card">
-    <button onclick="document.getElementById('modalRanking').style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:2rem; color:#d63031; cursor:pointer; z-index:10;">&times;</button>
-    
-    <div class="ranking-header">
-      <div class="ranking-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 4v12l-4-2-4 2V4"/>
-          <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-        </svg>
-      </div>
-      <h2>🏆 Ranking de Usuarios Más Activos</h2>
-      <p class="ranking-subtitle">Usuarios con mayor actividad en el club</p>
-    </div>
-
-    <div class="ranking-content">
-      <div id="rankingLoader" class="ranking-loader">
-        <div class="spinner"></div>
-        <p>Calculando ranking...</p>
-      </div>
-      
-      <div id="rankingList" class="ranking-list" style="display:none;">
-        <!-- Los usuarios del ranking se cargarán aquí -->
-      </div>
-      
-      <div id="rankingEmpty" class="ranking-empty" style="display:none;">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"/>
-          <path d="M21 21l-4.35-4.35"/>
-        </svg>
-        <h3>Sin actividad registrada</h3>
-        <p>Aún no hay usuarios con comentarios o libros agregados en este club.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
+  
 </main>
 <div id="notifications" class="notification-container"></div>
    <script type="module" src="../js/club.js"></script>

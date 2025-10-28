@@ -1686,6 +1686,7 @@ function configurarModalGrafico() {
     if (chartBtn) {
         chartBtn.addEventListener('click', () => {
             console.log('Botón de gráfico clickeado');
+            modal.classList.add('show');
             modal.style.display = 'flex';
             generarGraficoGeneros('todos');
         });
@@ -1695,7 +1696,10 @@ function configurarModalGrafico() {
 
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
         });
     }
 
@@ -1703,7 +1707,10 @@ function configurarModalGrafico() {
     if (modal) {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
-                modal.style.display = 'none';
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
             }
         });
     }
@@ -1809,12 +1816,26 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
 
     // Crear nuevo gráfico
     if (labels.length === 0) {
-        // No hay datos para mostrar
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = '16px Arial';
-        ctx.fillStyle = '#666';
-        ctx.textAlign = 'center';
-        ctx.fillText('No hay libros para mostrar', canvas.width / 2, canvas.height / 2);
+        // Mostrar estado vacío más elegante
+        const container = canvas.parentElement;
+        container.innerHTML = `
+            <div class="chart-no-data">
+                <div class="no-data-icon">📊</div>
+                <h4>No hay libros para mostrar</h4>
+                <p>Selecciona un filtro diferente o agrega libros al club para ver la distribución por géneros.</p>
+            </div>
+        `;
+        
+        // Limpiar la leyenda también
+        const leyenda = document.getElementById('chartLegend');
+        if (leyenda) {
+            leyenda.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">📚</div>
+                    <p>No hay datos para mostrar en la leyenda</p>
+                </div>
+            `;
+        }
         return;
     }
 
@@ -1825,38 +1846,135 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
 
     console.log('Creando gráfico con datos:', { labels, data });
     
+    // Colores más vibrantes y gradientes para efecto 3D
+    const colores3D = [
+        'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)',
+        'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
+        'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)',
+        'rgba(132, 255, 99, 0.8)'
+    ];
+
+    const coloresBorde = [
+        'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)',
+        'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)',
+        'rgba(199, 199, 199, 1)', 'rgba(83, 102, 255, 1)', 'rgba(255, 99, 255, 1)',
+        'rgba(132, 255, 99, 1)'
+    ];
+    
     graficoInstancia = new Chart(ctx, {
-        type: 'pie',
+        type: 'doughnut', // Cambiado a doughnut para efecto más moderno
         data: {
             labels: labels,
             datasets: [{
                 data: data,
-                backgroundColor: colores.slice(0, labels.length),
-                borderColor: '#fff',
-                borderWidth: 2
+                backgroundColor: colores3D.slice(0, labels.length),
+                borderColor: coloresBorde.slice(0, labels.length),
+                borderWidth: 3,
+                hoverBackgroundColor: coloresBorde.slice(0, labels.length),
+                hoverBorderWidth: 5,
+                hoverOffset: 15, // Efecto 3D al hacer hover
+                cutout: '40%', // Espacio interior del doughnut
+                borderRadius: 8, // Bordes redondeados para look moderno
+                spacing: 2 // Separación entre segmentos
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
-            aspectRatio: 1,
+            aspectRatio: 1.2,
+            interaction: {
+                intersect: false,
+                mode: 'nearest'
+            },
+            animation: {
+                animateRotate: true,
+                animateScale: true,
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            },
+            elements: {
+                arc: {
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverBorderWidth: 6
+                }
+            },
             plugins: {
                 legend: {
-                    display: false // La leyenda se muestra aparte
+                    display: true,
+                    position: 'right',
+                    align: 'center',
+                    labels: {
+                        boxWidth: 20,
+                        boxHeight: 20,
+                        padding: 15,
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        },
+                        color: '#333',
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            return data.labels.map((label, index) => {
+                                const value = data.datasets[0].data[index];
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return {
+                                    text: `${label} (${percentage}%)`,
+                                    fillStyle: data.datasets[0].backgroundColor[index],
+                                    strokeStyle: data.datasets[0].borderColor[index],
+                                    lineWidth: 2,
+                                    index: index
+                                };
+                            });
+                        }
+                    }
                 },
                 tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderWidth: 1,
+                    cornerRadius: 12,
+                    displayColors: true,
+                    boxPadding: 6,
+                    padding: 12,
+                    titleFont: {
+                        size: 16,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
                     callbacks: {
+                        title: function(tooltipItems) {
+                            return tooltipItems[0].label;
+                        },
                         label: function(context) {
-                            const label = context.label || '';
                             const value = context.parsed;
                             const percentage = ((value / total) * 100).toFixed(1);
-                            return `${label}: ${value} libros (${percentage}%)`;
+                            return [
+                                `📚 ${value} libro${value !== 1 ? 's' : ''}`,
+                                `📊 ${percentage}% del total`,
+                                `🎯 ${total} libros en total`
+                            ];
                         }
                     }
                 }
             },
             layout: {
-                padding: 20
+                padding: {
+                    top: 20,
+                    bottom: 20,
+                    left: 20,
+                    right: 20
+                }
+            },
+            onHover: (event, activeElements) => {
+                event.native.target.style.cursor = activeElements.length > 0 ? 'pointer' : 'default';
             }
         }
     });
@@ -1872,21 +1990,69 @@ function actualizarLeyendaGrafico(labels, data, colores, total) {
 
     leyenda.innerHTML = '';
     
-    labels.forEach((label, index) => {
-        const cantidad = data[index];
-        const porcentaje = ((cantidad / total) * 100).toFixed(1);
-        
+    // Ordenar por cantidad (descendente) para mejor visualización
+    const datosOrdenados = labels.map((label, index) => ({
+        label,
+        cantidad: data[index],
+        color: colores[index],
+        porcentaje: ((data[index] / total) * 100).toFixed(1)
+    })).sort((a, b) => b.cantidad - a.cantidad);
+    
+    datosOrdenados.forEach((item, index) => {
         const itemLeyenda = document.createElement('div');
         itemLeyenda.className = 'legend-item';
+        itemLeyenda.style.setProperty('--legend-color', item.color);
+        itemLeyenda.style.animationDelay = `${index * 0.1}s`;
+        
+        // Determinar el emoji basado en el nombre de la categoría
+        let emoji = '📖';
+        const labelLower = item.label.toLowerCase();
+        if (labelLower.includes('ficción') || labelLower.includes('novela')) emoji = '📚';
+        else if (labelLower.includes('historia') || labelLower.includes('biografía')) emoji = '📜';
+        else if (labelLower.includes('ciencia') || labelLower.includes('técnico')) emoji = '🔬';
+        else if (labelLower.includes('arte') || labelLower.includes('cultura')) emoji = '🎨';
+        else if (labelLower.includes('filosofía') || labelLower.includes('religión')) emoji = '🤔';
+        else if (labelLower.includes('infantil') || labelLower.includes('juvenil')) emoji = '🧸';
+        else if (labelLower.includes('misterio') || labelLower.includes('thriller')) emoji = '🔍';
+        else if (labelLower.includes('romance') || labelLower.includes('amor')) emoji = '💕';
+        else if (labelLower.includes('aventura') || labelLower.includes('acción')) emoji = '⚡';
+        else if (labelLower.includes('fantasía') || labelLower.includes('magia')) emoji = '🧙‍♂️';
+        
         itemLeyenda.innerHTML = `
-            <div class="legend-color" style="background-color: ${colores[index]}"></div>
+            <div class="legend-color" style="background: linear-gradient(135deg, ${item.color}, ${item.color}dd);"></div>
             <div class="legend-info">
-                <div class="legend-label">${label}</div>
-                <div class="legend-value">${cantidad} libros (${porcentaje}%)</div>
+                <div class="legend-label">
+                    ${emoji} ${item.label}
+                    <span style="font-size: 12px; color: #666; font-weight: 400;">#${index + 1}</span>
+                </div>
+                <div class="legend-value">${item.cantidad} libro${item.cantidad !== 1 ? 's' : ''} • ${item.porcentaje}%</div>
             </div>
         `;
         
+        // Agregar efectos hover dinámicos
+        itemLeyenda.addEventListener('mouseenter', () => {
+            itemLeyenda.style.transform = 'translateX(12px) scale(1.02)';
+            itemLeyenda.style.zIndex = '10';
+        });
+        
+        itemLeyenda.addEventListener('mouseleave', () => {
+            itemLeyenda.style.transform = 'translateX(0) scale(1)';
+            itemLeyenda.style.zIndex = '1';
+        });
+        
         leyenda.appendChild(itemLeyenda);
+    });
+    
+    // Agregar animación de entrada
+    const items = leyenda.querySelectorAll('.legend-item');
+    items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 100);
     });
 }
 
@@ -2541,6 +2707,7 @@ async function mostrarRanking() {
     const empty = document.getElementById('rankingEmpty');
 
     // Mostrar modal y loader
+    modal.classList.add('show');
     modal.style.display = 'flex';
     loader.style.display = 'block';
     lista.style.display = 'none';
@@ -2577,43 +2744,31 @@ async function mostrarRanking() {
 function mostrarListaRanking(ranking, club) {
     const lista = document.getElementById('rankingList');
     
-    const html = `
-        <div class="club-info">
-            <h3>Club: ${club.name}</h3>
-        </div>
-        ${ranking.map((usuario, index) => `
-            <div class="ranking-item ${index < 3 ? 'podium-' + (index + 1) : ''}">
-                <div class="ranking-position">
-                    <span class="position-number">${index + 1}</span>
-                    ${index === 0 ? '<div class="trophy gold">🥇</div>' : 
-                      index === 1 ? '<div class="trophy silver">🥈</div>' : 
-                      index === 2 ? '<div class="trophy bronze">🥉</div>' : ''}
+    const html = ranking.map((usuario, index) => {
+        const positionClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+        const initials = usuario.username.charAt(0).toUpperCase();
+        
+        return `
+            <li>
+                <div class="ranking-position ${positionClass}">${index + 1}</div>
+                <div class="ranking-avatar">${initials}</div>
+                <div class="ranking-info">
+                    <h4 class="ranking-name">
+                        ${usuario.username}
+                        ${index < 3 ? `<span class="ranking-badge">${index === 0 ? '👑' : index === 1 ? '🥈' : '🥉'}</span>` : ''}
+                    </h4>
+                    <p class="ranking-stats">
+                        <span>💬 ${usuario.commentsCount} comentarios</span>
+                        <span>📚 ${usuario.booksAddedCount} libros</span>
+                    </p>
                 </div>
-                <div class="user-info">
-                    <div class="username">${usuario.username}</div>
-                    <div class="user-stats">
-                        <span class="stat-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
-                            ${usuario.commentsCount} comentarios
-                        </span>
-                        <span class="stat-item">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                            </svg>
-                            ${usuario.booksAddedCount} libros agregados
-                        </span>
-                    </div>
+                <div class="ranking-score">
+                    ${usuario.totalScore}
+                    <span>pts</span>
                 </div>
-                <div class="total-score">
-                    <div class="score-number">${usuario.totalScore}</div>
-                    <div class="score-label">puntos</div>
-                </div>
-            </div>
-        `).join('')}
-    `;
+            </li>
+        `;
+    }).join('');
     
     lista.innerHTML = html;
 }
@@ -2621,10 +2776,530 @@ function mostrarListaRanking(ranking, club) {
 // Hacer la función global para que funcione el onclick
 window.mostrarRanking = mostrarRanking;
 
+// Función para mostrar el modal de miembros
+async function mostrarMiembros() {
+    const modal = document.getElementById('modalMiembros');
+    const loader = document.getElementById('membersLoader');
+    const lista = document.getElementById('membersList');
+    const empty = document.getElementById('membersEmpty');
+
+    // Mostrar modal y loader
+    modal.classList.add('show');
+    modal.style.display = 'flex';
+    loader.style.display = 'block';
+    lista.style.display = 'none';
+    empty.style.display = 'none';
+
+    try {
+        // Usar los datos del club que ya están cargados
+        if (window.clubData && window.clubData.members && window.clubData.members.length > 0) {
+            // Mostrar miembros
+            mostrarListaMiembros(window.clubData.members, window.clubData);
+            loader.style.display = 'none';
+            lista.style.display = 'block';
+        } else {
+            // Mostrar estado vacío
+            loader.style.display = 'none';
+            empty.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error al cargar miembros:', error);
+        loader.style.display = 'none';
+        empty.style.display = 'block';
+        
+        // Cambiar el mensaje de error
+        const emptyTitle = empty.querySelector('h3');
+        const emptyText = empty.querySelector('p');
+        emptyTitle.textContent = 'Error al cargar miembros';
+        emptyText.textContent = 'No se pudieron cargar los miembros del club.';
+    }
+}
+
+// Función para renderizar la lista de miembros
+function mostrarListaMiembros(miembros, club) {
+    const lista = document.getElementById('membersList');
+    const currentUserId = localStorage.getItem("userId");
+    
+    const html = miembros.map((miembro) => {
+        const initials = miembro.username.charAt(0).toUpperCase();
+        const isOwner = club.id_owner == miembro.id;
+        const isCurrentUser = currentUserId == miembro.id;
+        
+        // Calcular tiempo como miembro (simulado)
+        const joinDate = new Date(miembro.createdAt || Date.now());
+        const joinDateStr = joinDate.toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'short' 
+        });
+        
+        return `
+            <li>
+                <div class="member-avatar">${initials}</div>
+                <div class="member-info">
+                    <h4 class="member-name">
+                        ${miembro.username}
+                        ${isCurrentUser ? '<span style="color: #666; font-size: 12px;">(Tú)</span>' : ''}
+                        ${isOwner ? '<span class="member-badge owner">Moderador</span>' : '<span class="member-badge"> Miembro</span>'}
+                    </h4>
+                    <p class="member-role">
+                        ${isOwner ? '🛡️ Administrador del club' : '📖 Lector activo'}
+                    </p>
+                </div>
+                <div class="member-stats">
+                    <div class="member-join-date">Desde ${joinDateStr}</div>
+                    <div class="member-activity">${isOwner ? 'Fundador' : 'Activo'}</div>
+                </div>
+            </li>
+        `;
+    }).join('');
+    
+    lista.innerHTML = html;
+}
+
+// Hacer las funciones globales para que funcionen los onclick
+window.mostrarMiembros = mostrarMiembros;
+
+// Función para mostrar el modal de historial completo
+async function mostrarHistorialCompleto() {
+    console.log("🚀 Mostrando historial completo");
+    
+    const modal = document.getElementById('modalHistorial');
+    const loader = document.getElementById('historialModalLoader');
+    const content = document.getElementById('historialModalContent');
+    const empty = document.getElementById('historialModalEmpty');
+    
+    // Verificar que los elementos existan
+    if (!modal) {
+        console.error('❌ Modal de historial no encontrado');
+        return;
+    }
+    
+    // Mostrar modal y loader
+    modal.style.display = 'flex';
+    if (loader) loader.style.display = 'flex';
+    if (content) content.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+    
+    try {
+        console.log('📊 Datos disponibles:', (window.historialClubData || historialClubData || []).length, 'elementos');
+        
+        // Cargar filtros de usuarios
+        await cargarFiltrosUsuariosModal();
+        
+        // Si no hay datos del historial, intentar cargarlos
+        if ((!window.historialClubData || window.historialClubData.length === 0) && 
+            (!historialClubData || historialClubData.length === 0)) {
+            console.log('📡 Intentando cargar historial del club...');
+            await cargarHistorialClub();
+        }
+        
+        // Configurar event listeners para filtros del modal
+        configurarFiltrosHistorialModal();
+        
+        // Configurar view toggles del modal
+        configurarViewTogglesModal();
+        
+        // Limpiar filtros para mostrar todos los datos inicialmente
+        limpiarFiltrosHistorialModal();
+        
+        console.log('✅ Modal configurado correctamente');
+        
+    } catch (error) {
+        console.error('❌ Error al cargar historial:', error);
+        if (loader) loader.style.display = 'none';
+        if (empty) {
+            empty.style.display = 'flex';
+            // Mostrar mensaje de error
+            const emptyTitle = empty.querySelector('h3');
+            const emptyText = empty.querySelector('p');
+            if (emptyTitle) emptyTitle.textContent = 'Error al cargar historial';
+            if (emptyText) emptyText.textContent = 'No se pudo cargar el historial del club. Intenta nuevamente.';
+        }
+    }
+}
+
+// Función para cargar filtros de usuarios del modal
+async function cargarFiltrosUsuariosModal() {
+    const userFilter = document.getElementById('modal-historial-usuario-filter');
+    
+    if (!userFilter) {
+        console.warn('⚠️ Filtro de usuario del modal no encontrado');
+        return;
+    }
+    
+    console.log('👥 Cargando usuarios en filtro del modal...');
+    
+    // Obtener datos del historial
+    const datosCompletos = window.historialClubData || historialClubData || [];
+    console.log('📊 Datos disponibles para filtro:', datosCompletos.length);
+    
+    // Obtener usuarios únicos del historial
+    const usuarios = [...new Set(datosCompletos.map(entry => {
+        // Verificar diferentes propiedades donde puede estar el username
+        return entry.user?.username || entry.username || entry.usuario;
+    }).filter(Boolean))];
+    
+    console.log('👤 Usuarios únicos encontrados:', usuarios);
+    
+    // Limpiar opciones existentes (excepto "Todos los usuarios")
+    userFilter.innerHTML = '<option value="">Todos los usuarios</option>';
+    
+    // Agregar usuarios
+    usuarios.forEach(username => {
+        const option = document.createElement('option');
+        option.value = username;
+        option.textContent = username;
+        userFilter.appendChild(option);
+    });
+    
+    console.log('✅ Usuarios cargados en filtro del modal:', usuarios.length, 'usuarios');
+}
+
+// Función para actualizar vista del historial en el modal
+function actualizarVistaHistorialModal() {
+    const datosOriginales = window.historialClubData || historialClubData || [];
+    actualizarVistaHistorialModalConDatos(datosOriginales);
+}
+
+// Función para actualizar vista del historial en el modal con datos específicos
+function actualizarVistaHistorialModalConDatos(datos) {
+    const content = document.getElementById('historialModalContent');
+    const empty = document.getElementById('historialModalEmpty');
+    
+    if (!content) return;
+    
+    console.log('🎨 Actualizando vista modal con', datos?.length || 0, 'elementos');
+    
+    // Verificar si hay datos
+    if (!datos || datos.length === 0) {
+        content.style.display = 'none';
+        if (empty) {
+            empty.style.display = 'flex';
+            // Restaurar mensaje por defecto
+            const emptyTitle = empty.querySelector('h3');
+            const emptyText = empty.querySelector('p');
+            if (emptyTitle) emptyTitle.textContent = 'No hay actividad registrada';
+            if (emptyText) emptyText.textContent = 'Aún no hay actividad en este club con los filtros seleccionados.';
+        }
+        return;
+    }
+    
+    // Temporalmente reemplazar los datos para generar la vista
+    const datosOriginales = historialClubData;
+    historialClubData = datos;
+    
+    try {
+        // Generar vista usando las funciones existentes
+        switch (currentView) {
+            case 'timeline':
+                content.innerHTML = generarVistaTimelineClub();
+                break;
+            case 'list':
+                content.innerHTML = generarVistaListaClub();
+                break;
+            case 'stats':
+                content.innerHTML = generarVistaEstadisticasClub();
+                break;
+            default:
+                content.innerHTML = generarVistaTimelineClub();
+        }
+        
+        console.log('✅ Vista actualizada exitosamente');
+        content.style.display = 'block';
+        if (empty) empty.style.display = 'none';
+        
+    } catch (error) {
+        console.error('❌ Error al generar vista:', error);
+        content.style.display = 'none';
+        if (empty) empty.style.display = 'flex';
+    } finally {
+        // Restaurar datos originales
+        historialClubData = datosOriginales;
+    }
+}
+
+// Función para configurar filtros del historial en el modal
+function configurarFiltrosHistorialModal() {
+    const estadoFilter = document.getElementById('modal-historial-estado-filter');
+    const usuarioFilter = document.getElementById('modal-historial-usuario-filter');
+    const periodoFilter = document.getElementById('modal-historial-periodo-filter');
+    const desdeInput = document.getElementById('modal-historial-desde');
+    const hastaInput = document.getElementById('modal-historial-hasta');
+    const limpiarBtn = document.getElementById('modal-limpiar-filtros-btn');
+    
+    // Event listeners para filtros usando las funciones existentes
+    [estadoFilter, usuarioFilter, periodoFilter, desdeInput, hastaInput].forEach(element => {
+        if (element) {
+            element.addEventListener('change', aplicarFiltrosHistorialModal);
+        }
+    });
+    
+    // Event listener para limpiar filtros
+    if (limpiarBtn) {
+        limpiarBtn.addEventListener('click', limpiarFiltrosHistorialModal);
+    }
+    
+    // Período predefinido
+    if (periodoFilter) {
+        periodoFilter.addEventListener('change', (e) => {
+            const periodo = e.target.value;
+            if (periodo) {
+                const { desde, hasta } = obtenerFechasPeriodo(periodo);
+                if (desdeInput) desdeInput.value = desde;
+                if (hastaInput) hastaInput.value = hasta;
+                aplicarFiltrosHistorialModal();
+            }
+        });
+    }
+}
+
+// Función para aplicar filtros en el modal
+function aplicarFiltrosHistorialModal() {
+    console.log('🔍 Aplicando filtros en modal...');
+    
+    const filtros = obtenerFiltrosHistorialModal();
+    console.log('📋 Filtros obtenidos:', filtros);
+    
+    // Mostrar loader
+    const loader = document.getElementById('historialModalLoader');
+    const content = document.getElementById('historialModalContent');
+    const empty = document.getElementById('historialModalEmpty');
+    
+    if (loader) loader.style.display = 'flex';
+    if (content) content.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+    
+    // Usar setTimeout para simular carga asíncrona
+    setTimeout(() => {
+        try {
+            // Obtener datos originales
+            const datosOriginales = window.historialClubData || historialClubData || [];
+            console.log('📊 Datos originales:', datosOriginales.length, 'elementos');
+            
+            if (datosOriginales.length === 0) {
+                console.log('❌ No hay datos para filtrar');
+                if (loader) loader.style.display = 'none';
+                if (empty) empty.style.display = 'flex';
+                return;
+            }
+            
+            // Aplicar filtros localmente
+            const datosFiltrados = aplicarFiltrosModalCustom(datosOriginales, filtros);
+            console.log('✅ Datos filtrados:', datosFiltrados.length, 'elementos');
+            
+            // Actualizar vista con datos filtrados
+            actualizarVistaHistorialModalConDatos(datosFiltrados);
+            
+            // Mostrar contenido o estado vacío
+            if (datosFiltrados.length > 0) {
+                if (loader) loader.style.display = 'none';
+                if (content) content.style.display = 'block';
+                if (empty) empty.style.display = 'none';
+            } else {
+                if (loader) loader.style.display = 'none';
+                if (content) content.style.display = 'none';
+                if (empty) {
+                    empty.style.display = 'flex';
+                    // Actualizar mensaje para filtros sin resultados
+                    const emptyTitle = empty.querySelector('h3');
+                    const emptyText = empty.querySelector('p');
+                    if (emptyTitle) emptyTitle.textContent = 'No hay resultados';
+                    if (emptyText) emptyText.textContent = 'No se encontraron actividades con los filtros seleccionados. Intenta ajustar los criterios de búsqueda.';
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Error al aplicar filtros:', error);
+            if (loader) loader.style.display = 'none';
+            if (empty) empty.style.display = 'flex';
+        }
+    }, 300);
+}
+
+// Función para aplicar filtros personalizada para el modal
+function aplicarFiltrosModalCustom(datos, filtros) {
+    console.log('🔄 Aplicando filtros personalizados...');
+    console.log('📊 Datos originales:', datos ? datos.length : 0, 'elementos');
+    console.log('🎯 Filtros a aplicar:', filtros);
+    
+    if (!datos || datos.length === 0) {
+        console.log('❌ No hay datos para filtrar');
+        return [];
+    }
+    
+    let datosFiltrados = [...datos];
+    
+    // Filtro por estado
+    if (filtros.estado) {
+        const estadoInicial = datosFiltrados.length;
+        datosFiltrados = datosFiltrados.filter(item => {
+            // Verificar diferentes propiedades donde puede estar el estado
+            const estado = item.estado || item.status || item.state;
+            return estado === filtros.estado;
+        });
+        console.log(`🎚️ Filtro de estado "${filtros.estado}": ${estadoInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    // Filtro por usuario (por username, más flexible)
+    if (filtros.usuario) {
+        const usuarioInicial = datosFiltrados.length;
+        datosFiltrados = datosFiltrados.filter(item => {
+            const username = item.user?.username || item.username || item.usuario;
+            return username === filtros.usuario;
+        });
+        console.log(`👤 Filtro de usuario "${filtros.usuario}": ${usuarioInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    // Filtro por fecha desde
+    if (filtros.desde) {
+        const fechaInicial = datosFiltrados.length;
+        const fechaDesde = new Date(filtros.desde);
+        datosFiltrados = datosFiltrados.filter(item => {
+            // Verificar diferentes propiedades de fecha
+            const fechaItem = new Date(
+                item.fechaCambio || 
+                item.fechaInicio || 
+                item.createdAt || 
+                item.created_at ||
+                item.date ||
+                item.fecha
+            );
+            return !isNaN(fechaItem.getTime()) && fechaItem >= fechaDesde;
+        });
+        console.log(`📅 Filtro desde "${filtros.desde}": ${fechaInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    // Filtro por fecha hasta
+    if (filtros.hasta) {
+        const hastaInicial = datosFiltrados.length;
+        const fechaHasta = new Date(filtros.hasta);
+        fechaHasta.setHours(23, 59, 59, 999); // Incluir todo el día
+        datosFiltrados = datosFiltrados.filter(item => {
+            // Verificar diferentes propiedades de fecha
+            const fechaItem = new Date(
+                item.fechaCambio || 
+                item.fechaFin || 
+                item.updatedAt || 
+                item.updated_at ||
+                item.createdAt || 
+                item.created_at ||
+                item.date ||
+                item.fecha
+            );
+            return !isNaN(fechaItem.getTime()) && fechaItem <= fechaHasta;
+        });
+        console.log(`📅 Filtro hasta "${filtros.hasta}": ${hastaInicial} → ${datosFiltrados.length} elementos`);
+    }
+    
+    console.log('✅ Filtrado completado:', datosFiltrados.length, 'elementos finales');
+    return datosFiltrados;
+}
+
+// Función para obtener filtros del modal
+function obtenerFiltrosHistorialModal() {
+    const filtros = {};
+    
+    const estado = document.getElementById('modal-historial-estado-filter')?.value;
+    if (estado) {
+        filtros.estado = estado;
+        console.log('✅ Filtro de estado:', estado);
+    }
+    
+    const usuario = document.getElementById('modal-historial-usuario-filter')?.value;
+    if (usuario) {
+        filtros.usuario = usuario; // Usar directamente el username
+        console.log('✅ Filtro de usuario:', usuario);
+    }
+    
+    const desde = document.getElementById('modal-historial-desde')?.value;
+    if (desde) {
+        filtros.desde = desde;
+        console.log('✅ Filtro desde:', desde);
+    }
+    
+    const hasta = document.getElementById('modal-historial-hasta')?.value;
+    if (hasta) {
+        filtros.hasta = hasta;
+        console.log('✅ Filtro hasta:', hasta);
+    }
+    
+    console.log('📋 Filtros finales del modal:', filtros);
+    return filtros;
+}
+
+// Función para limpiar filtros del modal
+function limpiarFiltrosHistorialModal() {
+    console.log('🧹 Limpiando filtros del modal...');
+    
+    // Limpiar todos los filtros
+    const estadoFilter = document.getElementById('modal-historial-estado-filter');
+    const usuarioFilter = document.getElementById('modal-historial-usuario-filter');
+    const periodoFilter = document.getElementById('modal-historial-periodo-filter');
+    const desdeInput = document.getElementById('modal-historial-desde');
+    const hastaInput = document.getElementById('modal-historial-hasta');
+    
+    if (estadoFilter) estadoFilter.value = '';
+    if (usuarioFilter) usuarioFilter.value = '';
+    if (periodoFilter) periodoFilter.value = '';
+    if (desdeInput) desdeInput.value = '';
+    if (hastaInput) hastaInput.value = '';
+    
+    console.log('✅ Filtros limpiados, aplicando vista sin filtros...');
+    
+    // Aplicar filtros (que ahora estarán vacíos, mostrando todos los datos)
+    aplicarFiltrosHistorialModal();
+}
+
+// Función para configurar view toggles del modal
+function configurarViewTogglesModal() {
+    const toggles = document.querySelectorAll('#modalHistorial .view-toggle');
+    
+    console.log('🔧 Configurando view toggles del modal:', toggles.length, 'toggles encontrados');
+    
+    toggles.forEach((toggle, index) => {
+        // Remover listeners anteriores si existen
+        toggle.replaceWith(toggle.cloneNode(true));
+    });
+    
+    // Obtener los nuevos elementos después del cloning
+    const newToggles = document.querySelectorAll('#modalHistorial .view-toggle');
+    
+    newToggles.forEach((toggle, index) => {
+        toggle.addEventListener('click', (e) => {
+            console.log('👆 View toggle clickeado:', e.target.dataset.view);
+            
+            // Remover active de todos
+            newToggles.forEach(t => t.classList.remove('active'));
+            // Agregar active al clickeado
+            e.target.classList.add('active');
+            
+            const view = e.target.dataset.view;
+            currentView = view;
+            
+            console.log('🔄 Cambiando vista a:', view);
+            
+            // Aplicar filtros para actualizar la vista con la nueva configuración
+            aplicarFiltrosHistorialModal();
+        });
+    });
+    
+    // Asegurar que timeline esté activo por defecto
+    const timelineToggle = document.querySelector('#modalHistorial .view-toggle[data-view="timeline"]');
+    if (timelineToggle) {
+        timelineToggle.classList.add('active');
+        currentView = 'timeline';
+    }
+}
+
+
+
+window.mostrarHistorialCompleto = mostrarHistorialCompleto;
+
 // Función global para mostrar modal de agregar libro
 function mostrarModalAgregarLibro() {
     console.log("Mostrando modal agregar libro");
-    document.getElementById('modalLibro').style.display = 'block';
+    document.getElementById('modalLibro').style.display = 'flex';
+    document.getElementById('modalLibro').style.zIndex = '1000';
     cargarCategorias();
     
     // Mostrar input de crear categoría solo si es owner
