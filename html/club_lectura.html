@@ -186,12 +186,23 @@
           <polyline points="12,6 12,12 16,14"/>
         </svg>
       </div>
-      <h2>📚 Historial Completo de Actividad</h2>
-      <p class="historial-subtitle">Toda la actividad del club con filtros avanzados</p>
+      <div class="header-content">
+        <h2>📚 Historial Completo de Actividad</h2>
+        <p class="historial-subtitle">Toda la actividad del club con filtros avanzados</p>
+      </div>
+      <button class="toggle-filters-btn" id="toggle-filters-btn" title="Mostrar/Ocultar Filtros">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
+        </svg>
+        <span class="toggle-text">Filtros</span>
+        <svg class="toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6,9 12,15 18,9"/>
+        </svg>
+      </button>
     </div>
 
     <!-- Filtros de historial -->
-    <div class="historial-modal-filters">
+    <div class="historial-modal-filters" id="historial-modal-filters">
       <div class="filters-row">
         <div class="filter-group">
           <label for="modal-historial-estado-filter">Estado:</label>
@@ -765,7 +776,10 @@
     <!-- Biblioteca Reciente -->
     <div class="biblioteca-reciente-card">
       <div class="biblioteca-header">
-        <h3 class="biblioteca-title">Biblioteca Reciente</h3>
+        <div class="biblioteca-title-section">
+          <h3 class="biblioteca-title">Biblioteca Reciente</h3>
+          <span class="biblioteca-count" id="biblioteca-count">0 libros</span>
+        </div>
         <a href="#" class="ver-todos-link" onclick="mostrarTodosLosLibros()">Ver todos</a>
       </div>
       <div class="search-filter-container">

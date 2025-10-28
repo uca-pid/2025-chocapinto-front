@@ -243,6 +243,8 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
             if (typeof cargarProgresoLectura === 'function') {
                 cargarProgresoLectura();
             }
+            // Actualizar actividad reciente después de cambiar estado
+            cargarActividadReciente();
         } else {
             hideLoader();
             showNotification("error", data.message || "Error al cambiar el estado");
@@ -591,6 +593,12 @@ async function renderClub() {
         actualizarChips();
         aplicarFiltros(data.club, categoriasSeleccionadas);
 
+        // Cargar actividad reciente con datos reales
+        await cargarActividadReciente();
+
+        // Ocultar loader una vez que todo esté cargado
+        hideLoader();
+
         // Actualizar las secciones adicionales
         setTimeout(() => {
             if (typeof cargarProgresoLectura === 'function') {
@@ -651,9 +659,22 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
         });
     }
     
-    // Mostrar libros filtrados
+    // Actualizar contador de biblioteca
+    const bibliotecaCount = document.getElementById('biblioteca-count');
+    if (bibliotecaCount) {
+        const totalLibros = libros.length;
+        const librosAMostrar = Math.min(totalLibros, 12);
+        if (totalLibros > 12) {
+            bibliotecaCount.textContent = `Mostrando ${librosAMostrar} de ${totalLibros} libros`;
+        } else {
+            bibliotecaCount.textContent = `${totalLibros} libro${totalLibros !== 1 ? 's' : ''}`;
+        }
+    }
+
+    // Mostrar libros filtrados (limitado a 12 para biblioteca reciente)
     if (libros.length > 0) {
-        libros.forEach(libro => {
+        const librosLimitados = libros.slice(0, 12);
+        librosLimitados.forEach(libro => {
             const card = document.createElement('div');
             card.className = 'modern-book-card';
             
@@ -724,6 +745,12 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
             librosList.appendChild(card);
         });
     } else {
+        // Actualizar contador cuando no hay libros
+        const bibliotecaCount = document.getElementById('biblioteca-count');
+        if (bibliotecaCount) {
+            bibliotecaCount.textContent = '0 libros';
+        }
+        
         let mensaje = 'No hay libros aún.';
         let filtros = [];
         
@@ -1623,6 +1650,8 @@ function handleTabChange() {
         if (window.clubData) {
             actualizarEstadisticas(window.clubData);
         }
+        // Cargar actividad reciente cuando se cambia a la pestaña Principal
+        cargarActividadReciente();
         // Configurar el modal de libros cuando se muestra la sección Principal
         setupModalLibro();
     } else if (platinumChecked) {
@@ -2417,9 +2446,9 @@ function generarVistaEstadisticasClub() {
 // Funciones helper
 function getAccionTexto(estado) {
     const acciones = {
-        'por_leer': 'agregó a su lista por leer',
-        'leyendo': 'empezó a leer',
-        'leido': 'terminó de leer'
+        'por_leer': 'agregó a por leer',
+        'leyendo': 'se está leyendo',
+        'leido': 'se terminó de leer'
     };
     return acciones[estado] || 'cambió el estado de';
 }
@@ -2527,6 +2556,28 @@ function setupHistorialClubEventListeners() {
             // Recargar historial sin filtros
             cargarHistorialClub();
             console.log('Filtros limpiados y historial recargado');
+        });
+    }
+    
+    // Botón de toggle de filtros
+    const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+    const filtersContainer = document.getElementById('historial-modal-filters');
+    
+    if (toggleFiltersBtn && filtersContainer) {
+        toggleFiltersBtn.addEventListener('click', () => {
+            const isCollapsed = filtersContainer.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                // Expandir filtros
+                filtersContainer.classList.remove('collapsed');
+                toggleFiltersBtn.classList.remove('collapsed');
+                toggleFiltersBtn.title = 'Ocultar Filtros';
+            } else {
+                // Colapsar filtros
+                filtersContainer.classList.add('collapsed');
+                toggleFiltersBtn.classList.add('collapsed');
+                toggleFiltersBtn.title = 'Mostrar Filtros';
+            }
         });
     }
     
@@ -2902,6 +2953,16 @@ async function mostrarHistorialCompleto() {
         // Limpiar filtros para mostrar todos los datos inicialmente
         limpiarFiltrosHistorialModal();
         
+        // Inicializar filtros como colapsados por defecto para dar más espacio
+        const filtersContainer = document.getElementById('historial-modal-filters');
+        const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+        if (filtersContainer && toggleFiltersBtn) {
+            filtersContainer.classList.add('collapsed');
+            toggleFiltersBtn.classList.add('collapsed');
+            toggleFiltersBtn.title = 'Mostrar Filtros';
+            console.log('📁 Filtros inicializados como colapsados');
+        }
+        
         console.log('✅ Modal configurado correctamente');
         
     } catch (error) {
@@ -3037,6 +3098,30 @@ function configurarFiltrosHistorialModal() {
     // Event listener para limpiar filtros
     if (limpiarBtn) {
         limpiarBtn.addEventListener('click', limpiarFiltrosHistorialModal);
+    }
+
+    // Event listener para toggle de filtros
+    const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+    const filtersContainer = document.getElementById('historial-modal-filters');
+    
+    if (toggleFiltersBtn && filtersContainer) {
+        toggleFiltersBtn.addEventListener('click', () => {
+            const isCollapsed = filtersContainer.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                // Expandir filtros
+                filtersContainer.classList.remove('collapsed');
+                toggleFiltersBtn.classList.remove('collapsed');
+                toggleFiltersBtn.title = 'Ocultar Filtros';
+                console.log('📂 Filtros expandidos');
+            } else {
+                // Colapsar filtros
+                filtersContainer.classList.add('collapsed');
+                toggleFiltersBtn.classList.add('collapsed');
+                toggleFiltersBtn.title = 'Mostrar Filtros';
+                console.log('📁 Filtros colapsados');
+            }
+        });
     }
     
     // Período predefinido
@@ -3193,6 +3278,221 @@ function aplicarFiltrosModalCustom(datos, filtros) {
     
     console.log('✅ Filtrado completado:', datosFiltrados.length, 'elementos finales');
     return datosFiltrados;
+}
+
+// ==================== FUNCIONES DE ACTIVIDAD RECIENTE REAL ====================
+
+// Función para cargar actividad reciente real (últimas 10 actividades)
+async function cargarActividadReciente() {
+    const clubId = getClubId();
+    const activityList = document.getElementById('recent-activity-list');
+    
+    if (!activityList) {
+        console.warn('❌ Elemento recent-activity-list no encontrado');
+        return;
+    }
+
+    try {
+        console.log('📡 Cargando actividad reciente para club:', clubId);
+        
+        // Usar la ruta existente de historial
+        const res = await fetch(`${API_URL}/club/${clubId}/reading-history`);
+        const data = await res.json();
+        
+        if (data.success && data.historial) {
+            console.log('✅ Historial recibido:', data.historial.length, 'elementos');
+            
+            // Tomar solo las últimas 8 actividades (ordenadas por fecha más reciente)
+            const actividadesRecientes = data.historial
+                .sort((a, b) => new Date(b.fechaCambio) - new Date(a.fechaCambio))
+                .slice(0, 8);
+            
+            activityList.innerHTML = '';
+            
+            if (actividadesRecientes.length === 0) {
+                mostrarActividadVacia(activityList);
+                return;
+            }
+            
+            // Crear elementos de actividad usando los datos reales
+            actividadesRecientes.forEach(activity => {
+                const activityItem = crearItemActividadReal(activity);
+                activityList.appendChild(activityItem);
+            });
+            
+            // Actualizar contador de actividades
+            const activityCount = document.getElementById('activity-count');
+            if (activityCount) {
+                activityCount.textContent = `${actividadesRecientes.length} actividad${actividadesRecientes.length !== 1 ? 'es' : ''}`;
+            }
+            
+            console.log('✅ Actividad reciente cargada exitosamente');
+            
+        } else {
+            console.warn('⚠️ No se pudo obtener historial:', data.message);
+            mostrarActividadVacia(activityList);
+        }
+    } catch (error) {
+        console.error('❌ Error cargando actividad reciente:', error);
+        mostrarActividadError(activityList);
+    }
+}
+
+// Función para crear un item de actividad real
+function crearItemActividadReal(activity) {
+    const item = document.createElement('div');
+    item.className = 'activity-item';
+    
+    const { icon, text, color } = getActivityDisplayReal(activity);
+    const timeAgo = formatTimeAgoReal(activity.fechaCambio);
+    
+    item.innerHTML = `
+        <div class="activity-icon ${color}">
+            ${icon}
+        </div>
+        <div class="activity-content">
+            <div class="activity-text">${text}</div>
+            <div class="activity-time">${timeAgo}</div>
+        </div>
+    `;
+    
+    return item;
+}
+
+// Función para obtener el display de la actividad según el estado real
+function getActivityDisplayReal(activity) {
+    const username = activity.user?.username || 'Usuario desconocido';
+    const bookTitle = activity.book?.title || 'Libro desconocido';
+    const bookAuthor = activity.book?.author ? ` de ${activity.book.author}` : '';
+    
+    switch (activity.estado) {
+        case 'por_leer':
+            return {
+                icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>`,
+                text: `<strong>${username}</strong> agregó a por leer "${bookTitle}"${bookAuthor} `,
+                color: 'book'
+            };
+            
+        case 'leyendo':
+            return {
+                icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>`,
+                text: `<strong>${username}</strong> cambio el estado a leyendo "${bookTitle}"${bookAuthor}`,
+                color: 'star'
+            };
+            
+        case 'leido':
+            const diasLectura = activity.fechaInicio && activity.fechaFin ? 
+                calcularDiasLectura(activity.fechaInicio, activity.fechaFin) : null;
+            
+            const duracionTexto = diasLectura && diasLectura > 0 ? ` en ${diasLectura} día${diasLectura !== 1 ? 's' : ''}` : '';
+            
+            return {
+                icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                    <path d="M4 22h16"/>
+                    <path d="M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"/>
+                    <path d="M2 14h20v-2c0-4.4-3.6-8-8-8H10c-4.4 0-8 3.6-8 8v2z"/>
+                </svg>`,
+                text: `<strong>${username}</strong> cambio estado a leido "${bookTitle}"${bookAuthor}${duracionTexto}`,
+                color: 'trophy'
+            };
+            
+        default:
+            return {
+                icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>`,
+                text: `<strong>${username}</strong> realizó una acción con "${bookTitle}"${bookAuthor}`,
+                color: 'user'
+            };
+    }
+}
+
+// Función para formatear tiempo relativo
+function formatTimeAgoReal(dateString) {
+    if (!dateString) return 'Fecha desconocida';
+    
+    const now = new Date();
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) return 'Fecha inválida';
+    
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Hace un momento';
+    if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `Hace ${minutes} minuto${minutes !== 1 ? 's' : ''}`;
+    }
+    if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `Hace ${hours} hora${hours !== 1 ? 's' : ''}`;
+    }
+    if (diffInSeconds < 604800) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `Hace ${days} día${days !== 1 ? 's' : ''}`;
+    }
+    if (diffInSeconds < 2592000) {
+        const weeks = Math.floor(diffInSeconds / 604800);
+        return `Hace ${weeks} semana${weeks !== 1 ? 's' : ''}`;
+    }
+    
+    return date.toLocaleDateString('es-ES', {
+        day: 'numeric',
+        month: 'short',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
+}
+
+// Funciones auxiliares para estados de error
+function mostrarActividadVacia(container) {
+    container.innerHTML = `
+        <div class="activity-item">
+            <div class="activity-icon book">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+            </div>
+            <div class="activity-content">
+                <div class="activity-text">No hay actividad registrada</div>
+                <div class="activity-time">Los cambios de estado aparecerán aquí</div>
+            </div>
+        </div>
+    `;
+    
+    // Actualizar contador
+    const activityCount = document.getElementById('activity-count');
+    if (activityCount) {
+        activityCount.textContent = '0 actividades';
+    }
+}
+
+function mostrarActividadError(container) {
+    container.innerHTML = `
+        <div class="activity-item">
+            <div class="activity-icon" style="color: #ef4444;">⚠️</div>
+            <div class="activity-content">
+                <div class="activity-text">Error cargando actividad</div>
+                <div class="activity-time">Intenta recargar la página</div>
+            </div>
+        </div>
+    `;
+    
+    // Actualizar contador
+    const activityCount = document.getElementById('activity-count');
+    if (activityCount) {
+        activityCount.textContent = 'Error';
+    }
 }
 
 // Función para obtener filtros del modal
@@ -3398,18 +3698,45 @@ function mostrarCategoriasDisplay(categorias) {
         '#28a745', // Verde
         '#fd7e14', // Naranja
         '#e83e8c', // Rosa
-        '#6f42c1', // Púrpura
-        '#20c997', // Verde menta
-        '#ffc107'  // Amarillo
+        '#6f42c1', // Púrpura - color para "otros"
     ];
     
-    const html = categorias.map((categoria, index) => {
+    // Procesar categorías: top 5 + otros
+    let categoriasParaMostrar = [];
+    
+    if (categorias.length <= 5) {
+        // Si hay 5 o menos categorías, mostrar todas
+        categoriasParaMostrar = [...categorias];
+    } else {
+        // Tomar las top 5
+        const top5 = categorias.slice(0, 5);
+        
+        // Agrupar el resto como "otros"
+        const restoCategorias = categorias.slice(5);
+        const countOtros = restoCategorias.reduce((sum, cat) => sum + cat.count, 0);
+        const porcentajeOtros = restoCategorias.reduce((sum, cat) => sum + cat.porcentaje, 0);
+        
+        categoriasParaMostrar = [...top5];
+        
+        if (countOtros > 0) {
+            const nombresOtros = restoCategorias.map(cat => cat.nombre).join(', ');
+            categoriasParaMostrar.push({
+                nombre: 'Otros',
+                count: countOtros,
+                porcentaje: porcentajeOtros,
+                tooltip: `Incluye: ${nombresOtros}`
+            });
+        }
+    }
+    
+    const maxPorcentaje = Math.max(...categoriasParaMostrar.map(c => c.porcentaje));
+    
+    const html = categoriasParaMostrar.map((categoria, index) => {
         const color = colores[index % colores.length];
-        const maxPorcentaje = Math.max(...categorias.map(c => c.porcentaje));
         const anchoBarra = maxPorcentaje > 0 ? (categoria.porcentaje / maxPorcentaje) * 100 : 0;
         
         return `
-            <div class="category-item-display">
+            <div class="category-item-display" ${categoria.tooltip ? `title="${categoria.tooltip}"` : ''}>
                 <div class="category-info">
                     <span class="category-name">${categoria.nombre}</span>
                     <span class="category-count">${categoria.count}</span>
