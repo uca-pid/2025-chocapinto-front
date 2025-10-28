@@ -73,7 +73,7 @@
     <meta charset="UTF-8">
     <title>Club de Lectura</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/clubstyles.css">
+    <link rel="stylesheet" href="../css/clubstylesnew.css">
     <link rel="stylesheet" href="../css/componentes/notificaciones.css">
     <link rel="stylesheet" href="../css/componentes/loader.css">
     <link rel="stylesheet" href="../css/componentes/confirmacion.css">
@@ -81,53 +81,57 @@
 </head>
 <body>
 <header class="main-header">
-        <a href="main.html">
-        <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
+        <!-- Logo y título a la izquierda -->
+        <div class="header-left">
+            <a href="main.html" class="logo-section">
+                <img src="../images/BooksyLogo.png" class="booksy-logo" alt="Booksy Logo">
+            </a> 
+            <div class="header-title">
+                <div class="club-header-info">
+                    <div class="club-image-header">
+                        <img id="sidebar-club-imagen" src="" alt="Imagen del club" class="club-img-header">
+                    </div>
+                    <div class="club-text-header">
+                        <span id="sidebar-club-name" class="club-name-header">Club de Lectura River</span>
+                        <span class="club-subtitle">Biblioteca digital</span>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
         
-          </a>
-        <nav class="main-nav">
-            <div class="profile-dropdown">
-                <button class="button profile-btn" id="profileDropdownBtn" data-text="Perfil">
-                    <span class="actual-text">&nbsp;<span id="usernameDisplay">Perfil</span>&nbsp;</span>
-                    <span aria-hidden="true" class="hover-text">&nbsp;<span id="usernameDisplayHover">Perfil</span>&nbsp;</span>
-                </button>
-                <div class="dropdown-content" id="profileDropdownContent">
-                    <a href="perfil.html">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 8px;">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                        Editar perfil
-                    </a>
-                    <a href="#" onclick="logout()">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 8px;">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                            <polyline points="16,17 21,12 16,7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                        Cerrar sesión
-                    </a>
+        <!-- Navegación e iconos a la derecha -->
+        <nav class="header-right">
+            <button class="icon-btn notification-btn" id="notificationBtn" title="Notificaciones">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="notification-badge">1</span>
+            </button>
+            
+            <button class="icon-btn settings-btn" id="settingsBtn" title="Configuración">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m15.5-2.5L19 12l-2.5 2.5M5 16.5L2.5 14 5 11.5"/>
+                </svg>
+            </button>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <span id="userInitials">.</span>
+                </div>
+                <div class="user-info">
+                    <span class="username" id="usernameDisplay">Cargando...</span>
+                    <span class="user-status">Miembro activo</span>
                 </div>
             </div>
         </nav>
     </header>
    <main>
     
-<div class="glass-radio-group">
-  <input type="radio" name="plan" id="glass-silver" checked="" />
-  <label for="glass-silver">Club</label>
 
-  <input type="radio" name="plan" id="glass-gold" />
-  <label for="glass-gold">Principal</label>
-
-  <input type="radio" name="plan" id="glass-platinum" />
-  <label for="glass-platinum">Notificaciones</label>
-
-  <input type="radio" name="plan" id="glass-historial" />
-  <label for="glass-historial">Historial</label>
-
-  <div class="glass-glider"></div>
- 
 </div>
   <button class="volver-btn-fixed" onclick="window.location.href='main.html'">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -236,80 +240,181 @@
       <div class="principal-main-content">
         <!-- Estadísticas -->
         <div class="principal-stats-section">
-          <div class="stats-header">
-            <h3 class="section-title">Estadísticas del Club</h3>
+          
+          <div class="stats-modern-grid">
+            <div class="stat-modern-card stat-blue">
+              <div class="stat-modern-content">
+                <div class="stat-modern-text">
+                  <h3>Libros Leídos</h3>
+                  <div class="stat-modern-number" id="total-books">0</div>
+                  <p class="stat-modern-subtitle">Epicamente</p>
+                </div>
+                <div class="stat-modern-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stat-modern-card stat-teal">
+              <div class="stat-modern-content">
+                <div class="stat-modern-text">
+                  <h3>Leyendo Ahora</h3>
+                  <div class="stat-modern-number" id="reading-books">0</div>
+                  <p class="stat-modern-subtitle">En progreso</p>
+                </div>
+                <div class="stat-modern-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stat-modern-card stat-orange">
+              <div class="stat-modern-content">
+                <div class="stat-modern-text">
+                  <h3>Por Leer</h3>
+                  <div class="stat-modern-number" id="pending-books">0</div>
+                  <p class="stat-modern-subtitle">En lista</p>
+                </div>
+                <div class="stat-modern-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stat-modern-card stat-green">
+              <div class="stat-modern-content">
+                <div class="stat-modern-text">
+                  <h3>Categorías</h3>
+                  <div class="stat-modern-number" id="total-categories">0</div>
+                  <p class="stat-modern-subtitle">Diferentes géneros</p>
+                </div>
+                <div class="stat-modern-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+                <!-- Grid con Progreso de Lectura y Acciones Rápidas -->
+        <div class="progress-actions-grid">
+          <!-- Progreso de Lectura -->
+          <div class="reading-progress-card">
+            <div class="progress-header">
+              <h3 class="section-title">Progreso de Lectura</h3>
+              <span class="active-books-count" id="active-books-count">3 libros activos</span>
+            </div>
+            <div class="progress-list" id="progress-list">
+              <!-- Los libros en progreso se cargarán aquí dinámicamente -->
+              <div class="progress-item-placeholder">
+                <div class="book-thumbnail-placeholder">📖</div>
+                <div class="book-info-placeholder">
+                  <h4>Cargando libros en progreso...</h4>
+                  <p>Autor</p>
+                  <div class="progress-details">
+                    <span>0 de 0 páginas</span>
+                    <span>0%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones Rápidas -->
+          <div class="quick-actions-card">
+            <div class="quick-actions-header">
+              <h3 class="section-title">Acciones Rápidas</h3>
+            </div>
+            <div class="quick-actions-grid">
+              <button class="quick-action-btn primary" onclick="mostrarModalAgregarLibro()">
+                <div class="action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </div>
+                <span>Agregar Libro</span>
+              </button>
+              
+              <button class="quick-action-btn secondary" onclick="alert('Función de búsqueda en desarrollo')">
+                <div class="action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                </div>
+                <span>Buscar</span>
+              </button>
+              
+              <button class="quick-action-btn secondary" onclick="mostrarRanking()">
+                <div class="action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 4v12l-4-2-4 2V4"/>
+                    <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                  </svg>
+                </div>
+                <span>Ver Ranking</span>
+              </button>
+              
+              <button class="quick-action-btn secondary" onclick="alert('Función de miembros en desarrollo')">
+                <div class="action-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </div>
+                <span>Miembros</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección de Categorías -->
+        <div class="categories-section-card">
+          <div class="categories-header">
+            <h3 class="section-title">Categorías</h3>
             <button id="ver-grafico-btn" class="chart-btn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
                 <path d="M22 12A10 10 0 0 0 12 2v10z"/>
               </svg>
-              Ver Gráfico
             </button>
-            <button id="ver-ranking-btn" class="chart-btn" onclick="mostrarRanking()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M16 4v12l-4-2-4 2V4"/>
-                <path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-              </svg>
-              Ver Ranking
+              
             </button>
           </div>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-icon books-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                </svg>
+          <div class="categories-list" id="categories-display-list">
+            <!-- Las categorías se cargarán aquí dinámicamente -->
+            <div class="category-item-display">
+              <div class="category-info">
+                <span class="category-name">Cargando categorías...</span>
+                <span class="category-count">0</span>
               </div>
-              <div class="stat-content">
-                <div class="stat-number" id="total-books">0</div>
-                <div class="stat-label">Libros leídos</div>
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-icon reading-icon" style="color: #74b9ff;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                  <circle cx="12" cy="8" r="2"/>
-                </svg>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number" id="reading-books">0</div>
-                <div class="stat-label">Leyendo</div>
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-icon pending-icon" style="color: #fdcb6e;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2v20"/>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                  <circle cx="12" cy="12" r="1"/>
-                </svg>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number" id="pending-books">0</div>
-                <div class="stat-label">Por leer</div>
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-icon categories-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="7" height="7"/>
-                  <rect x="14" y="3" width="7" height="7"/>
-                  <rect x="14" y="14" width="7" height="7"/>
-                  <rect x="3" y="14" width="7" height="7"/>
-                </svg>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number" id="total-categories">0</div>
-                <div class="stat-label">Categorías</div>
+              <div class="category-progress-bar">
+                <div class="category-progress-fill" style="width: 0%; background-color: #4a90e2;"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Sección de acciones -->
+        <!-- Sección de acciones
         <div class="principal-actions-card">
           <div class="actions-header">
             <h3 class="section-title">
@@ -328,9 +433,9 @@
             </button>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <!-- Información del Club (Fija a la derecha) -->
+      <!-- Información del Club (Fija a la derecha)
       <div class="club-info-sidebar">
         <div class="sidebar-club-card">
           <div class="sidebar-club-image">
@@ -342,40 +447,34 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
 
-    <!-- Biblioteca de Libros -->
-    <div class="libros-card">
-      <div class="card-header">
-        <h3 class="card-title">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+    <!-- Biblioteca Reciente -->
+    <div class="biblioteca-reciente-card">
+      <div class="biblioteca-header">
+        <h3 class="biblioteca-title">Biblioteca Reciente</h3>
+        <a href="#" class="ver-todos-link" onclick="mostrarTodosLosLibros()">Ver todos</a>
+      </div>
+      <div class="search-filter-container">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
           </svg>
-          Biblioteca del Club
-        </h3>
-        <div class="search-filter-container">
-          <div class="search-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input type="text" placeholder="Buscar libros..." id="search-books">
-          </div>
-          <div class="estado-filter">
-            
-            <select id="estado-filter" class="filter-select">
-              <option value="todos">📚 Todos los estados</option>
-              <option value="por_leer">📚 Por leer</option>
-              <option value="leyendo">📖 Leyendo</option>
-              <option value="leido">✅ Leído</option>
-            </select>
-          </div>
+          <input type="text" placeholder="Buscar libros..." id="search-books">
+        </div>
+        <div class="estado-filter">
+          <select id="estado-filter" class="filter-select">
+            <option value="todos">📚 Todos los estados</option>
+            <option value="por_leer">📚 Por leer</option>
+            <option value="leyendo">📖 Leyendo</option>
+            <option value="leido">✅ Leído</option>
+          </select>
         </div>
       </div>
-      <div class="libros-grid-container">
+      <div class="biblioteca-grid-container">
         <!-- El filtro se insertará aquí dinámicamente por JavaScript -->
-        <div id="libros-leidos-list" class="libros-grid"></div>
+        <div id="libros-leidos-list" class="biblioteca-grid"></div>
         <div id="empty-state" class="empty-state" style="display:none;">
           <div class="empty-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -650,7 +749,7 @@
   </div>
 </div>
 
-    <!-- Modal para ver gráfico -->
+        <!-- Modal para ver gráfico -->
     <div id="modalGrafico" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:200; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
       <div class="chart-modal-box">
         <div class="chart-header">
@@ -677,7 +776,6 @@
         </div>
       </div>
     </div>
-    
     <!-- Modal para agregar libro -->
     <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
   <div id="modalLibroBox" style="background:#fff; max-width:500px; margin:8vh auto; padding:2.5rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column;">
@@ -745,1012 +843,6 @@
   </div>
 </div>
 
-    <style>
-    @keyframes fadeInModal {
-        0% { opacity:0; transform:scale(0.95); }
-        80% { opacity:1; transform:scale(1.03); }
-        100% { opacity:1; transform:scale(1); }
-    }
-    @keyframes fadeInBg {
-        0% { opacity:0; }
-        100% { opacity:1; }
-    }
-    
-    /* Estilos del Modal de Comentarios */
-    .comments-card {
-      width: 450px;
-      max-width: 90vw;
-      height: fit-content;
-      background-color: white;
-      box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01), 0px 105px 63px rgba(0, 0, 0, 0.05), 0px 47px 47px rgba(0, 0, 0, 0.09), 0px 12px 26px rgba(0, 0, 0, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.1);
-      border-radius: 17px 17px 27px 27px;
-      position: relative;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .comments-card .title {
-      width: 100%;
-      height: 50px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      padding-left: 20px;
-      border-bottom: 1px solid #f1f1f1;
-      font-weight: 700;
-      font-size: 13px;
-      color: #47484b;
-    }
-
-    .comments-card .title::after {
-      content: '';
-      width: 8ch;
-      height: 1px;
-      position: absolute;
-      bottom: -1px;
-      background-color: #47484b;
-    }
-
-    .comments-card .comments {
-      display: grid;
-      grid-template-columns: 35px 1fr;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .comments-card .comment-react {
-      width: 35px;
-      height: fit-content;
-      display: grid;
-      grid-template-columns: auto;
-      margin: 0;
-      background-color: #f1f1f1;
-      border-radius: 5px;
-    }
-
-    .comments-card .comment-react button {
-      width: 35px;
-      height: 35px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: transparent;
-      border: 0;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .comments-card .comment-react button:after {
-      content: '';
-      width: 40px;
-      height: 40px;
-      position: absolute;
-      left: -2.5px;
-      top: -2.5px;
-      background-color: #f5356e;
-      border-radius: 50%;
-      z-index: 0;
-      transform: scale(0);
-    }
-
-    .comments-card .comment-react button svg {
-      position: relative;
-      z-index: 9;
-    }
-
-    .comments-card .comment-react button:hover:after {
-      animation: ripple 0.6s ease-in-out forwards;
-    }
-
-    .comments-card .comment-react button:hover svg {
-      fill: #f5356e;
-    }
-
-    .comments-card .comment-react button:hover svg path {
-      stroke: #f5356e;
-      fill: #f5356e;
-    }
-
-    .comments-card .comment-react hr {
-      width: 80%;
-      height: 1px;
-      background-color: #dfe1e6;
-      margin: auto;
-      border: 0;
-    }
-
-    .comments-card .comment-react span {
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: auto;
-      font-size: 13px;
-      font-weight: 600;
-      color: #707277;
-    }
-
-    .comments-card .comment-container {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      padding: 0;
-      margin: 0;
-    }
-
-    .comments-card .comment-item {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 10px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      position: relative;
-    }
-
-    .comments-card .comment-item .user {
-      display: grid;
-      grid-template-columns: 40px 1fr;
-      gap: 10px;
-    }
-
-    .comments-card .comment-item .user .user-pic {
-      width: 40px;
-      height: 40px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #2c5a91;
-      border-radius: 50%;
-      color: white;
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .comments-card .comment-item .user .user-pic:after {
-      content: '';
-      width: 9px;
-      height: 9px;
-      position: absolute;
-      right: 0px;
-      bottom: 0px;
-      border-radius: 50%;
-      background-color: #0fc45a;
-      border: 2px solid #ffffff;
-    }
-
-    .comments-card .comment-item .user .user-info {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 3px;
-    }
-
-    .comments-card .comment-item .user .user-info span {
-      font-weight: 700;
-      font-size: 12px;
-      color: #47484b;
-    }
-
-    .comments-card .comment-item .user .user-info p {
-      font-weight: 600;
-      font-size: 10px;
-      color: #acaeb4;
-    }
-
-    .comments-card .comment-item .comment-content {
-      font-size: 12px;
-      line-height: 16px;
-      font-weight: 600;
-      color: #5f6064;
-      margin-left: 10px;
-    }
-
-    .comments-card .comment-item .delete-comment {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: none;
-      border: none;
-      color: #d63031;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-    }
-
-    .comments-card .comment-item .delete-comment:hover {
-      background-color: #ffeaea;
-    }
-
-    .comments-card .text-box {
-      width: 100%;
-      height: fit-content;
-      background-color: #f1f1f1;
-      padding: 8px;
-    }
-
-    .comments-card .text-box .box-container {
-      background-color: #ffffff;
-      border-radius: 8px 8px 21px 21px;
-      padding: 8px;
-    }
-
-    .comments-card .text-box textarea {
-      width: 100%;
-      height: 40px;
-      resize: none;
-      border: 0;
-      border-radius: 6px;
-      padding: 12px 12px 10px 12px;
-      font-size: 13px;
-      outline: none;
-      caret-color: #0a84ff;
-      background-color: #f8f9fa;
-    }
-
-    .comments-card .text-box .formatting {
-      display: grid;
-      grid-template-columns: auto auto auto auto auto 1fr;
-    }
-
-    .comments-card .text-box .formatting button {
-      width: 30px;
-      height: 30px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: transparent;
-      border-radius: 50%;
-      border: 0;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .comments-card .text-box .formatting button:hover {
-      background-color: #f1f1f1;
-    }
-
-    .comments-card .text-box .formatting .send {
-      width: 30px;
-      height: 30px;
-      background-color: #0a84ff;
-      margin: 0 0 0 auto;
-    }
-
-    .comments-card .text-box .formatting .send:hover {
-      background-color: #026eda;
-    }
-
-    @keyframes ripple {
-      0% {
-        transform: scale(0);
-        opacity: 0.6;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 0;
-      }
-    }
-
-    /* Estilos para layouts horizontales */
-    
-    /* Sección Club - Layout Horizontal */
-    .club-top-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .club-bottom-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-
-    .club-bottom-row .club-requests-card {
-      min-height: 300px;
-    }
-
-    /* Sección Principal - Layout Horizontal con Sidebar */
-    .principal-top-row {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .principal-main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-
-    .principal-stats-section {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .principal-actions-card {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-    }
-
-    /* Sección Notificaciones - Layout Horizontal con Sidebar */
-    .notifications-top-row {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .notifications-main-content {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 2rem;
-    }
-
-    .notifications-filters-card {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Estilos del Sidebar de Información del Club */
-    .club-info-sidebar {
-      position: sticky;
-      top: 2rem;
-      height: fit-content;
-    }
-
-    .sidebar-club-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      padding: 1.5rem;
-      border: 1px solid #eaf6ff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 1rem;
-    }
-
-    .sidebar-club-image {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(44, 90, 145, 0.2);
-    }
-
-    .sidebar-club-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
-    .sidebar-club-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .sidebar-club-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #2c5a91;
-      margin: 0;
-      line-height: 1.3;
-    }
-
-    .sidebar-club-desc {
-      font-size: 0.9rem;
-      color: #636e72;
-      margin: 0;
-      line-height: 1.4;
-      max-height: 4.2rem;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
-    }
-
-    /* Responsive para tablets */
-    @media (max-width: 1024px) {
-      .club-top-row,
-      .principal-top-row,
-      .notifications-top-row {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .club-bottom-row {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .principal-main-content,
-      .notifications-main-content {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-      }
-
-      .club-info-sidebar {
-        position: static;
-      }
-
-      .sidebar-club-card {
-        flex-direction: row;
-        text-align: left;
-        padding: 1rem;
-      }
-
-      .sidebar-club-image {
-        width: 60px;
-        height: 60px;
-      }
-    }
-
-    /* Responsive para móviles */
-    @media (max-width: 768px) {
-      .club-top-row,
-      .club-bottom-row,
-      .principal-top-row,
-      .notifications-top-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-      .principal-main-content,
-      .notifications-main-content {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-      .principal-stats-section .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .volver-btn-fixed {
-        left: 10px !important;
-        padding: 0.5rem 1rem !important;
-        font-size: 0.9rem !important;
-      }
-
-      .volver-btn-fixed svg {
-        width: 16px !important;
-        height: 16px !important;
-      }
-
-      .sidebar-club-card {
-        flex-direction: column;
-        text-align: center;
-        padding: 1rem;
-      }
-
-      .sidebar-club-image {
-        width: 50px;
-        height: 50px;
-      }
-
-      .sidebar-club-title {
-        font-size: 1rem;
-      }
-
-      .sidebar-club-desc {
-        font-size: 0.85rem;
-      }
-    }
-
-    /* Estilos para el botón volver fijo */
-    .volver-btn-fixed {
-      position: fixed;
-      
-      left: 20px;
-      transform: translateY(-50%);
-      background: #eaf6ff;
-      color: #2c5a91;
-      border: none;
-      border-radius: 12px;
-      padding: 0.8rem 1.2rem;
-      font-size: 1rem;
-      font-weight: 700;
-      box-shadow: 0 4px 20px rgba(44, 90, 145, 0.3);
-      cursor: pointer;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(44, 90, 145, 0.2);
-      writing-mode: horizontal-tb;
-    }
-
-    .volver-btn-fixed:hover {
-      background: #2c5a91;
-      color: #fff;
-      transform: translateY(-50%) translateX(5px);
-      box-shadow: 0 6px 25px rgba(44, 90, 145, 0.4);
-    }
-
-    .volver-btn-fixed svg {
-      width: 20px;
-      height: 20px;
-      transition: transform 0.3s ease;
-    }
-
-    .volver-btn-fixed:hover svg {
-      transform: translateX(-2px);
-    }
-
-    /* Animación de entrada */
-    @keyframes slideInLeft {
-      from {
-        transform: translateY(-50%) translateX(-100px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(-50%) translateX(0);
-        opacity: 1;
-      }
-    }
-
-    .volver-btn-fixed {
-      animation: slideInLeft 0.5s ease-out;
-    }
-    
-    /* Estilos para el botón de ver gráfico */
-    .stats-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    
-    .chart-btn {
-      background: linear-gradient(135deg, #74b9ff, #0984e3);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 0.6rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(116, 185, 255, 0.3);
-    }
-    
-    .chart-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(116, 185, 255, 0.4);
-    }
-    
-    /* Estilos para el modal del gráfico */
-    .chart-modal-box {
-      background: white;
-      max-width: 900px;
-      width: 95vw;
-      max-height: 85vh;
-      margin: 7.5vh auto;
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(44, 90, 145, 0.2);
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    
-    .chart-header {
-      background: linear-gradient(135deg, #74b9ff, #0984e3);
-      color: white;
-      padding: 1.5rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .chart-header h3 {
-      margin: 0;
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
-    
-    .close-btn {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 2rem;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    
-    .close-btn:hover {
-      transform: scale(1.1);
-    }
-    
-    .chart-filters {
-      padding: 1.5rem 2rem 1rem;
-      border-bottom: 1px solid #eaf6ff;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .chart-filters label {
-      font-weight: 600;
-      color: #2c5a91;
-    }
-    
-    .chart-filter-select {
-      padding: 0.5rem 1rem;
-      border: 2px solid rgba(44, 90, 145, 0.1);
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      background: white;
-      color: #2c5a91;
-      cursor: pointer;
-      transition: border-color 0.2s ease;
-    }
-    
-    .chart-filter-select:focus {
-      outline: none;
-      border-color: #0984e3;
-    }
-    
-    .chart-container {
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 450px;
-      width: 100%;
-    }
-    
-    #genreChart {
-      max-width: 100%;
-      max-height: 100%;
-      width: auto !important;
-      height: auto !important;
-    }
-    
-    .chart-legend {
-      padding: 1rem 2rem 2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.3rem 0.8rem;
-      background: #f8f9fa;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    
-    .legend-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-    
-    /* Responsive para el modal del gráfico */
-    @media (max-width: 768px) {
-      .chart-modal-box {
-        width: 95vw;
-        max-height: 85vh;
-      }
-      
-      .chart-header {
-        padding: 1rem 1.5rem;
-      }
-      
-      .chart-header h3 {
-        font-size: 1.1rem;
-      }
-      
-      .chart-filters {
-        padding: 1rem 1.5rem 0.5rem;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      
-      .chart-container {
-        padding: 1rem;
-        min-height: 300px;
-      }
-      
-      .chart-legend {
-        padding: 0.5rem 1rem 1.5rem;
-        gap: 0.5rem;
-      }
-      
-      .stats-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-      
-      .chart-btn {
-        align-self: flex-end;
-        font-size: 0.8rem;
-        padding: 0.5rem 0.8rem;
-      }
-    }
-
-    /* Estilos del Modal de Ranking */
-    .ranking-card {
-      width: 500px;
-      max-width: 90vw;
-      max-height: 80vh;
-      background: white;
-      border-radius: 20px;
-      position: relative;
-      animation: fadeInModal 0.4s;
-      overflow: hidden;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
-
-    .ranking-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      text-align: center;
-      padding: 2rem 1.5rem 1.5rem;
-      position: relative;
-    }
-
-    .ranking-icon {
-      display: inline-block;
-      margin-bottom: 0.5rem;
-      opacity: 0.9;
-    }
-
-    .ranking-header h2 {
-      margin: 0 0 0.5rem 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .ranking-subtitle {
-      margin: 0;
-      opacity: 0.9;
-      font-size: 0.9rem;
-    }
-
-    .ranking-content {
-      max-height: calc(80vh - 150px);
-      overflow-y: auto;
-    }
-
-    .ranking-loader {
-      text-align: center;
-      padding: 3rem 2rem;
-      color: #666;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-left: 4px solid #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .ranking-empty {
-      text-align: center;
-      padding: 3rem 2rem;
-      color: #666;
-    }
-
-    .ranking-empty svg {
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
-
-    .ranking-empty h3 {
-      margin: 0 0 0.5rem 0;
-      color: #333;
-    }
-
-    .ranking-list {
-      padding: 1rem;
-    }
-
-    .club-info {
-      text-align: center;
-      padding: 1rem 0;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 1rem;
-    }
-
-    .club-info h3 {
-      margin: 0;
-      color: #333;
-      font-size: 1.1rem;
-    }
-
-    .ranking-item {
-      display: flex;
-      align-items: center;
-      padding: 1rem;
-      margin-bottom: 0.5rem;
-      background: #f8f9fa;
-      border-radius: 12px;
-      transition: all 0.3s ease;
-      border-left: 4px solid transparent;
-    }
-
-    .ranking-item:hover {
-      transform: translateX(5px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .podium-1 {
-      background: linear-gradient(135deg, #ffd700, #ffed4e);
-      border-left-color: #d4af37;
-      color: #8b7a00;
-    }
-
-    .podium-2 {
-      background: linear-gradient(135deg, #c0c0c0, #e5e5e5);
-      border-left-color: #999;
-      color: #555;
-    }
-
-    .podium-3 {
-      background: linear-gradient(135deg, #cd7f32, #deb887);
-      border-left-color: #8b4513;
-      color: #5d2f0a;
-    }
-
-    .ranking-position {
-      display: flex;
-      align-items: center;
-      margin-right: 1rem;
-      min-width: 60px;
-    }
-
-    .position-number {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-right: 0.5rem;
-    }
-
-    .trophy {
-      font-size: 1.2rem;
-    }
-
-    .user-info {
-      flex: 1;
-    }
-
-    .username {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 0.3rem;
-      color: #333;
-    }
-
-    .podium-1 .username,
-    .podium-2 .username,
-    .podium-3 .username {
-      color: inherit;
-    }
-
-    .user-stats {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    .podium-1 .stat-item,
-    .podium-2 .stat-item,
-    .podium-3 .stat-item {
-      color: inherit;
-      opacity: 0.8;
-    }
-
-    .stat-item svg {
-      opacity: 0.7;
-    }
-
-    .total-score {
-      text-align: center;
-      min-width: 60px;
-    }
-
-    .score-number {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #667eea;
-    }
-
-    .podium-1 .score-number,
-    .podium-2 .score-number,
-    .podium-3 .score-number {
-      color: inherit;
-    }
-
-    .score-label {
-      font-size: 0.75rem;
-      color: #999;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .podium-1 .score-label,
-    .podium-2 .score-label,
-    .podium-3 .score-label {
-      color: inherit;
-      opacity: 0.7;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .ranking-card {
-        width: 95vw;
-        margin: 1rem;
-      }
-      
-      .ranking-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      
-      .ranking-position {
-        margin-right: 0;
-      }
-      
-      .user-stats {
-        gap: 0.5rem;
-      }
-      
-      .total-score {
-        align-self: flex-end;
-        margin-top: -2rem;
-      }
-    }
-    </style>
 
 </main>
 <div id="notifications" class="notification-container"></div>

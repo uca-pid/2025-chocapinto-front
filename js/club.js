@@ -54,10 +54,22 @@ function updateUsernameDisplay() {
     const username = localStorage.getItem("username");
     const usernameDisplay = document.getElementById("usernameDisplay");
     const usernameDisplayHover = document.getElementById("usernameDisplayHover");
+    const userInitials = document.getElementById("userInitials");
     
-    if (username && usernameDisplay && usernameDisplayHover) {
-        usernameDisplay.textContent = username;
-        usernameDisplayHover.textContent = username;
+    if (username) {
+        // Actualizar displays antiguos si existen
+        if (usernameDisplay) {
+            usernameDisplay.textContent = username;
+        }
+        if (usernameDisplayHover) {
+            usernameDisplayHover.textContent = username;
+        }
+        
+        // Actualizar nuevo header
+        if (userInitials) {
+            // Sacar las iniciales del username (primera letra)
+            userInitials.textContent = username.charAt(0).toUpperCase();
+        }
     }
 }
 
@@ -191,6 +203,13 @@ function getEstadoInfo(estado) {
     }
 }
 
+// Función auxiliar para mostrar todos los libros
+function mostrarTodosLosLibros() {
+    console.log('Mostrar todos los libros');
+    // Aquí iría la lógica para mostrar todos los libros
+    // Se podría expandir la vista o navegar a una página de biblioteca completa
+}
+
 // Función para cambiar el estado de un libro
 async function cambiarEstadoLibro(bookId, nuevoEstado) {
     const clubId = getClubId();
@@ -220,6 +239,10 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
             showNotification("success", `Estado cambiado a: ${getEstadoLabel(nuevoEstado)}`);
             // Recargar los datos del club para actualizar las estadísticas
             renderClub();
+            // Actualizar la sección de progreso de lectura
+            if (typeof cargarProgresoLectura === 'function') {
+                cargarProgresoLectura();
+            }
         } else {
             hideLoader();
             showNotification("error", data.message || "Error al cambiar el estado");
@@ -568,6 +591,16 @@ async function renderClub() {
         actualizarChips();
         aplicarFiltros(data.club, categoriasSeleccionadas);
 
+        // Actualizar las secciones adicionales
+        setTimeout(() => {
+            if (typeof cargarProgresoLectura === 'function') {
+                cargarProgresoLectura();
+            }
+            if (typeof cargarCategoriasClub === 'function') {
+                cargarCategoriasClub();
+            }
+        }, 500);
+
     } catch (error) {
         console.error("Error al cargar el club:", error);
         hideLoader();
@@ -579,6 +612,7 @@ async function renderClub() {
 // Variables para filtros
 let filtroTexto = '';
 let filtroEstado = 'todos';
+
 
 // Función principal de filtrado que combina búsqueda de texto, estado y categorías
 function aplicarFiltros(club, categoriasSeleccionadas = []) {
@@ -621,85 +655,71 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
     if (libros.length > 0) {
         libros.forEach(libro => {
             const card = document.createElement('div');
-            card.className = 'libro-card';
-            card.style.background = '#fff';
-            card.style.borderRadius = '16px';
-            card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.1)';
-            card.style.padding = '1rem';
-            card.style.display = 'flex';
-            card.style.flexDirection = 'column';
-            card.style.alignItems = 'center';
-            card.style.justifyContent = 'flex-start';
-            card.style.border = '1px solid #eaf6ff';
-            card.style.width = '100%';
-            card.style.maxWidth = '200px';
-            card.style.minHeight = '320px';
-            card.style.position = 'relative';
+            card.className = 'modern-book-card';
             
-            const categoriasHTML = libro.categorias
-                .map(cat => {
-                    // Destacar categorías que están siendo filtradas
-                    const isFiltered = categoriasSeleccionadas.some(catSel => catSel.id === cat.id);
-                    const bgColor = isFiltered ? '#5fa8e9' : '#eaf6ff';
-                    const textColor = isFiltered ? '#fff' : '#2c5a91';
-                    return `<span style="background:${bgColor};color:${textColor};padding:2px 6px;border-radius:8px;font-size:0.8rem;margin-right:4px;font-weight:${isFiltered ? '600' : '500'};">${cat.nombre}</span>`;
-                })
-                .join(" ");
+            // Generar rating aleatorio entre 3.5 y 5.0 para demo
+            const rating = (Math.random() * 1.5 + 3.5).toFixed(1);
             
-            // Obtener color y emoji según el estado
+            // Obtener la primera categoría para mostrar como tag
+            const primeraCategoria = libro.categorias && libro.categorias.length > 0 
+                ? libro.categorias[0].nombre 
+                : 'General';
+            
+            // Obtener información del estado
             const estadoInfo = getEstadoInfo(libro.estado);
+            const estadoClass = `status-${libro.estado}`;
             
             card.innerHTML = `
-                <div style='width:100%;display:flex;flex-direction:column;align-items:center;'>
-                    ${libro.portada ? `<img src='${libro.portada}' style='width:100%;height:auto;border-radius:8px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.1);margin-bottom:1rem;'>` : `<div style='width:100%;height:150px;background:#eaf6ff;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;color:#2c5a91;font-size:2rem;'>📚</div>`}
-                    <div style='text-align:center;'>
-                        <strong style='color:#2c5a91;font-size:1.1rem;'>${libro.title}</strong>
-                        ${libro.author ? `<br><span style="color:#636e72;font-size:0.9rem;">de ${libro.author}</span>` : ''}
-                        
-                        <div style="margin-top:8px;">
-                            ${
-                                isOwner
-                                ? `<select class="estado-selector" data-bookid="${libro.id}" style="
-                                    background: ${estadoInfo.background};
-                                    color: ${estadoInfo.color};
-                                    border: 1px solid ${estadoInfo.border};
-                                    border-radius: 8px;
-                                    padding: 4px 8px;
-                                    font-size: 0.8rem;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                    width: 100%;
-                                    margin-bottom: 8px;
-                                ">
-                                    <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>📚 Por leer</option>
-                                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>📖 Leyendo</option>
-                                    <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>✅ Leído</option>
-                                </select>`
-                                : `<div style="
-                                    background: ${estadoInfo.background};
-                                    color: ${estadoInfo.color};
-                                    border: 1px solid ${estadoInfo.border};
-                                    border-radius: 8px;
-                                    padding: 4px 8px;
-                                    font-size: 0.8rem;
-                                    font-weight: 600;
-                                    
-                                    margin-bottom: 8px;
-                                    margin-right: 2px;
-                                    display: inline-block;
-                                ">${estadoInfo.icon} ${estadoInfo.label}</div>`
+                <div class="book-card-content">
+                    <div class="book-cover-section">
+                        <div class="book-cover-modern">
+                            ${libro.portada 
+                                ? `<img src="${libro.portada}" alt="${libro.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
+                                : ''
                             }
+                            <div class="book-cover-placeholder" ${libro.portada ? 'style="display:none;"' : ''}>📚</div>
+                        </div>
+                    </div>
+                    
+                    <div class="book-info-section">
+                        <h4 class="book-title-modern">${libro.title}</h4>
+                        <p class="book-author-modern">${libro.author || 'Autor desconocido'}</p>
+                        
+                        <div class="book-rating">
+                            <span class="rating-stars">⭐</span>
+                            <span class="rating-number">${rating}</span>
                         </div>
                         
-                        <div style="margin-top:6px;">${categoriasHTML}</div>
-                        <button class="btn-comentarios" data-bookid="${libro.id}" style="background:#eaf6ff;color:#2c5a91;border:none;border-radius:8px;padding:0.4rem 0.8rem;font-weight:600;cursor:pointer;margin-top:10px;">💬 Comentarios</button>
+                        <div class="book-meta">
+                            ${isOwner 
+                                ? `<select class="book-status-badge estado-selector ${estadoClass}" data-bookid="${libro.id}">
+                                    <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>Por leer</option>
+                                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>Leyendo</option>
+                                    <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>Completado</option>
+                                   </select>`
+                                : `<span class="book-status-badge ${estadoClass}">${estadoInfo.label}</span>`
+                            }
+                            <span class="book-category-tag">${primeraCategoria}</span>
+                        </div>
                     </div>
                 </div>
+                
+                <div class="book-actions">
+                    <button class="book-action-btn btn-comentarios" data-bookid="${libro.id}" title="Ver comentarios">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </button>
+                    ${isOwner ? `
+                        <button class="book-action-btn delete-btn-modern" data-bookid="${libro.id}" title="Eliminar libro">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6"/>
+                                <path d="m19,6v14a2,2 0,0 1,-2,2H7a2,2 0,0 1,-2,-2V6m3,0V4a2,2 0,0 1,2,-2h4a2,2 0,0 1,2,2v2"/>
+                            </svg>
+                        </button>
+                    ` : ''}
+                </div>
             `;
-            
-            if (isOwner) {
-                agregarBotonEliminarLibro(card, libro.id);
-            }
             
             librosList.appendChild(card);
         });
@@ -776,10 +796,18 @@ function mostrarDatosClub(club) {
         sidebarNameElement.textContent = club.name;
     }
     if (sidebarImageElement) {
-        sidebarImageElement.src = imageSrc;
-        sidebarImageElement.onerror = function() {
-            this.src = '../images/BooksyLogo.png';
-        };
+        if (club.imagen && club.imagen.trim() !== '') {
+            sidebarImageElement.src = imageSrc;
+            sidebarImageElement.style.display = 'block';
+            sidebarImageElement.onerror = function() {
+                this.style.display = 'none';
+                this.parentElement.classList.add('no-image');
+            };
+            sidebarImageElement.parentElement.classList.remove('no-image');
+        } else {
+            sidebarImageElement.style.display = 'none';
+            sidebarImageElement.parentElement.classList.add('no-image');
+        }
     }
     if (sidebarDescElement) {
         sidebarDescElement.textContent = club.description;
@@ -1188,11 +1216,36 @@ let currentBookId = null;
 closeModalComentarios.onclick = () => { modalComentarios.style.display = "none"; };
 
 document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("btn-comentarios")) {
-    currentBookId = e.target.dataset.bookid;
+  if (e.target.classList.contains("btn-comentarios") || e.target.closest(".btn-comentarios")) {
+    const button = e.target.classList.contains("btn-comentarios") ? e.target : e.target.closest(".btn-comentarios");
+    currentBookId = button.dataset.bookid;
     const clubId = getClubId();
     modalComentarios.style.display = "flex";
+    console.log("Cargando comentarios para libro ID:", currentBookId);
     await cargarComentarios(currentBookId, clubId);
+  }
+  
+  if (e.target.classList.contains("delete-btn-modern") || e.target.closest(".delete-btn-modern")) {
+    const button = e.target.classList.contains("delete-btn-modern") ? e.target : e.target.closest(".delete-btn-modern");
+    const bookId = button.dataset.bookid;
+    const clubId = getClubId();
+    const username = localStorage.getItem("username");
+    
+    mostrarConfirmacion(
+      "¿Eliminar este libro?",
+      "El libro será removido del club y ya no aparecerá en la lista de libros leídos.",
+      async () => {
+        await eliminarLibro(bookId, clubId, username);
+        renderClub();
+      },
+      null,
+      {
+        confirmText: "Eliminar Libro",
+        cancelText: "Cancelar",
+        confirmClass: "red-btn",
+        cancelClass: "green-btn"
+      }
+    );
   }
 });
 
@@ -1460,6 +1513,28 @@ function setupButtonEventListeners() {
     if (salirBtn) {
         salirBtn.addEventListener('click', salirDelClub);
         console.log("Event listener agregado a salirClubBtn");
+    }
+    
+    // Configurar event listeners para iconos del header
+    const notificationBtn = document.getElementById('notificationBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    
+    if (notificationBtn) {
+        notificationBtn.addEventListener('click', function() {
+            console.log("Botón de notificaciones clickeado");
+            // Aquí se puede agregar la funcionalidad de notificaciones
+            alert("Funcionalidad de notificaciones en desarrollo");
+        });
+        console.log("Event listener agregado a notificationBtn");
+    }
+    
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function() {
+            console.log("Botón de configuración clickeado");
+            // Aquí se puede agregar la funcionalidad de configuración
+            alert("Funcionalidad de configuración en desarrollo");
+        });
+        console.log("Event listener agregado a settingsBtn");
     }
     
     // Configurar modal del gráfico
@@ -2545,4 +2620,271 @@ function mostrarListaRanking(ranking, club) {
 
 // Hacer la función global para que funcione el onclick
 window.mostrarRanking = mostrarRanking;
+
+// Función global para mostrar modal de agregar libro
+function mostrarModalAgregarLibro() {
+    console.log("Mostrando modal agregar libro");
+    document.getElementById('modalLibro').style.display = 'block';
+    cargarCategorias();
+    
+    // Mostrar input de crear categoría solo si es owner
+    const clubId = getClubId();
+    if (clubId) {
+        fetch(`${API_URL}/club/${clubId}`)
+            .then(res => res.json())
+            .then(data => {
+                const userId = localStorage.getItem("userId");
+                const isOwner = data.club && data.club.id_owner == userId;
+                const crearCategoriaBox = document.getElementById('crearCategoriaBox');
+                if (crearCategoriaBox) {
+                    crearCategoriaBox.style.display = isOwner ? 'block' : 'none';
+                }
+            })
+            .catch(error => {
+                console.error("Error al verificar ownership:", error);
+            });
+    }
+}
+
+// Hacer la función global
+window.mostrarModalAgregarLibro = mostrarModalAgregarLibro;
+
+// ==================== CATEGORIES DISPLAY FUNCTIONS ====================
+async function cargarCategoriasClub() {
+    try {
+        // Usar los datos del club que ya están cargados
+        if (window.clubData && window.clubData.readBooks) {
+            const categoriasStats = calcularEstadisticasCategorias(window.clubData.readBooks);
+            mostrarCategoriasDisplay(categoriasStats);
+        } else {
+            // Si no hay datos del club, intentar cargarlos
+            const clubId = getClubId();
+            if (!clubId) {
+                mostrarCategoriasVacio();
+                return;
+            }
+
+            const response = await fetch(`${API_URL}/club/${clubId}`);
+            const data = await response.json();
+            
+            if (data.success && data.club && data.club.readBooks) {
+                const categoriasStats = calcularEstadisticasCategorias(data.club.readBooks);
+                mostrarCategoriasDisplay(categoriasStats);
+            } else {
+                mostrarCategoriasVacio();
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar categorías del club:', error);
+        mostrarCategoriasVacio();
+    }
+}
+
+function calcularEstadisticasCategorias(libros) {
+    const categoriasCount = {};
+    let totalLibros = 0;
+    
+    // Contar libros por categoría
+    libros.forEach(libro => {
+        if (libro.categorias && Array.isArray(libro.categorias)) {
+            libro.categorias.forEach(categoria => {
+                const nombreCat = categoria.nombre || categoria;
+                categoriasCount[nombreCat] = (categoriasCount[nombreCat] || 0) + 1;
+                totalLibros++;
+            });
+        }
+    });
+    
+    // Convertir a array y ordenar por cantidad
+    const categoriasArray = Object.entries(categoriasCount)
+        .map(([nombre, count]) => ({ nombre, count }))
+        .sort((a, b) => b.count - a.count);
+    
+    // Agregar porcentajes
+    categoriasArray.forEach(cat => {
+        cat.porcentaje = totalLibros > 0 ? (cat.count / totalLibros) * 100 : 0;
+    });
+    
+    return categoriasArray;
+}
+
+function mostrarCategoriasDisplay(categorias) {
+    const container = document.getElementById('categories-display-list');
+    
+    if (!categorias || categorias.length === 0) {
+        mostrarCategoriasVacio();
+        return;
+    }
+    
+    // Colores para las categorías (igual que en la imagen)
+    const colores = [
+        '#4a90e2', // Azul
+        '#17a2b8', // Teal
+        '#28a745', // Verde
+        '#fd7e14', // Naranja
+        '#e83e8c', // Rosa
+        '#6f42c1', // Púrpura
+        '#20c997', // Verde menta
+        '#ffc107'  // Amarillo
+    ];
+    
+    const html = categorias.map((categoria, index) => {
+        const color = colores[index % colores.length];
+        const maxPorcentaje = Math.max(...categorias.map(c => c.porcentaje));
+        const anchoBarra = maxPorcentaje > 0 ? (categoria.porcentaje / maxPorcentaje) * 100 : 0;
+        
+        return `
+            <div class="category-item-display">
+                <div class="category-info">
+                    <span class="category-name">${categoria.nombre}</span>
+                    <span class="category-count">${categoria.count}</span>
+                </div>
+                <div class="category-progress-bar">
+                    <div class="category-progress-fill" style="width: ${anchoBarra}%; background-color: ${color};"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+function mostrarCategoriasVacio() {
+    const container = document.getElementById('categories-display-list');
+    container.innerHTML = `
+        <div class="category-item-display">
+            <div class="category-info">
+                <span class="category-name">No hay categorías disponibles</span>
+                <span class="category-count">0</span>
+            </div>
+            <div class="category-progress-bar">
+                <div class="category-progress-fill" style="width: 0%; background-color: #4a90e2;"></div>
+            </div>
+        </div>
+    `;
+}
+
+// Función para actualizar las categorías cuando se modifique el club
+function actualizarCategoriasDisplay() {
+    cargarCategoriasClub();
+}
+
+// Agregar la función a la inicialización del club
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar categorías después de que se cargue el club
+    setTimeout(() => {
+        cargarCategoriasClub();
+    }, 2000);
+});
+
+// Hacer la función global para actualizaciones
+window.actualizarCategoriasDisplay = actualizarCategoriasDisplay;
+
+// ==================== READING PROGRESS FUNCTIONS ====================
+async function cargarProgresoLectura() {
+    try {
+        const clubId = getClubId();
+        if (!clubId) {
+            console.log('No se encontró clubId para cargar progreso de lectura');
+            mostrarProgresoVacio();
+            return;
+        }
+
+        console.log('Cargando progreso de lectura para club:', clubId);
+        const response = await fetch(`${API_URL}/club/${clubId}`);
+        const data = await response.json();
+        
+        if (data.success && data.club && data.club.readBooks) {
+            console.log('Libros recibidos:', data.club.readBooks.length);
+            // Filtrar solo los libros que están siendo leídos actualmente
+            const librosLeyendo = data.club.readBooks.filter(libro => {
+                console.log(`Libro: ${libro.title}, Estado: ${libro.estado}`);
+                return libro.estado === 'leyendo';
+            });
+            console.log('Libros con estado "leyendo":', librosLeyendo.length, librosLeyendo);
+            mostrarProgresoLectura(librosLeyendo);
+        } else {
+            console.log('No se recibieron libros o la respuesta no fue exitosa');
+            mostrarProgresoVacio();
+        }
+    } catch (error) {
+        console.error('Error al cargar progreso de lectura:', error);
+        mostrarProgresoVacio();
+    }
+}
+
+function mostrarProgresoLectura(libros) {
+    const container = document.getElementById('progress-list');
+    const counter = document.getElementById('active-books-count');
+    
+    if (!libros || libros.length === 0) {
+        mostrarProgresoVacio();
+        return;
+    }
+    
+    // Actualizar el contador
+    counter.textContent = `${libros.length} libro${libros.length !== 1 ? 's' : ''} activo${libros.length !== 1 ? 's' : ''}`;
+    
+    const html = libros.map(libro => {
+        // Calcular progreso usando la estructura correcta
+        const paginaActual = libro.paginaActual || 0;
+        const totalPaginas = libro.totalPages || libro.pages || 0;
+        const porcentaje = totalPaginas > 0 ? Math.round((paginaActual / totalPaginas) * 100) : 0;
+        
+        return `
+            <div class="progress-item" data-libro-id="${libro.id}">
+                <div class="book-thumbnail">
+                    <img src="${libro.portada || '../images/book-placeholder.jpg'}" 
+                         alt="${libro.title}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="book-placeholder" style="display:none;">📖</div>
+                </div>
+                <div class="book-info">
+                    <h4>${libro.title || 'Título no disponible'}</h4>
+                    <p>${libro.author || 'Autor desconocido'}</p>
+                    <div class="progress-details">
+                        <span>${paginaActual} de ${totalPaginas} páginas</span>
+                        <span>${porcentaje}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${porcentaje}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+function mostrarProgresoVacio() {
+    const container = document.getElementById('progress-list');
+    const counter = document.getElementById('active-books-count');
+    
+    counter.textContent = '0 libros activos';
+    
+    container.innerHTML = `
+        <div class="progress-empty">
+            <div class="progress-empty-icon">📚</div>
+            <h4>No hay libros en progreso</h4>
+            <p>Los libros que estés leyendo aparecerán aquí con su progreso</p>
+        </div>
+    `;
+}
+
+// Función para actualizar el progreso cuando se modifique un libro
+function actualizarProgresoLectura() {
+    cargarProgresoLectura();
+}
+
+// Agregar la función a la inicialización del club
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar progreso de lectura después de que se cargue el club
+    setTimeout(() => {
+        cargarProgresoLectura();
+    }, 1500);
+});
+
+// Hacer la función global para actualizaciones
+window.actualizarProgresoLectura = actualizarProgresoLectura;
 
