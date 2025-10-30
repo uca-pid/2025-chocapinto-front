@@ -18,35 +18,7 @@ function logout() {
     window.location.href = "index.html";
 }
 
-/**
- * Configura el dropdown del perfil
- */
-function configurarDropdownPerfil() {
-    const dropdownBtn = document.getElementById("profileDropdownBtn");
-    const dropdownContent = document.getElementById("profileDropdownContent");
-    
-    if (dropdownBtn && dropdownContent) {
-        dropdownBtn.addEventListener("mouseenter", () => {
-            dropdownContent.style.display = "block";
-        });
-        
-        dropdownBtn.addEventListener("mouseleave", () => {
-            setTimeout(() => {
-                if (!dropdownContent.matches(':hover')) {
-                    dropdownContent.style.display = "none";
-                }
-            }, 100);
-        });
-        
-        dropdownContent.addEventListener("mouseleave", () => {
-            dropdownContent.style.display = "none";
-        });
-        
-        dropdownContent.addEventListener("mouseenter", () => {
-            dropdownContent.style.display = "block";
-        });
-    }
-}
+
 /**
  * Actualiza el display del username en el header
  */
@@ -87,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Configurar header
     updateUsernameDisplay();
-    configurarDropdownPerfil();
+    //configurarDropdownPerfil();
     // Configurar event listeners para cambio de tabs
     setupTabNavigation();
     
@@ -705,12 +677,9 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
                     <div class="book-info-section">
                         <h4 class="book-title-modern">${libro.title}</h4>
                         <p class="book-author-modern">${libro.author || 'Autor desconocido'}</p>
+
                         
-                        <div class="book-rating">
-                            <span class="rating-stars">⭐</span>
-                            <span class="rating-number">${rating}</span>
-                        </div>
-                        
+
                         <div class="book-meta">
                             ${isOwner 
                                 ? `<select class="book-status-badge estado-selector ${estadoClass}" data-bookid="${libro.id}">
@@ -860,12 +829,61 @@ function mostrarDatosClub(club) {
 
 function mostrarBotonesAccion(club) {
     const userId = localStorage.getItem("userId");
+    // Botones del header
+    const eliminarBtnHeader = document.getElementById("eliminarClubBtnHeader");
+    const salirBtnHeader = document.getElementById("salirClubBtnHeader");
+    // Botones del cuerpo (mantener para compatibilidad)
     const eliminarBtn = document.getElementById("eliminarClubBtn");
     const salirBtn = document.getElementById("salirClubBtn");
+    const requestsBtn = document.getElementById("requestsBtn");
+    
     if (club.id_owner == userId) {
-        eliminarBtn.style.display = "inline-block";
+        // Mostrar botón de eliminar en header
+        if (eliminarBtnHeader) {
+            eliminarBtnHeader.style.display = "inline-flex";
+        }
+        // Ocultar botón de salir en header
+        if (salirBtnHeader) {
+            salirBtnHeader.style.display = "none";
+        }
+        // Mantener compatibilidad con botones del cuerpo
+        if (eliminarBtn) {
+            eliminarBtn.style.display = "inline-block";
+        }
+        if (salirBtn) {
+            salirBtn.style.display = "none";
+        }
+        // Mostrar botón de solicitudes solo si es owner
+        if (requestsBtn) {
+            requestsBtn.style.display = "inline-block";
+        }
+        // Actualizar badge de solicitudes para owners
+        actualizarBadgeSolicitudes(club);
     } else {
-        salirBtn.style.display = "inline-block";
+        // Mostrar botón de salir en header
+        if (salirBtnHeader) {
+            salirBtnHeader.style.display = "inline-flex";
+        }
+        // Ocultar botón de eliminar en header
+        if (eliminarBtnHeader) {
+            eliminarBtnHeader.style.display = "none";
+        }
+        // Mantener compatibilidad con botones del cuerpo
+        if (salirBtn) {
+            salirBtn.style.display = "inline-block";
+        }
+        if (eliminarBtn) {
+            eliminarBtn.style.display = "none";
+        }
+        // Ocultar botón de solicitudes si no es owner
+        if (requestsBtn) {
+            requestsBtn.style.display = "none";
+        }
+        // Ocultar badge para no-owners
+        const requestsBadge = document.getElementById('requestsBadge');
+        if (requestsBadge) {
+            requestsBadge.style.display = 'none';
+        }
     }
 }
 
@@ -941,6 +959,30 @@ function mostrarSolicitudes(club) {
         }
     } else if (solicitudesContainer) {
         solicitudesContainer.style.display = 'none';
+    }
+    
+    // Actualizar badge de solicitudes
+    actualizarBadgeSolicitudes(club);
+}
+
+function actualizarBadgeSolicitudes(club) {
+    const requestsBadge = document.getElementById('requestsBadge');
+    const userId = localStorage.getItem("userId");
+    const isOwner = club.id_owner == userId;
+    
+    if (!requestsBadge) return;
+    
+    if (isOwner && club.solicitudes && club.solicitudes.length > 0) {
+        const pendientes = club.solicitudes.filter(s => s.estado === "pendiente");
+        
+        if (pendientes.length > 0) {
+            requestsBadge.textContent = pendientes.length;
+            requestsBadge.style.display = 'flex';
+        } else {
+            requestsBadge.style.display = 'none';
+        }
+    } else {
+        requestsBadge.style.display = 'none';
     }
 }
 
@@ -1490,28 +1532,25 @@ async function salirDelClub(){
             const userId = localStorage.getItem("userId");
             showLoader("Saliendo del club...");
             try {
-                const res = await fetch(`${API_URL}/club/${clubId}/leave`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId })
+                const res = await fetch(`${API_URL}/club/${clubId}/removeMember/${userId}`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" }
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showLoader("Has salido del club! Redirigiendo...");
                     showNotification("success", "Has salido del club");
+                    hideLoader();
+                    // Redirigir inmediatamente después de confirmar el éxito
                     setTimeout(() => {
-                        try {
-                            window.location.replace("main.html");
-                        } catch (e) {
-                            window.location.href = "main.html";
-                        }
-                    }, 1500);
+                        window.location.href = "main.html";
+                    }, 1000);
                 } else {
                     hideLoader();
                     showNotification("error", data.message || "No se pudo salir del club");
                 }
-            } catch {
+            } catch (error) {
                 hideLoader();
+                console.error("Error al salir del club:", error);
                 showNotification("error", "Error de conexión");
             }
         },
@@ -1542,6 +1581,20 @@ function setupButtonEventListeners() {
         console.log("Event listener agregado a salirClubBtn");
     }
     
+    // Configurar event listeners para botones del header
+    const eliminarBtnHeader = document.getElementById('eliminarClubBtnHeader');
+    const salirBtnHeader = document.getElementById('salirClubBtnHeader');
+    
+    if (eliminarBtnHeader) {
+        eliminarBtnHeader.addEventListener('click', eliminarClub);
+        console.log("Event listener agregado a eliminarClubBtnHeader");
+    }
+    
+    if (salirBtnHeader) {
+        salirBtnHeader.addEventListener('click', salirDelClub);
+        console.log("Event listener agregado a salirClubBtnHeader");
+    }
+    
     // Configurar event listeners para iconos del header
     const notificationBtn = document.getElementById('notificationBtn');
     const settingsBtn = document.getElementById('settingsBtn');
@@ -1562,6 +1615,15 @@ function setupButtonEventListeners() {
             alert("Funcionalidad de configuración en desarrollo");
         });
         console.log("Event listener agregado a settingsBtn");
+    }
+    
+    const requestsBtn = document.getElementById('requestsBtn');
+    if (requestsBtn) {
+        requestsBtn.addEventListener('click', function() {
+            console.log("Botón de solicitudes clickeado");
+            mostrarSolicitudesModal();
+        });
+        console.log("Event listener agregado a requestsBtn");
     }
     
     // Configurar modal del gráfico
@@ -2870,11 +2932,13 @@ async function mostrarMiembros() {
 function mostrarListaMiembros(miembros, club) {
     const lista = document.getElementById('membersList');
     const currentUserId = localStorage.getItem("userId");
+    const isCurrentUserOwner = club.id_owner == currentUserId;
     
     const html = miembros.map((miembro) => {
         const initials = miembro.username.charAt(0).toUpperCase();
         const isOwner = club.id_owner == miembro.id;
         const isCurrentUser = currentUserId == miembro.id;
+        const canRemove = isCurrentUserOwner && !isCurrentUser && !isOwner;
         
         // Calcular tiempo como miembro (simulado)
         const joinDate = new Date(miembro.createdAt || Date.now());
@@ -2890,7 +2954,7 @@ function mostrarListaMiembros(miembros, club) {
                     <h4 class="member-name">
                         ${miembro.username}
                         ${isCurrentUser ? '<span style="color: #666; font-size: 12px;">(Tú)</span>' : ''}
-                        ${isOwner ? '<span class="member-badge owner">Moderador</span>' : '<span class="member-badge"> Miembro</span>'}
+                        ${isOwner ? '<span class="member-badge owner">Moderador</span>' : '<span class="member-badge">Miembro</span>'}
                     </h4>
                     <p class="member-role">
                         ${isOwner ? '🛡️ Administrador del club' : '📖 Lector activo'}
@@ -2900,6 +2964,16 @@ function mostrarListaMiembros(miembros, club) {
                     <div class="member-join-date">Desde ${joinDateStr}</div>
                     <div class="member-activity">${isOwner ? 'Fundador' : 'Activo'}</div>
                 </div>
+                ${canRemove ? `
+                    <div class="member-actions">
+                        <button class="remove-member-btn" onclick="eliminarMiembro(${miembro.id}, '${miembro.username}')" title="Eliminar miembro">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                ` : ''}
             </li>
         `;
     }).join('');
@@ -2907,8 +2981,201 @@ function mostrarListaMiembros(miembros, club) {
     lista.innerHTML = html;
 }
 
+// Función para eliminar un miembro del club
+function eliminarMiembro(miembroId, username) {
+    const clubId = getClubId();
+    
+    // Mostrar confirmación usando el patrón correcto
+    mostrarConfirmacion(
+        "Eliminar miembro",
+        `¿Estás seguro de que quieres eliminar a <strong>${username}</strong> del club?`,
+        async () => {
+            // Esta función se ejecuta solo si el usuario confirma
+            try {
+                showLoader(`Eliminando a ${username} del club...`);
+                
+                const res = await fetch(`${API_URL}/club/${clubId}/removeMember/${miembroId}`, {
+                    method: "DELETE"
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification("success", `${username} ha sido eliminado del club`);
+                    
+                    // Cerrar el modal temporalmente
+                    document.getElementById('modalMiembros').style.display = 'none';
+                    document.getElementById('modalMiembros').classList.remove('show');
+                    
+                    // Actualizar los datos del club
+                    await renderClub();
+                    
+                    // Reabrir el modal con datos actualizados después de un pequeño delay
+                    setTimeout(() => {
+                        mostrarMiembros();
+                    }, 500);
+                    
+                } else {
+                    showNotification("error", data.message || "Error al eliminar el miembro");
+                }
+            } catch (error) {
+                console.error("Error al eliminar miembro:", error);
+                showNotification("error", "Error de conexión al eliminar el miembro");
+            } finally {
+                hideLoader();
+            }
+        },
+        null, // onCancel callback (null = no hacer nada al cancelar)
+        {
+            confirmText: "Eliminar",
+            cancelText: "Cancelar",
+            confirmClass: "red-btn"
+        }
+    );
+}
+
 // Hacer las funciones globales para que funcionen los onclick
 window.mostrarMiembros = mostrarMiembros;
+window.eliminarMiembro = eliminarMiembro;
+
+// Función para mostrar el modal de solicitudes
+function mostrarSolicitudesModal() {
+    console.log("🚀 Mostrando modal de solicitudes");
+    
+    const modal = document.getElementById('modalSolicitudes');
+    const loader = document.getElementById('requestsLoader');
+    const lista = document.getElementById('requestsList');
+    const empty = document.getElementById('requestsEmpty');
+    
+    if (!modal || !loader || !lista || !empty) {
+        console.error("Elementos del modal de solicitudes no encontrados");
+        return;
+    }
+    
+    // Mostrar modal y loader inicialmente
+    modal.style.display = 'flex';
+    loader.style.display = 'flex';
+    lista.style.display = 'none';
+    empty.style.display = 'none';
+    
+    // Simular un pequeño delay para mostrar el loader
+    setTimeout(() => {
+        try {
+            // Usar los datos del club que ya tenemos
+            if (window.clubData && window.clubData.solicitudes && window.clubData.solicitudes.length > 0) {
+                const solicitudesPendientes = window.clubData.solicitudes.filter(s => s.estado === 'pendiente');
+                
+                if (solicitudesPendientes.length > 0) {
+                    mostrarListaSolicitudes(solicitudesPendientes);
+                    loader.style.display = 'none';
+                    lista.style.display = 'block';
+                } else {
+                    // No hay solicitudes pendientes
+                    loader.style.display = 'none';
+                    empty.style.display = 'block';
+                }
+            } else {
+                // No hay solicitudes
+                loader.style.display = 'none';
+                empty.style.display = 'block';
+            }
+        } catch (error) {
+            console.error("Error al mostrar solicitudes:", error);
+            showNotification("error", "Error al mostrar las solicitudes");
+            loader.style.display = 'none';
+            empty.style.display = 'block';
+        }
+    }, 500);
+}
+
+function mostrarListaSolicitudes(solicitudes) {
+    const lista = document.getElementById('requestsList');
+    
+    const html = solicitudes.map(solicitud => {
+        const fechaFormateada = new Date(solicitud.fecha_solicitud).toLocaleDateString('es-ES', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+        });
+        
+        const inicial = solicitud.username ? solicitud.username.charAt(0).toUpperCase() : '?';
+        
+        return `
+            <div class="request-item">
+                <div class="request-user">
+                    <div class="request-avatar">
+                        ${inicial}
+                    </div>
+                    <div class="request-info">
+                        <div class="request-name">${solicitud.username || 'Usuario desconocido'}</div>
+                        <div class="request-date">Solicitado el ${fechaFormateada}</div>
+                    </div>
+                </div>
+                <div class="request-actions">
+                    <button class="request-btn accept" onclick="gestionarSolicitudModal(${solicitud.id}, true)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20,6 9,17 4,12"/>
+                        </svg>
+                        Aceptar
+                    </button>
+                    <button class="request-btn reject" onclick="gestionarSolicitudModal(${solicitud.id}, false)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"/>
+                            <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                        Rechazar
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    lista.innerHTML = html;
+}
+
+// Función para gestionar solicitudes desde el modal
+async function gestionarSolicitudModal(solicitudId, aceptar) {
+    const clubId = getClubId();
+    
+    try {
+        showLoader(aceptar ? "Aceptando solicitud..." : "Rechazando solicitud...");
+        
+        const res = await fetch(`${API_URL}/club/${clubId}/solicitud/${solicitudId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ aceptar })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            showNotification("success", data.message || (aceptar ? "Solicitud aceptada" : "Solicitud rechazada"));
+            
+            // Cerrar el modal temporalmente
+            document.getElementById('modalSolicitudes').style.display = 'none';
+            
+            // Actualizar los datos del club primero
+            await renderClub();
+            
+            // Reabrir el modal con datos actualizados después de un pequeño delay
+            setTimeout(() => {
+                mostrarSolicitudesModal();
+            }, 500);
+            
+        } else {
+            showNotification("error", data.message || "Error al procesar la solicitud");
+        }
+    } catch (error) {
+        console.error("Error al gestionar solicitud:", error);
+        showNotification("error", "Error de conexión");
+    } finally {
+        hideLoader();
+    }
+}
+
+// Hacer las funciones globales
+window.mostrarSolicitudesModal = mostrarSolicitudesModal;
+window.gestionarSolicitudModal = gestionarSolicitudModal;
 
 // Función para mostrar el modal de historial completo
 async function mostrarHistorialCompleto() {
@@ -3595,6 +3862,11 @@ function configurarViewTogglesModal() {
 
 window.mostrarHistorialCompleto = mostrarHistorialCompleto;
 
+// function mostrarSolicitudes(){
+//     console.log("Mostrando modal solicitudes");
+//     document.getElementById('requestsBtn').style.display = 'flex';
+
+// }
 // Función global para mostrar modal de agregar libro
 function mostrarModalAgregarLibro() {
     console.log("Mostrando modal agregar libro");
