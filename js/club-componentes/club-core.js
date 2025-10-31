@@ -21,6 +21,7 @@ async function renderClub() {
         window.clubData = data.club;
         
         mostrarDatosClub(data.club);
+        actualizarContadorMiembros(data.club);
         
 
         // --- FILTRO MÚLTIPLE POR CATEGORÍAS ---
@@ -600,9 +601,25 @@ function initCore() {
     console.log('✅ Core inicializado correctamente');
 }
 
+// Función para actualizar el contador de miembros en el botón
+function actualizarContadorMiembros(clubData) {
+    const miembrosCountElement = document.getElementById('miembros-count');
+    if (miembrosCountElement) {
+        let cantidadMiembros = 0;
+        if (clubData && clubData.members && Array.isArray(clubData.members)) {
+            cantidadMiembros = clubData.members.length;
+        }
+        miembrosCountElement.textContent = cantidadMiembros;
+        console.log(`Contador de miembros actualizado: ${cantidadMiembros}`);
+    } else {
+        console.warn('Elemento miembros-count no encontrado en el DOM');
+    }
+}
+
 // Exportar funciones de inicialización
 window.initCore = initCore;
 window.renderClub = renderClub;
+window.actualizarContadorMiembros = actualizarContadorMiembros;
 
 // Export for ES6 modules
-export { initCore, renderClub };
+export { initCore, renderClub, actualizarContadorMiembros };

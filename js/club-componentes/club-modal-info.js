@@ -15,6 +15,7 @@ function initInfoModals() {
     window.mostrarListaMiembros = mostrarListaMiembros;
     window.eliminarMiembro = eliminarMiembro;
     window.mostrarSolicitudesModal = mostrarSolicitudesModal;
+    window.mostrarSolicitudes = mostrarSolicitudesModal; // Alias for HTML compatibility
     // Note: updateChart function doesn't exist - functionality may be handled within generarGraficoGeneros
 }
 
@@ -748,6 +749,7 @@ window.mostrarMiembros = mostrarMiembros;
 window.eliminarMiembro = eliminarMiembro;
 
 window.mostrarSolicitudesModal = mostrarSolicitudesModal;
+window.mostrarSolicitudes = mostrarSolicitudesModal; // Alias for HTML compatibility
 window.gestionarSolicitudModal = gestionarSolicitudModal;
 
 // Export for ES6 modules
