@@ -175,12 +175,7 @@ function getEstadoInfo(estado) {
     }
 }
 
-// Función auxiliar para mostrar todos los libros
-function mostrarTodosLosLibros() {
-    console.log('Mostrar todos los libros');
-    // Aquí iría la lógica para mostrar todos los libros
-    // Se podría expandir la vista o navegar a una página de biblioteca completa
-}
+
 
 // Función para cambiar el estado de un libro
 async function cambiarEstadoLibro(bookId, nuevoEstado) {
@@ -412,8 +407,7 @@ async function renderClub() {
         window.clubData = data.club;
         
         mostrarDatosClub(data.club);
-        mostrarIntegrantes(data.club);
-        mostrarSolicitudes(data.club);
+        
 
         // --- FILTRO MÚLTIPLE POR CATEGORÍAS ---
         const filtroContainerId = "filtro-categorias-leidos";
@@ -823,7 +817,7 @@ function mostrarDatosClub(club) {
         sidebarDescElement2.textContent = club.description;
     }
     
-    obtenerDatosOwner(club.id_owner);
+    // obtenerDatosOwner(club.id_owner); // Comentado: elemento club-owner no existe en HTML
     mostrarBotonesAccion(club);
 }
 
@@ -833,9 +827,7 @@ function mostrarBotonesAccion(club) {
     const eliminarBtnHeader = document.getElementById("eliminarClubBtnHeader");
     const salirBtnHeader = document.getElementById("salirClubBtnHeader");
     // Botones del cuerpo (mantener para compatibilidad)
-    const eliminarBtn = document.getElementById("eliminarClubBtn");
-    const salirBtn = document.getElementById("salirClubBtn");
-    const requestsBtn = document.getElementById("requestsBtn");
+    
     
     if (club.id_owner == userId) {
         // Mostrar botón de eliminar en header
@@ -847,16 +839,7 @@ function mostrarBotonesAccion(club) {
             salirBtnHeader.style.display = "none";
         }
         // Mantener compatibilidad con botones del cuerpo
-        if (eliminarBtn) {
-            eliminarBtn.style.display = "inline-block";
-        }
-        if (salirBtn) {
-            salirBtn.style.display = "none";
-        }
-        // Mostrar botón de solicitudes solo si es owner
-        if (requestsBtn) {
-            requestsBtn.style.display = "inline-block";
-        }
+       
         // Actualizar badge de solicitudes para owners
         actualizarBadgeSolicitudes(club);
     } else {
@@ -887,42 +870,6 @@ function mostrarBotonesAccion(club) {
     }
 }
 
-function mostrarIntegrantes(club) {
-    const membersList = document.getElementById('club-members-list');
-    membersList.innerHTML = "";
-    const userId = localStorage.getItem("userId");
-    const isOwner = club.id_owner == userId;
-    
-    // Actualizar contador de miembros en el badge
-    const membersCountBadge = document.querySelector('.club-badge span');
-    if (membersCountBadge) {
-        membersCountBadge.textContent = club.members ? club.members.length : 0;
-    }
-    
-    // Actualizar contador en sección Principal si existe
-    const totalMembersCounter = document.getElementById('total-members');
-    if (totalMembersCounter) {
-        totalMembersCounter.textContent = club.members ? club.members.length : 0;
-    }
-    
-    if (club.members && club.members.length > 0) {
-        club.members.forEach(m => {
-            const li = document.createElement('li');
-            li.textContent = m.username;
-            li.style.cssText = 'padding:0.5em 0;color:#2c5a91;font-weight:500;border-bottom:1px solid #eaf6ff;';
-            if (isOwner && m.id != userId) {
-                const btn = document.createElement('button');
-                btn.textContent = 'Eliminar';
-                btn.style.cssText = 'margin-left:10px;background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.3rem 0.8rem;font-weight:600;cursor:pointer;';
-                btn.onclick = async () => { await eliminarUsuarioDelClub(m.id, club.id); };
-                li.appendChild(btn);
-            }
-            membersList.appendChild(li);
-        });
-    } else {
-        membersList.innerHTML = '<li style="color:#636e72;">No hay integrantes aún.</li>';
-    }
-}
 
 function mostrarSolicitudes(club) {
     const solicitudesContainer = document.getElementById('solicitudes-container');
@@ -1568,18 +1515,7 @@ async function salirDelClub(){
 function setupButtonEventListeners() {
     console.log("Configurando event listeners de botones...");
     
-    const eliminarBtn = document.getElementById('eliminarClubBtn');
-    const salirBtn = document.getElementById('salirClubBtn');
     
-    if (eliminarBtn) {
-        eliminarBtn.addEventListener('click', eliminarClub);
-        console.log("Event listener agregado a eliminarClubBtn");
-    }
-    
-    if (salirBtn) {
-        salirBtn.addEventListener('click', salirDelClub);
-        console.log("Event listener agregado a salirClubBtn");
-    }
     
     // Configurar event listeners para botones del header
     const eliminarBtnHeader = document.getElementById('eliminarClubBtnHeader');
@@ -1638,24 +1574,10 @@ function setupTabNavigation() {
     console.log("Configurando navegación entre tabs...");
     
     // Detectar cambio de radio button
-    const radioButtons = document.querySelectorAll('input[name="plan"]');
-    console.log("Radio buttons encontrados:", radioButtons.length);
     
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', handleTabChange);
-        radio.addEventListener('click', handleTabChange);
-    });
     
     // También agregar listeners a las labels por si acaso
-    const labels = document.querySelectorAll('label[for^="glass-"]');
-    console.log("Labels encontradas:", labels.length);
-    
-    labels.forEach(label => {
-        label.addEventListener('click', () => {
-            console.log("Label clickeada:", label.getAttribute('for'));
-            setTimeout(handleTabChange, 50); // Pequeño delay para que el radio se marque primero
-        });
-    });
+   
     
     // Asegurar que la segunda tab (Principal) esté activa y visible por defecto
     const defaultTab = document.getElementById('glass-gold');
@@ -1671,91 +1593,12 @@ function setupTabNavigation() {
         console.log("MenuPrincipal mostrado por defecto");
     }
     
-    // Ocultar otras secciones por defecto
-    const menuClub = document.getElementById('menuClub');
-    const menuNotificaciones = document.getElementById('menuNotificaciones');
     
-    if (menuClub) menuClub.style.display = 'none';
-    if (menuNotificaciones) menuNotificaciones.style.display = 'none';
 }
 
 // Función separada para manejar el cambio de tabs
-function handleTabChange() {
-    console.log("Manejando cambio de tab...");
-    
-    // Ocultamos todos los menús
-    document.querySelectorAll('.menu-section').forEach(menu => {
-        menu.style.display = 'none';
-    });
-
-    // Mostramos el que corresponde
-    const silverChecked = document.getElementById('glass-silver').checked;
-    const goldChecked = document.getElementById('glass-gold').checked;
-    const platinumChecked = document.getElementById('glass-platinum').checked;
-    const historialChecked = document.getElementById('glass-historial').checked;
-    
-    console.log("Estados de tabs:", { silverChecked, goldChecked, platinumChecked, historialChecked });
-
-    if (silverChecked) {
-        console.log("Mostrando sección Club");
-        document.getElementById('menuClub').style.display = 'block';
-        // Re-renderizar el club si es necesario para actualizar datos
-        if (window.clubData) {
-            mostrarDatosClub(window.clubData);
-            mostrarIntegrantes(window.clubData);
-            mostrarSolicitudes(window.clubData);
-        }
-    } else if (goldChecked) {
-        console.log("Mostrando sección Principal");
-        document.getElementById('menuPrincipal').style.display = 'block';
-        // Re-renderizar libros si es necesario
-        if (window.clubData) {
-            actualizarEstadisticas(window.clubData);
-        }
-        // Cargar actividad reciente cuando se cambia a la pestaña Principal
-        cargarActividadReciente();
-        // Configurar el modal de libros cuando se muestra la sección Principal
-        setupModalLibro();
-    } else if (platinumChecked) {
-        console.log("Mostrando sección Notificaciones");
-        document.getElementById('menuNotificaciones').style.display = 'block';
-        // Cargar notificaciones si es necesario
-        cargarNotificaciones();
-    } else if (historialChecked) {
-        console.log("Mostrando sección Historial");
-        document.getElementById('menuHistorial').style.display = 'block';
-        // Actualizar información del club en la sidebar
-        if (window.clubData) {
-            actualizarInfoClubHistorial(window.clubData);
-        }
-        // Configurar event listeners para filtros del historial
-        setupHistorialClubEventListeners();
-        // Cargar historial del club
-        cargarHistorialClub();
-    }
-
-}
 
 // Función para cargar notificaciones (placeholder)
-function cargarNotificaciones() {
-    const notificationsList = document.getElementById('notifications-list');
-    const emptyState = document.getElementById('notifications-empty-state');
-    
-    if (notificationsList) {
-        // Por ahora mostramos el estado vacío
-        notificationsList.innerHTML = '';
-        if (emptyState) {
-            emptyState.style.display = 'flex';
-        }
-        
-        // Actualizar contadores
-        const unreadCount = document.getElementById('unread-count');
-        const totalNotifications = document.getElementById('total-notifications');
-        if (unreadCount) unreadCount.textContent = '0';
-        if (totalNotifications) totalNotifications.textContent = '0';
-    }
-}
-
 
 // renderClub() se llama ahora desde el DOMContentLoaded
 
@@ -1887,8 +1730,8 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
 
     // Colores para el gráfico
     const colores = [
-        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-        '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
+        '#0ea5e9', '#06b6d4', '#3b82f6', '#1d4ed8', '#0284c7',
+        '#0891b2', '#075985', '#38bdf8', '#67e8f9', '#7dd3fc'
     ];
 
     // Obtener canvas
@@ -1939,17 +1782,17 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
     
     // Colores más vibrantes y gradientes para efecto 3D
     const colores3D = [
-        'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)',
-        'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
-        'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)',
-        'rgba(132, 255, 99, 0.8)'
+        'rgba(14, 165, 233, 0.8)', 'rgba(56, 189, 248, 0.8)', 'rgba(125, 211, 252, 0.8)',
+        'rgba(6, 182, 212, 0.8)', 'rgba(34, 197, 218, 0.8)', 'rgba(103, 232, 249, 0.8)',
+        'rgba(59, 130, 246, 0.8)', 'rgba(147, 197, 253, 0.8)', 'rgba(191, 219, 254, 0.8)',
+        'rgba(30, 58, 138, 0.8)'
     ];
 
     const coloresBorde = [
-        'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)',
-        'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)', 'rgba(255, 159, 64, 1)',
-        'rgba(199, 199, 199, 1)', 'rgba(83, 102, 255, 1)', 'rgba(255, 99, 255, 1)',
-        'rgba(132, 255, 99, 1)'
+        'rgba(14, 165, 233, 1)', 'rgba(56, 189, 248, 1)', 'rgba(125, 211, 252, 1)',
+        'rgba(6, 182, 212, 1)', 'rgba(34, 197, 218, 1)', 'rgba(103, 232, 249, 1)',
+        'rgba(59, 130, 246, 1)', 'rgba(147, 197, 253, 1)', 'rgba(191, 219, 254, 1)',
+        'rgba(30, 58, 138, 1)'
     ];
     
     graficoInstancia = new Chart(ctx, {
@@ -2218,9 +2061,7 @@ async function cargarHistorialClub(filtros = {}) {
             actualizarVistaHistorialClub();
             poblarFiltroUsuarios();
             
-            if (historialClubData.length > 0) {
-                showNotification('success', 'Historial cargado correctamente');
-            }
+            
         } else {
             hideLoader();
             historialClubData = [];
@@ -3198,10 +3039,13 @@ async function mostrarHistorialCompleto() {
     if (content) content.style.display = 'none';
     if (empty) empty.style.display = 'none';
     
+    // ESPERAR A QUE EL MODAL SE RENDERICE COMPLETAMENTE
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     try {
         console.log('📊 Datos disponibles:', (window.historialClubData || historialClubData || []).length, 'elementos');
         
-        // Cargar filtros de usuarios
+        // Cargar filtros de usuarios DESPUÉS de que el modal esté visible
         await cargarFiltrosUsuariosModal();
         
         // Si no hay datos del historial, intentar cargarlos
@@ -3211,10 +3055,10 @@ async function mostrarHistorialCompleto() {
             await cargarHistorialClub();
         }
         
-        // Configurar event listeners para filtros del modal
+        // Configurar event listeners DESPUÉS de cargar datos
         configurarFiltrosHistorialModal();
         
-        // Configurar view toggles del modal
+        // Configurar view toggles del modal DESPUÉS de que todo esté listo
         configurarViewTogglesModal();
         
         // Limpiar filtros para mostrar todos los datos inicialmente
@@ -3348,6 +3192,8 @@ function actualizarVistaHistorialModalConDatos(datos) {
 
 // Función para configurar filtros del historial en el modal
 function configurarFiltrosHistorialModal() {
+    console.log('🔧 Configurando filtros del modal historial...');
+    
     const estadoFilter = document.getElementById('modal-historial-estado-filter');
     const usuarioFilter = document.getElementById('modal-historial-usuario-filter');
     const periodoFilter = document.getElementById('modal-historial-periodo-filter');
@@ -3355,54 +3201,102 @@ function configurarFiltrosHistorialModal() {
     const hastaInput = document.getElementById('modal-historial-hasta');
     const limpiarBtn = document.getElementById('modal-limpiar-filtros-btn');
     
-    // Event listeners para filtros usando las funciones existentes
-    [estadoFilter, usuarioFilter, periodoFilter, desdeInput, hastaInput].forEach(element => {
+    console.log('📋 Elementos encontrados:', {
+        estadoFilter: !!estadoFilter,
+        usuarioFilter: !!usuarioFilter,
+        periodoFilter: !!periodoFilter,
+        desdeInput: !!desdeInput,
+        hastaInput: !!hastaInput,
+        limpiarBtn: !!limpiarBtn
+    });
+    
+    // Remover event listeners existentes y configurar nuevos
+    [estadoFilter, usuarioFilter, desdeInput, hastaInput].forEach(element => {
         if (element) {
-            element.addEventListener('change', aplicarFiltrosHistorialModal);
+            // Clonar elemento para remover todos los event listeners
+            const newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
+            
+            // Agregar nuevo event listener
+            newElement.addEventListener('change', aplicarFiltrosHistorialModal);
+            console.log(`✅ Event listener configurado para: ${newElement.id}`);
         }
     });
     
     // Event listener para limpiar filtros
     if (limpiarBtn) {
-        limpiarBtn.addEventListener('click', limpiarFiltrosHistorialModal);
+        // Clonar para remover listeners existentes
+        const newLimpiarBtn = limpiarBtn.cloneNode(true);
+        limpiarBtn.parentNode.replaceChild(newLimpiarBtn, limpiarBtn);
+        
+        newLimpiarBtn.addEventListener('click', limpiarFiltrosHistorialModal);
+        console.log('✅ Event listener configurado para limpiar filtros');
     }
 
-    // Event listener para toggle de filtros
-    const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
-    const filtersContainer = document.getElementById('historial-modal-filters');
-    
-    if (toggleFiltersBtn && filtersContainer) {
-        toggleFiltersBtn.addEventListener('click', () => {
-            const isCollapsed = filtersContainer.classList.contains('collapsed');
+    // Event listener para toggle de filtros - CONFIGURAR CON DELAY
+    setTimeout(() => {
+        const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+        const filtersContainer = document.getElementById('historial-modal-filters');
+        
+        console.log('🔄 Configurando toggle de filtros:', {
+            toggleBtn: !!toggleFiltersBtn,
+            container: !!filtersContainer
+        });
+        
+        if (toggleFiltersBtn && filtersContainer) {
+            // Remover listener existente
+            const newToggleBtn = toggleFiltersBtn.cloneNode(true);
+            toggleFiltersBtn.parentNode.replaceChild(newToggleBtn, toggleFiltersBtn);
             
-            if (isCollapsed) {
-                // Expandir filtros
-                filtersContainer.classList.remove('collapsed');
-                toggleFiltersBtn.classList.remove('collapsed');
-                toggleFiltersBtn.title = 'Ocultar Filtros';
-                console.log('📂 Filtros expandidos');
-            } else {
-                // Colapsar filtros
-                filtersContainer.classList.add('collapsed');
-                toggleFiltersBtn.classList.add('collapsed');
-                toggleFiltersBtn.title = 'Mostrar Filtros';
-                console.log('📁 Filtros colapsados');
-            }
-        });
-    }
+            newToggleBtn.addEventListener('click', () => {
+                const isCollapsed = filtersContainer.classList.contains('collapsed');
+                
+                console.log(`🎚️ Toggle filtros - Estado actual: ${isCollapsed ? 'colapsado' : 'expandido'}`);
+                
+                if (isCollapsed) {
+                    // Expandir filtros
+                    filtersContainer.classList.remove('collapsed');
+                    newToggleBtn.classList.remove('collapsed');
+                    newToggleBtn.title = 'Ocultar Filtros';
+                    console.log('📂 Filtros expandidos');
+                } else {
+                    // Colapsar filtros
+                    filtersContainer.classList.add('collapsed');
+                    newToggleBtn.classList.add('collapsed');
+                    newToggleBtn.title = 'Mostrar Filtros';
+                    console.log('📁 Filtros colapsados');
+                }
+            });
+            
+            console.log('✅ Toggle de filtros configurado correctamente');
+        } else {
+            console.error('❌ No se encontraron elementos para toggle de filtros');
+        }
+    }, 200); // Dar tiempo extra para que el DOM se estabilice
     
-    // Período predefinido
-    if (periodoFilter) {
-        periodoFilter.addEventListener('change', (e) => {
-            const periodo = e.target.value;
-            if (periodo) {
-                const { desde, hasta } = obtenerFechasPeriodo(periodo);
-                if (desdeInput) desdeInput.value = desde;
-                if (hastaInput) hastaInput.value = hasta;
-                aplicarFiltrosHistorialModal();
-            }
-        });
-    }
+    // Período predefinido - configurar con delay
+    setTimeout(() => {
+        const periodoFilterNew = document.getElementById('modal-historial-periodo-filter');
+        const desdeInputNew = document.getElementById('modal-historial-desde');
+        const hastaInputNew = document.getElementById('modal-historial-hasta');
+        
+        if (periodoFilterNew) {
+            periodoFilterNew.addEventListener('change', (e) => {
+                const periodo = e.target.value;
+                console.log('📅 Período seleccionado:', periodo);
+                
+                if (periodo) {
+                    const { desde, hasta } = obtenerFechasPeriodo(periodo);
+                    if (desdeInputNew) desdeInputNew.value = desde;
+                    if (hastaInputNew) hastaInputNew.value = hasta;
+                    aplicarFiltrosHistorialModal();
+                }
+            });
+            console.log('✅ Event listener de período configurado');
+        }
+    }, 300);
+    
+    console.log('🎯 Configuración de filtros completada');
 }
 
 // Función para aplicar filtros en el modal
