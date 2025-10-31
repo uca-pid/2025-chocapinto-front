@@ -765,6 +765,68 @@ main {
   line-height: 1.2;
 }
 
+/* ==================== CATEGORY ANIMATIONS ==================== */
+.categoria-checkbox {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  user-select: none;
+  margin-bottom: var(--space-2);
+  transition: all 0.3s ease;
+}
+
+.categoria-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.categoria-checkbox .checkmark {
+  display: inline-block;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.categoria-checkbox input:checked ~ .checkmark {
+  background: var(--primary-blue);
+  color: var(--white);
+  border-color: var(--primary-blue);
+  transform: scale(1.02);
+}
+
+.categoria-checkbox:hover .checkmark {
+  border-color: var(--primary-blue);
+  background: var(--gray-50);
+}
+
+.categoria-checkbox input:checked:hover ~ .checkmark {
+  background: var(--primary-blue-dark);
+  border-color: var(--primary-blue-dark);
+}
+
+/* Animation for new categories */
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.categoria-nueva {
+  animation: slideInFromTop 0.3s ease-out;
+}
+
 /* Responsive design for progress-actions grid */
 @media (max-width: 1024px) {
   .progress-actions-grid {

@@ -227,10 +227,12 @@ agregarCategoriaBtn.addEventListener('click', async () => {
         const data = await res.json();
         if (data.success && data.categoria) {
             categoriasDisponibles.push(data.categoria);
-            renderCategoriasCheckboxes();
+            // ✅ Actualización dinámica sin recargar toda la página
+            await actualizarCategoriasEnModal(data.categoria);
+            await actualizarCategoriasEnDashboard();
             nuevaCategoriaInput.value = '';
             hideLoader();
-            showNotification("success", "Categoría creada");
+            showNotification("success", `Categoría "${data.categoria.nombre}" creada exitosamente`);
         } else {
             hideLoader();
             showNotification("error", "Error al crear categoría");
@@ -356,12 +358,83 @@ function initBookModal() {
     window.mostrarModalAgregarLibro = mostrarModalAgregarLibro;
     window.cargarCategorias = cargarCategorias;
     window.buscarLibrosGoogleBooksAPI = buscarLibrosGoogleBooksAPI;
+    window.actualizarCategoriasEnModal = actualizarCategoriasEnModal;
+    window.actualizarCategoriasEnDashboard = actualizarCategoriasEnDashboard;
     
     console.log('✅ Modal de libros inicializado correctamente');
 }
+
+// ========== FUNCIONES PARA ACTUALIZACIÓN DINÁMICA DE CATEGORÍAS ==========
+
+/**
+ * Actualiza las categorías en el modal sin recargar la página
+ */
+async function actualizarCategoriasEnModal(nuevaCategoria) {
+    try {
+        const container = document.getElementById("categoriasContainer");
+        if (!container) {
+            console.warn('Container de categorías no encontrado');
+            return;
+        }
+        
+        // Crear el nuevo checkbox dinámicamente
+        const checkbox = document.createElement("label");
+        checkbox.className = "categoria-checkbox categoria-nueva";
+        checkbox.setAttribute("data-categoria-id", nuevaCategoria.id);
+        
+        // Generar color aleatorio para la nueva categoría
+        const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#FFB347'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        checkbox.innerHTML = `
+            <input type="checkbox" name="categorias[]" value="${nuevaCategoria.id}">
+            <span class="checkmark" style="background: ${randomColor}22; border-color: ${randomColor}; color: ${randomColor};">
+                ${nuevaCategoria.nombre}
+            </span>
+        `;
+        
+        // Agregar con animación suave utilizando CSS
+        container.appendChild(checkbox);
+        
+        // Remover la clase de animación después de que termine
+        setTimeout(() => {
+            checkbox.classList.remove('categoria-nueva');
+        }, 300);
+        
+        console.log(`✅ Categoría "${nuevaCategoria.nombre}" agregada dinámicamente al modal`);
+        
+    } catch (error) {
+        console.error('Error al actualizar categorías en modal:', error);
+    }
+}
+
+/**
+ * Actualiza la sección de categorías del dashboard principal
+ */
+async function actualizarCategoriasEnDashboard() {
+    try {
+        // Simplemente llamar a la función de actualización de estadísticas existente
+        if (typeof window.actualizarEstadisticas === 'function' && window.clubData) {
+            window.actualizarEstadisticas(window.clubData);
+            console.log('✅ Estadísticas del dashboard actualizadas dinámicamente');
+        }
+        
+        // Si existe algún widget de categorías específico, actualizarlo también
+        if (typeof window.actualizarWidgetCategorias === 'function') {
+            window.actualizarWidgetCategorias();
+        }
+        
+    } catch (error) {
+        console.error('Error al actualizar categorías en dashboard:', error);
+    }
+}
+
+// Exponer las funciones globalmente
+window.actualizarCategoriasEnModal = actualizarCategoriasEnModal;
+window.actualizarCategoriasEnDashboard = actualizarCategoriasEnDashboard;
 
 // Exportar función de inicialización
 window.initBookModal = initBookModal;
 
 // Export for ES6 modules
-export { initBookModal };
+export { initBookModal, actualizarCategoriasEnModal, actualizarCategoriasEnDashboard };
