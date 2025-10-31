@@ -406,13 +406,14 @@
                     <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m15.5-2.5L19 12l-2.5 2.5M5 16.5L2.5 14 5 11.5"/>
                 </svg>
             </button>
-            <button class="icon-btn requests-btn" id="requestsBtn" title="Solicitudes" style="display: none;">
+            <button class="icon-btn requests-btn" id="requestsBtn" title="Solicitudes" style="display: none;" onclick="mostrarSolicitudes()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                     <circle cx="8.5" cy="7" r="4"/>
                     <path d="M17 11l2 2 4-4"/>
                     </svg>
                     <span class="requests-badge" id="requestsBadge" style="display: none;">0</span>
+                  </button>
                   </button>
             
             <!-- Botones de eliminar/salir del club -->
@@ -779,7 +780,7 @@
   
 </main>
 <div id="notifications" class="notification-container"></div>
-   <script type="module" src="../js/club.js"></script>
+   <script type="module" src="../js/clubnew.js"></script>
 
 </body>
 </html>
