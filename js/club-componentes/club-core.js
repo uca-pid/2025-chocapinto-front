@@ -531,11 +531,8 @@ function setupButtonEventListeners() {
         console.log("Event listener agregado a requestsBtn");
     }
     
-    // Configurar modal del gráfico
-    configurarModalGrafico();
-    
-    // Configurar historial del club
-    setupHistorialClubEventListeners();
+    // Note: configurarModalGrafico() and setupHistorialClubEventListeners() 
+    // are now called from their respective init functions
 }
 
 function actualizarEstadisticas(club) {
@@ -583,3 +580,29 @@ function actualizarEstadisticas(club) {
         totalCategoriesCounter.textContent = categoriesSet.size;
     }
 }
+
+// ========== INICIALIZACIÓN ==========
+function initCore() {
+    console.log('🎯 Inicializando core...');
+    
+    // Configurar event listeners
+    setupButtonEventListeners();
+    
+    // Exponer funciones globalmente para HTML
+    window.renderClub = renderClub;
+    window.mostrarDatosClub = mostrarDatosClub;
+    window.mostrarBotonesAccion = mostrarBotonesAccion;
+    window.gestionarSolicitud = gestionarSolicitud;
+    window.eliminarClub = eliminarClub;
+    window.salirDelClub = salirDelClub;
+    window.actualizarEstadisticas = actualizarEstadisticas;
+    
+    console.log('✅ Core inicializado correctamente');
+}
+
+// Exportar funciones de inicialización
+window.initCore = initCore;
+window.renderClub = renderClub;
+
+// Export for ES6 modules
+export { initCore, renderClub };

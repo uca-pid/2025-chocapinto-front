@@ -28,3 +28,23 @@ function updateUsernameDisplay() {
         }
     }
 }
+
+// ========== INICIALIZACIÓN ==========
+function initHeader() {
+    console.log('🏠 Inicializando header...');
+    
+    // Actualizar username al cargar
+    updateUsernameDisplay();
+    
+    // Exponer funciones globalmente para HTML
+    window.logout = logout;
+    window.updateUsernameDisplay = updateUsernameDisplay;
+    
+    console.log('✅ Header inicializado correctamente');
+}
+
+// Exportar función de inicialización
+window.initHeader = initHeader;
+
+// Export for ES6 modules
+export { initHeader };

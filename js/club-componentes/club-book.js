@@ -343,3 +343,25 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
         msg.style.display = "block";
     }
 });
+
+// ========== INICIALIZACIÓN ==========
+function initBookModal() {
+    console.log('📖 Inicializando modal de libros...');
+    
+    // Configurar modal de libros
+    setupModalLibro();
+    
+    // Exponer funciones globalmente
+    window.setupModalLibro = setupModalLibro;
+    window.mostrarModalAgregarLibro = mostrarModalAgregarLibro;
+    window.cargarCategorias = cargarCategorias;
+    window.buscarLibrosGoogleBooksAPI = buscarLibrosGoogleBooksAPI;
+    
+    console.log('✅ Modal de libros inicializado correctamente');
+}
+
+// Exportar función de inicialización
+window.initBookModal = initBookModal;
+
+// Export for ES6 modules
+export { initBookModal };

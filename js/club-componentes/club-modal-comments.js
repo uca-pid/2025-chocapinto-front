@@ -1,20 +1,36 @@
-const modalComentarios = document.getElementById("modalComentarios");
-const closeModalComentarios = document.getElementById("closeModalComentarios");
-const comentariosList = document.getElementById("comentariosList");
-const nuevoComentario = document.getElementById("nuevoComentario");
-const enviarComentarioBtn = document.getElementById("enviarComentarioBtn");
-let currentBookId = null;
+// Modal Comments Initialization
+function initCommentsModal() {
+    console.log("Initializing Comments Modal");
+    
+    // Use global modal reference
+    const modalComentarios = window.modalComentarios;
+    const closeModalComentarios = document.getElementById("closeModalComentarios");
+    const comentariosList = document.getElementById("comentariosList");
+    const nuevoComentario = document.getElementById("nuevoComentario");
+    const enviarComentarioBtn = document.getElementById("enviarComentarioBtn");
+    
+    // Setup event listeners
+    if (closeModalComentarios) {
+        closeModalComentarios.onclick = () => { modalComentarios.style.display = "none"; };
+    }
+    
+    // Expose necessary functions globally for HTML compatibility
+    window.cargarComentarios = cargarComentarios;
+    // Note: enviarComentario functionality is handled by document event listener
+    // Note: currentBookId and modalComentarios are now global variables
+}
+
 
 closeModalComentarios.onclick = () => { modalComentarios.style.display = "none"; };
 
 document.addEventListener("click", async (e) => {
   if (e.target.classList.contains("btn-comentarios") || e.target.closest(".btn-comentarios")) {
     const button = e.target.classList.contains("btn-comentarios") ? e.target : e.target.closest(".btn-comentarios");
-    currentBookId = button.dataset.bookid;
+    window.currentBookId = button.dataset.bookid;
     const clubId = getClubId();
-    modalComentarios.style.display = "flex";
-    console.log("Cargando comentarios para libro ID:", currentBookId);
-    await cargarComentarios(currentBookId, clubId);
+    window.modalComentarios.style.display = "flex";
+    console.log("Cargando comentarios para libro ID:", window.currentBookId);
+    await cargarComentarios(window.currentBookId, clubId);
   }
   
   if (e.target.classList.contains("delete-btn-modern") || e.target.closest(".delete-btn-modern")) {
@@ -156,12 +172,12 @@ document.addEventListener('click', async (e) => {
       const res = await fetch(`${API_URL}/comentario`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, bookId: currentBookId, clubId, content: texto })
+        body: JSON.stringify({ userId, bookId: window.currentBookId, clubId, content: texto })
       });
       const data = await res.json();
       if (data.success) {
         nuevoComentario.value = "";
-        await cargarComentarios(currentBookId, clubId);
+        await cargarComentarios(window.currentBookId, clubId);
         hideLoader();
         showNotification("success", "Comentario enviado");
       } else {
@@ -174,3 +190,6 @@ document.addEventListener('click', async (e) => {
     }
   }
 });
+
+// Export for ES6 modules
+export { initCommentsModal };

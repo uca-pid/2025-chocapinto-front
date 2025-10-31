@@ -239,14 +239,7 @@ document.addEventListener('change', async (e) => {
 });
 
 document.addEventListener("click", async (e) => {
-  if (e.target.classList.contains("btn-comentarios") || e.target.closest(".btn-comentarios")) {
-    const button = e.target.classList.contains("btn-comentarios") ? e.target : e.target.closest(".btn-comentarios");
-    currentBookId = button.dataset.bookid;
-    const clubId = getClubId();
-    modalComentarios.style.display = "flex";
-    console.log("Cargando comentarios para libro ID:", currentBookId);
-    await cargarComentarios(currentBookId, clubId);
-  }
+  // Note: btn-comentarios event handling moved to club-modal-comments.js to avoid duplicates
   
   if (e.target.classList.contains("delete-btn-modern") || e.target.closest(".delete-btn-modern")) {
     const button = e.target.classList.contains("delete-btn-modern") ? e.target : e.target.closest(".delete-btn-modern");
@@ -271,3 +264,66 @@ document.addEventListener("click", async (e) => {
     );
   }
 });
+
+// ========== INICIALIZACIÓN ==========
+function initLibrary() {
+    console.log('📚 Inicializando library...');
+    
+    // Configurar event listeners para filtros
+    setupLibraryEventListeners();
+    
+    // Exponer funciones globalmente para HTML
+    window.aplicarFiltros = aplicarFiltros;
+    window.eliminarLibro = eliminarLibro;
+    
+    console.log('✅ Library inicializado correctamente');
+}
+
+function setupLibraryEventListeners() {
+    // Event listeners para búsqueda y filtros
+    const searchInput = document.getElementById('search-books');
+    const estadoFilter = document.getElementById('estado-filter');
+    const clearSearch = document.getElementById('clear-search');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            filtroTexto = e.target.value;
+            if (window.clubData) {
+                aplicarFiltros(window.clubData, []);
+            }
+            
+            // Mostrar/ocultar botón de limpiar
+            if (clearSearch) {
+                clearSearch.style.display = filtroTexto ? 'flex' : 'none';
+            }
+        });
+    }
+    
+    if (estadoFilter) {
+        estadoFilter.addEventListener('change', (e) => {
+            filtroEstado = e.target.value;
+            if (window.clubData) {
+                aplicarFiltros(window.clubData, []);
+            }
+        });
+    }
+    
+    if (clearSearch) {
+        clearSearch.addEventListener('click', () => {
+            if (searchInput) {
+                searchInput.value = '';
+                filtroTexto = '';
+                clearSearch.style.display = 'none';
+                if (window.clubData) {
+                    aplicarFiltros(window.clubData, []);
+                }
+            }
+        });
+    }
+}
+
+// Exportar función de inicialización
+window.initLibrary = initLibrary;
+
+// Export for ES6 modules
+export { initLibrary };

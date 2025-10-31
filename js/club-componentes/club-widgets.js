@@ -410,3 +410,26 @@ function mostrarActividadError(container) {
         activityCount.textContent = 'Error';
     }
 }
+
+// ========== INICIALIZACIÓN ==========
+function initWidgets() {
+    console.log('🔧 Inicializando widgets...');
+    
+    // No necesita event listeners específicos por ahora
+    // Las funciones se llaman desde club-core.js según sea necesario
+    
+    // Exponer funciones globalmente
+    window.cargarProgresoLectura = cargarProgresoLectura;
+    window.cargarCategoriasClub = cargarCategoriasClub;
+    window.cargarActividadReciente = cargarActividadReciente;
+    window.mostrarRanking = mostrarRanking;
+    window.mostrarMiembros = mostrarMiembros;
+    
+    console.log('✅ Widgets inicializados correctamente');
+}
+
+// Exportar función de inicialización
+window.initWidgets = initWidgets;
+
+// Export for ES6 modules
+export { initWidgets };

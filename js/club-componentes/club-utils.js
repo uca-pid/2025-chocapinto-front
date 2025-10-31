@@ -1,7 +1,7 @@
-import { API_URL } from "./env.js";
-import { showNotification } from "../componentes/notificacion.js";
-import { showLoader, hideLoader } from "../componentes/loader.js";
-import { mostrarConfirmacion, confirmarEliminacion } from "../componentes/confirmacion.js";
+import { API_URL } from "../env.js";
+import { showNotification } from "../../componentes/notificacion.js";
+import { showLoader, hideLoader } from "../../componentes/loader.js";
+import { mostrarConfirmacion, confirmarEliminacion } from "../../componentes/confirmacion.js";
 
 function getClubId() {
         const params = new URLSearchParams(window.location.search);
@@ -102,3 +102,29 @@ function formatearMes(mesISO) {
     const fecha = new Date(año, mes - 1);
     return fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 }
+
+// Initialize and expose utilities globally
+function initUtils() {
+    console.log("Initializing Utils");
+    
+    // Expose utilities globally for module interoperability
+    window.getClubId = getClubId;
+    window.getEstadoInfo = getEstadoInfo;
+    window.getEstadoLabel = getEstadoLabel;
+    window.formatTimeAgoReal = formatTimeAgoReal;
+    window.calcularDiasLectura = calcularDiasLectura;
+    window.getAccionTexto = getAccionTexto;
+    window.formatearMes = formatearMes;
+}
+
+// Export for ES6 modules
+export { 
+    initUtils,
+    getClubId, 
+    getEstadoInfo, 
+    getEstadoLabel, 
+    formatTimeAgoReal, 
+    calcularDiasLectura,
+    getAccionTexto,
+    formatearMes 
+};

@@ -1,3 +1,15 @@
+// History Modal Initialization
+function initHistoryModal() {
+    console.log("Initializing History Modal");
+    
+    // Setup event listeners and expose global functions
+    setupHistorialClubEventListeners();
+    
+    // Expose necessary functions globally for HTML compatibility
+    window.mostrarHistorialCompleto = mostrarHistorialCompleto;
+    // Note: View toggling and modal closing are handled by setupHistorialClubEventListeners
+}
+
 // Variables para el historial
 let historialClubData = [];
 let currentView = 'timeline';
@@ -1129,3 +1141,6 @@ function actualizarInfoClubHistorial(club) {
     }
 }
 window.mostrarHistorialCompleto = mostrarHistorialCompleto;
+
+// Export for ES6 modules
+export { initHistoryModal };

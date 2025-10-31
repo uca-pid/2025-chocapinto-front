@@ -1,3 +1,23 @@
+// Variables para el gráfico
+let graficoInstancia = null;
+
+// Info Modals Initialization
+function initInfoModals() {
+    console.log("Initializing Info Modals");
+    
+    // Initialize all modal configurations
+    configurarModalGrafico();
+    
+    // Expose necessary functions globally for HTML compatibility
+    window.configurarModalGrafico = configurarModalGrafico;
+    window.generarGraficoGeneros = generarGraficoGeneros;
+    window.mostrarListaRanking = mostrarListaRanking;
+    window.mostrarListaMiembros = mostrarListaMiembros;
+    window.eliminarMiembro = eliminarMiembro;
+    window.mostrarSolicitudesModal = mostrarSolicitudesModal;
+    // Note: updateChart function doesn't exist - functionality may be handled within generarGraficoGeneros
+}
+
 function configurarModalGrafico() {
     const chartBtn = document.getElementById('ver-grafico-btn');
     const modal = document.getElementById('modalGrafico');
@@ -729,3 +749,6 @@ window.eliminarMiembro = eliminarMiembro;
 
 window.mostrarSolicitudesModal = mostrarSolicitudesModal;
 window.gestionarSolicitudModal = gestionarSolicitudModal;
+
+// Export for ES6 modules
+export { initInfoModals };
