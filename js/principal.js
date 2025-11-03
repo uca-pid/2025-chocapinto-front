@@ -21,6 +21,53 @@ function logout() {
 // Exponer funciones al ámbito global
 window.logout = logout;
 
+/**
+ * Crea la tarjeta estática de "Crear nuevo club"
+ */
+function crearTarjetaCrearClub() {
+    const card = document.createElement("div");
+    card.className = "section-card club-card create-club-card";
+    
+    // El club-card ya tiene estilos base, solo agregamos el contenido del CTA
+    card.innerHTML = `
+        <div class="create-icon-container">
+            <svg class="create-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+        </div>
+        <h3 style="margin-top:10px;">Crear nuevo club</h3>
+        <p style="font-size:0.9em; color: #636e72;">Empezá tu propia comunidad de lectura</p>
+    `;
+    
+    // Añadir el evento de navegación
+    card.addEventListener("click", () => {
+        window.location.href = 'crear_club.html';
+    });
+    
+    return card;
+}
+
+/**
+ * Crea un mensaje CTA cuando la sección "Mis Clubes" está vacía.
+ */
+function crearMensajeMisClubesVacio() {
+    const emptyState = document.createElement("div");
+    emptyState.className = "empty-mis-clubes-state";
+    emptyState.innerHTML = `
+        <div class="empty-state-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16" class="book-icon">
+                <path d="M1 2.822v10.923c.962-.317 2.115-.86 3.036-.924 1.144-.078 2.502.508 3.52 1.054V3.033C7.037 2.487 5.7.078 4.636 2.822 3.864 2.146 3.09 1.838 1 2.822zm6.526 10.158c.84-.45 1.958-1.042 3.1-.923 1.139.119 2.186.744 2.88 1.157V2.822c-.962-.317-2.115-.86-3.036-.924-1.096-.073-2.392.518-3.324 1.054v10.021z"/>
+            </svg>
+            <p>¡Aún no sos miembro de ningún club!</p>
+            <p class="subtext">Explorá la sección de "Clubes de Lectura" y unite a tu primera comunidad.</p>
+            <a href="#clubesGrid" class="btn-explore-clubs">
+                Ver todos los clubes
+            </a>
+        </div>
+    `;
+    return emptyState;
+}
+
 // ========== FUNCIONES DE CARGA DE DATOS ==========
 
 /**
@@ -35,6 +82,10 @@ async function cargarClubes() {
     misClubesGrid.innerHTML = "";
     clubesGrid.innerHTML = "";
 
+    // === INSERCIÓN DE LA TARJETA DE CREAR CLUB ===
+    const crearClubCard = crearTarjetaCrearClub();
+    clubesGrid.appendChild(crearClubCard);
+    
     try {
         showLoader();
         const res = await fetch(`${API_URL}/clubs`);
@@ -69,6 +120,17 @@ async function cargarClubes() {
             // Configurar eventos de botones
             configurarEventosClub(clubCard, club, esMiembro, esCreador, username);
         });
+        
+        // === NUEVA COMPROBACIÓN: Si Mis Clubes está vacío, mostrar mensaje ===
+        if (misClubesGrid.children.length === 0) {
+            misClubesGrid.style.display = 'block'; // Asegura que el contenedor se vea
+            misClubesGrid.style.overflowX = 'hidden'; // Oculta el scrollbar inútil
+            misClubesGrid.appendChild(crearMensajeMisClubesVacio());
+        } else {
+            misClubesGrid.style.display = 'flex'; // Vuelve a flexbox si sí hay clubes
+            misClubesGrid.style.overflowX = 'auto'; // Habilita el scroll
+        }
+        
     } catch (error) {
         console.error("Error al cargar clubes:", error);
         hideLoader();
@@ -83,13 +145,15 @@ function crearTarjetaClub(club, esMiembro, esCreador, img) {
     clubCard.className = "section-card club-card";
     
     clubCard.innerHTML = `
-        <div class="club-logo club-logo-default" style="width:70px;height:70px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f5f6fa;border-radius:50%;margin:0 auto 10px auto;">
-            <img src="${img}" alt="Logo del club" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;">
+        <div class="club-logo" style="width:70px;height:70px;overflow:hidden;display:flex;align-items:center;justify-content:center;border-radius:50%;margin:0 auto 10px auto;border: 3px solid #eaf6ff;">
+            <img src="${img}" alt="Logo del club" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
         </div>
-        <h3>${club.name}</h3>
+        <h3 title="${club.name}">${club.name}</h3>
         <p>${club.description}</p>
-        ${esMiembro ? '<span style="color:#0984e3;font-weight:700;">Ya eres miembro</span>' : '<button class="unirme-btn">Unirme</button>'}
-        ${esCreador ? '<button class="editar-btn">Editar</button>' : ''}
+        
+        ${esMiembro ? '<span class="miembro-tag">Miembro Activo</span>' : '<button class="unirme-btn">Unirme</button>'}
+        
+        ${esCreador ? '<button class="editar-btn unirme-btn" style="background:#f39c12; margin-left: 10px;">Editar</button>' : ''}
     `;
     
     return clubCard;

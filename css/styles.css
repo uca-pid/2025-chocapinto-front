@@ -1,536 +1,341 @@
-.busqueda-libro-item {
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 2px solid #eaf6ff;
-  background: #f7fbff;
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-.busqueda-libro-item:hover {
-  box-shadow: 0 2px 8px #0984e340;
-  border-color: #74b9ff;
-  background: #eaf6ff;
+/* ========================= */
+/* Variables de layout base  */
+/* ========================= */
+:root {
+  --page-max-width: 1280px;
+  --page-padding-inline: clamp(1rem, 2vw, 2rem);
+  --brand-dark: #2c5a91;
+  --brand-mid: #5fa8e9;
+  --bg-soft: #f7f7f3;
+  --border-soft: #eaf6ff;
+  --text-muted: #636e72;
+  --radius-card: 12px;
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.12);
+  --shadow-card-hover: 0 6px 18px rgba(0,0,0,0.18);
 }
 
-/* --- CAMBIO: Estilos para resultados de búsqueda de libros --- */
-.resultados-busqueda-libros {
-  position: absolute;
-  background: #fff;
-  border: 1px solid #b2bec3;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #2c5a9140;
-  margin-top: 4px;
-  z-index: 100;
-  width: 220px;
-  max-height: 220px;
-  overflow-y: auto;
-}
-.busqueda-libro-item {
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-}
-.busqueda-libro-item:last-child {
-  border-bottom: none;
-}
-.busqueda-libro-item:hover {
-  background: #f0f4fa;
-}
-/* === Reset básico === */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ========================= */
+/* Reset básico              */
+/* ========================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body.main-body {
   font-family: Arial, sans-serif;
-  background: #f7f7f3;
+  background: var(--bg-soft);
   color: #333;
   min-height: 100vh;
   width: 100vw;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* === Header === */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: var(--page-max-width);
+  margin-inline: auto;
+  padding-inline: var(--page-padding-inline);
+}
+
+/* ========================= */
+/* Header                    */
+/* ========================= */
 .main-header {
-  display: flex;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 2rem;
+  position: sticky; top: 0; z-index: 100;
   background: #fff;
   border-bottom: 1.5px solid #e0e6f6;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  display: flex; flex-wrap: wrap; gap: .75rem 1rem;
+  align-items: center; justify-content: space-between;
+  padding: .75rem var(--page-padding-inline);
+}
+@media (min-width: 768px){ .main-header{ flex-wrap:nowrap; padding:1rem 2rem; } }
+
+.BooksyLogo { width: 180px; max-width: 40vw; filter: drop-shadow(0 2px 8px #2c5a9140); }
+.main-nav { display:flex; align-items:center; gap:1rem; margin-left:auto; }
+.profile-dropdown{ position:relative; display:inline-block; }
+
+/* Botón perfil animado */
+.button{ margin:0; height:auto; background:transparent; padding:0; border:none; cursor:pointer; }
+.profile-btn.button{
+  --border-right:4px; --text-stroke-color:rgba(44,90,145,.6); --animation-color:#4c4ac4; --fs-size:1.2em;
+  letter-spacing:2px; font-size:var(--fs-size); font-family:Arial,sans-serif; position:relative;
+  text-transform:uppercase; color:transparent; -webkit-text-stroke:1px var(--text-stroke-color); font-weight:700; line-height:1.1;
+}
+.hover-text{ position:absolute; inset:0; color:var(--animation-color); width:0%; border-right:var(--border-right) solid var(--animation-color);
+  overflow:hidden; transition:.5s; -webkit-text-stroke:1px var(--animation-color); }
+@media (hover:hover){ .button:hover .hover-text{ width:100%; filter:drop-shadow(0 0 23px var(--animation-color)); } }
+
+/* Dropdown perfil */
+.dropdown-content{
+  display:none; position:absolute; right:0; background:#fff; min-width:180px; z-index:999;
+  box-shadow:0 8px 32px rgba(44,90,145,.25); border-radius:12px; margin-top:1rem; overflow:hidden; border:1px solid var(--border-soft);
+  animation:slideDown .3s ease-out;
+}
+@keyframes slideDown{ from{opacity:0; transform:translateY(-10px);} to{opacity:1; transform:translateY(0);} }
+.dropdown-content a{
+  color:var(--brand-dark); padding:.8rem 1.2rem; text-decoration:none; display:flex; align-items:center; font-weight:500;
+  transition:.2s; border-bottom:1px solid #f0f4fa; background:#fff;
+}
+.dropdown-content a:last-child{ border-bottom:none; }
+@media (hover:hover){
+  .profile-dropdown:hover .dropdown-content{ display:block; }
+  .dropdown-content a:hover{ background:#eaf6ff; color:#0984e3; transform:translateX(4px); }
 }
 
-.BooksyLogo {
-  width: 180px;
-  max-width: 30vw;
-  filter: drop-shadow(0 2px 8px #2c5a9140);
+/* ========================= */
+/* Hero / Banner             */
+/* ========================= */
+.hero-section{
+  background: linear-gradient(120deg,#e6eafc 0%,#f7f7f3 100%);
+  padding: clamp(2rem, 2vw + 1rem, 3rem) var(--page-padding-inline);
+  text-align:center;
 }
-
-.main-nav {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.hero-section h1{
+  font-family:"Dancing Script", cursive; color:var(--brand-dark);
+  font-size: clamp(1.8rem, 1vw + 1.4rem, 2.5rem); line-height:1.2; margin-bottom:1rem;
 }
+.hero-desc{ color:#444; font-size:clamp(1rem,.4vw+.9rem,1.2rem); max-width:60ch; margin:0 auto; line-height:1.4; }
 
-.profile-dropdown {
-  position: relative;
-  display: inline-block;
+/* ========================= */
+/* Secciones / Títulos       */
+/* ========================= */
+.mis-clubes-section, .main-sections, .recomendaciones-section{
+  margin: 2rem auto; max-width: var(--page-max-width); padding-inline:0;
 }
-
-/* === Animated Profile Button Styles === */
-/* From Uiverse.io by satyamchaudharydev */
-/* === removing default button style ===*/
-.button {
-  margin: 0;
-  height: auto;
-  background: transparent;
-  padding: 0;
-  border: none;
-  cursor: pointer;
+.mis-clubes-section h2, .main-sections h2, .recomendaciones-section h2{
+  font-size: clamp(1.6rem, 1vw + 1.2rem, 2.2rem);
+  font-weight:700; color:var(--brand-dark); font-family:"Dancing Script", cursive; line-height:1.2;
+  margin-bottom:1rem; padding-left:var(--page-padding-inline); padding-right:var(--page-padding-inline);
 }
+.mis-clubes-section h2{ margin-bottom:.75rem; } /* menos aire encima del estado vacío */
 
-/* button styling */
-.profile-btn.button {
-  --border-right: 4px;
-  --text-stroke-color: rgba(44, 90, 145, 0.6);
-  --animation-color: #4c4ac4;
-  --fs-size: 1.2em;
-  letter-spacing: 2px;
-  text-decoration: none;
-  font-size: var(--fs-size);
-  font-family: "Arial", sans-serif;
-  position: relative;
-  text-transform: uppercase;
-  color: transparent;
-  -webkit-text-stroke: 1px var(--text-stroke-color);
-  font-weight: 700;
-}
+/* ========================= */
+/* Grillas / Carruseles      */
+/* ========================= */
 
-/* this is the text, when you hover on button */
-.hover-text {
-  position: absolute;
-  box-sizing: border-box;
-  content: attr(data-text);
-  color: var(--animation-color);
-  width: 0%;
-  inset: 0;
-  border-right: var(--border-right) solid var(--animation-color);
-  overflow: hidden;
-  transition: 0.5s;
-  -webkit-text-stroke: 1px var(--animation-color);
-}
-
-/* hover */
-.button:hover .hover-text {
-  width: 100%;
-  filter: drop-shadow(0 0 23px var(--animation-color));
-}
-
-/* Dropdown Content Styles */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background: #fff;
-  min-width: 180px;
-  box-shadow: 0 8px 32px rgba(44, 90, 145, 0.25);
-  border-radius: 12px;
-  margin-top: 1rem;
-  overflow: hidden;
-  border: 1px solid #eaf6ff;
-  animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.dropdown-content a {
-  color: #2c5a91;
-  padding: 0.8rem 1.2rem;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid #f0f4fa;
-}
-
-.dropdown-content a:last-child {
-  border-bottom: none;
-}
-
-.dropdown-content a:hover {
-  background: #eaf6ff;
-  color: #0984e3;
-  transform: translateX(4px);
-}
-
-.profile-dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* === Hero === */
-.hero-section {
-  background: linear-gradient(120deg, #e6eafc 0%, #f7f7f3 100%);
-  padding: 3rem 1.5rem;
-  text-align: center;
-}
-
-.hero-section h1 {
-  font-family: "Dancing Script", cursive;
-  color: #2c5a91;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-.hero-desc {
-  color: #444;
-  font-size: 1.2rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* === Secciones principales === */
-.mis-clubes-section,
-.main-sections,
-.recomendaciones-section {
-  margin: 2rem auto;
-  max-width: 1200px;
-  padding: 0 1rem;
-}
-
-.mis-clubes-section h2,
-.main-sections > h2,
-.recomendaciones-section h2 {
-  font-size: 2rem;
-  color: #2c5a91;
-  font-family: "Dancing Script", cursive;
-  margin-bottom: 1rem;
-}
-
-/* === Scroll horizontal en grillas === */
+/* Mis Clubes y Recomendaciones: carrusel base */
 .mis-clubes-grid,
-.clubes-grid,
 .recomendaciones-row {
   display: flex;
   flex-direction: row;
   gap: 1rem;
-  padding-top:15px ;
-  padding-left: 20px;
+  padding-top: 15px;
+  padding-bottom: 1rem;
+  padding-left: var(--page-padding-inline);
+  padding-right: var(--page-padding-inline);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Clubes de Lectura: SIEMPRE carrusel */
+.clubes-grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;           /* <-- clave */
+  gap: 1rem;
+  padding-top: 15px;
   padding-bottom: 1rem;
+  padding-left: var(--page-padding-inline);
+  padding-right: var(--page-padding-inline);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
 }
 
 .mis-clubes-grid::-webkit-scrollbar,
 .clubes-grid::-webkit-scrollbar,
-.recomendaciones-row::-webkit-scrollbar {
-  height: 6px;
-}
-
+.recomendaciones-row::-webkit-scrollbar{ height:6px; }
 .mis-clubes-grid::-webkit-scrollbar-thumb,
 .clubes-grid::-webkit-scrollbar-thumb,
-.recomendaciones-row::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
+.recomendaciones-row::-webkit-scrollbar-thumb{ background:#ccc; border-radius:4px; }
+
+/* Desktop: SOLO Mis Clubes puede pasar a mosaico. El resto se mantiene carrusel. */
+@media (min-width:768px){
+  .mis-clubes-grid{
+    display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:flex-start;
+    gap:1rem 1rem; overflow:visible; scroll-snap-type:none;
+    padding-left: var(--page-padding-inline);
+    padding-right: var(--page-padding-inline);
+  }
+  .mis-clubes-grid > *{ flex:0 1 300px; max-width:320px; }
 }
 
-/* === Cards === */
-.section-card,
-.club-card,
-.mis-club-card,
-.recomendacion-card {
-  flex: 0 0 auto;
-  min-width: 260px;
+@media (min-width:1024px){
+  .mis-clubes-grid, .clubes-grid, .recomendaciones-row{ gap:1.5rem; }
+}
+
+/* ========================= */
+/* Cards base                */
+/* ========================= */
+.section-card, .club-card, .mis-club-card, .recomendacion-card{
+  background:#fff; border-radius:var(--radius-card); border:1px solid var(--border-soft);
+  box-shadow:var(--shadow-card); transition: box-shadow .2s, transform .2s;
+  scroll-snap-align:start; text-align:center;
+  flex:0 0 auto; min-width:280px; max-width:320px; padding:1rem;
+}
+.section-card:hover, .club-card:hover, .mis-club-card:hover, .recomendacion-card:hover{
+  transform: translateY(-4px) scale(1.03); box-shadow: var(--shadow-card-hover);
+}
+
+/* ========================= */
+/* Clubes de Lectura (uniforme + carrusel) */
+/* ========================= */
+.clubes-grid > .club-card,
+.clubes-grid > .create-club-card{
+  height: 240px; min-height:240px; max-height:240px;
+  display:flex; flex-direction:column; align-items:center;
+  padding:1.25rem 1rem; box-sizing:border-box;
+
+  /* ancho fijo por tarjeta dentro del carrusel */
+  flex: 0 0 300px;
+  min-width: 280px;
   max-width: 320px;
-  scroll-snap-align: start;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  padding: 1rem;
-  text-align: center;
-  transition: box-shadow 0.2s, transform 0.2s;
+}
+.clubes-grid > .club-card .club-logo,
+.clubes-grid > .create-club-card .create-icon-container{ margin-bottom:.75rem !important; }
+.clubes-grid > .club-card p{ margin-bottom:1rem; }
+.clubes-grid > .club-card .unirme-btn{ margin-top:auto; }
+
+.clubes-grid > .create-club-card{
+  justify-content:center; border:2px dashed #b2bec3; box-shadow:none; background:#fcfcfc; cursor:pointer;
+}
+.clubes-grid > .create-club-card:hover{ transform:none; box-shadow:0 0 10px rgba(44,90,145,.2); border-color:var(--brand-dark); }
+.create-club-card .create-icon-container{
+  background:#eaf6ff; border-radius:50%; width:60px; height:60px; display:flex; justify-content:center; align-items:center;
+  border:1px solid #c7e0ff;
+}
+.create-club-card .create-icon{ color:var(--brand-dark); }
+
+/* ========================= */
+/* Recomendación (libros)    */
+/* ========================= */
+.recomendacion-card{
+  min-width:260px; max-width:320px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;
+  border:1px solid var(--border-soft); box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.recomendacion-card:hover{ transform: translateY(-6px) scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,.2); }
+.recomendacion-card img{ width:100px; height:auto; border-radius:8px; margin-bottom:1rem; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+
+/* ========================= */
+/* Tipografía de cards       */
+/* ========================= */
+.section-card h3, .club-card h3, .mis-club-card h3, .recomendacion-card h4{
+  font-size: clamp(1rem, 4vw, 1.3rem); color:var(--brand-dark); margin-bottom:.5rem; line-height:1.3; text-align:center;
+}
+.section-card p, .club-card p, .mis-club-card p, .recomendacion-card p{
+  font-size: clamp(.85rem, 3vw, 1rem); color:#555; line-height:1.4; word-break:break-word; text-align:center;
 }
 
-.section-card:hover,
-.club-card:hover,
-.mis-club-card:hover,
-.recomendacion-card:hover {
-  transform: translateY(-4px) scale(1.03);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+/* Botones / badges */
+.unirme-btn{
+  background: linear-gradient(90deg, var(--brand-dark) 0%, var(--brand-mid) 100%);
+  color:#fff; border:none; border-radius:8px; padding:.4rem 1rem; font-weight:600; cursor:pointer;
+  transition: transform .2s; white-space:nowrap; font-size:.9rem; line-height:1.2;
+}
+.unirme-btn:hover{ transform:scale(1.05); }
+.club-card .miembro-tag{
+  color:#27ae60; font-weight:700; background:#e6f7ef; padding:3px 8px; border-radius:4px; display:inline-block; margin-top:5px; font-size:.9rem;
 }
 
-.recomendacion-card {
-  flex: 0 0 auto;
-  min-width: 260px;
-  max-width: 320px;
-  scroll-snap-align: start;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 1.5rem;
-  text-align: center;
-  transition: box-shadow 0.3s, transform 0.3s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid #eaf6ff;
+/* ========================= */
+/* Estado vacío Mis Clubes   */
+/* ========================= */
+
+/* Cuando solo hay el estado vacío:
+   quitamos padding lateral del carrusel y centramos de verdad */
+.mis-clubes-grid:has(.empty-mis-clubes-state:only-child){
+  justify-content:center;
+  padding-left:0;
+  padding-right:0;
 }
 
-.recomendacion-card:hover {
-  transform: translateY(-6px) scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+/* Card vacía rectangular centrada */
+.empty-mis-clubes-state{
+  width:100%; max-width:1000px; min-height:260px;
+  padding:2rem 2rem 2.5rem; margin:0 auto;
+  text-align:center; background:#fff; border:2px dashed #c7e0ff; border-radius:var(--radius-card);
+  box-shadow:0 4px 12px rgba(0,0,0,.05);
+  display:flex; flex-direction:column; justify-content:center; align-items:center; line-height:1.4;
+}
+.empty-state-content .book-icon{ color:var(--brand-mid); margin-bottom:.75rem; }
+.empty-state-content p{
+  color:var(--text-muted); margin-top:.5rem; font-size:1rem; line-height:1.45; text-align:center;
+  max-width:520px; margin-left:auto; margin-right:auto;
+}
+.empty-state-content .subtext{
+  font-size:.95rem; color:#888; margin-top:.5rem; line-height:1.4; text-align:center;
+  max-width:520px; margin-left:auto; margin-right:auto;
+}
+.btn-explore-clubs{
+  display:inline-block; background: linear-gradient(90deg,var(--brand-dark) 0%, var(--brand-mid) 100%); color:#fff;
+  border:none; border-radius:8px; padding:10px 20px; font-weight:600; cursor:pointer; margin-top:1rem; text-decoration:none;
+  transition: transform .2s, box-shadow .2s; font-size:.95rem; line-height:1.2;
+}
+.btn-explore-clubs:hover{ transform:scale(1.03); box-shadow:0 4px 10px rgba(44,90,145,.4); }
+
+/* ========================= */
+/* Autosuggest búsqueda      */
+/* ========================= */
+.busqueda-libro-item{
+  margin-bottom:10px; border-radius:10px; border:2px solid var(--border-soft); background:#f7fbff;
+  transition: box-shadow .2s, border-color .2s; padding:.5rem 1rem; cursor:pointer; border-bottom:1px solid #eee;
+}
+.busqueda-libro-item:last-child{ border-bottom:none; }
+.busqueda-libro-item:hover{ box-shadow:0 2px 8px #0984e340; border-color:#74b9ff; background:#eaf6ff; }
+.resultados-busqueda-libros{
+  position:absolute; background:#fff; border:1px solid #b2bec3; border-radius:8px; box-shadow:0 2px 8px #2c5a9140;
+  margin-top:4px; z-index:100; width:min(90vw,320px); max-height:220px; overflow-y:auto;
 }
 
-.recomendacion-card img {
-  width: 100px;
-  height: auto;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* ========================= */
+/* Footer                    */
+/* ========================= */
+.main-footer{
+  background:var(--bg-soft); text-align:center; padding:2rem var(--page-padding-inline);
+  border-top:1.5px solid #e0e6f6; font-size:.95rem; color:var(--brand-dark); line-height:1.4;
 }
+.main-footer a{ color:var(--brand-dark); word-break:break-word; }
+.footer-credits{ color:#888; font-size:.85rem; margin-top:.5rem; }
 
-.recomendacion-card h4 {
-  font-size: 1.2rem;
-  color: #2c5a91;
-  margin-bottom: 0.5rem;
+/* ========================= */
+/* Libros 3D                 */
+/* ========================= */
+.book{
+  position:relative; border-radius:10px; width:200px !important; min-width:200px; max-width:200px;
+  height:280px !important; min-height:280px; max-height:280px; background:whitesmoke; color:#000;
+  flex-shrink:0; margin:10px; box-shadow:1px 1px 12px #000; transform:preserve-3d; perspective:2000px;
+  display:flex; align-items:center; justify-content:center;
 }
-
-.recomendacion-card p {
-  font-size: 0.95rem;
-  color: #636e72;
-  margin-bottom: 0.5rem;
+.book .book-content{ padding:20px; text-align:center; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.book .book-title{ font-size:18px; font-weight:bold; color:var(--brand-dark); margin-bottom:10px; line-height:1.3; text-align:center; }
+.book .book-author{ font-size:14px; color:var(--text-muted); font-style:italic; line-height:1.3; text-align:center; }
+.cover{
+  top:0; position:absolute; width:200px !important; height:280px !important; border-radius:10px; cursor:pointer; background:lightgray;
+  transition:.5s; transform-origin:0; box-shadow:1px 1px 12px #000; display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
-
-/* === Texto adaptable con clamp() === */
-.section-card h3,
-.club-card h3,
-.mis-club-card h3,
-.recomendacion-card h4 {
-  font-size: clamp(1rem, 4vw, 1.3rem);
-  color: #2c5a91;
-  margin-bottom: 0.5rem;
+.cover img{ width:100% !important; height:100% !important; object-fit:fill; object-position:center; display:block; }
+.cover .default-cover{ background:linear-gradient(135deg,#eaf6ff 0%,#d1e7ff 100%); width:100%; height:100%; padding:20px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.cover .cover-text{
+  background:rgba(44,90,145,.9); color:#fff; padding:8px 16px; border-radius:20px; font-size:14px; font-weight:bold; opacity:.95;
+  backdrop-filter:blur(4px); box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
+@media (hover:hover){ .book:hover .cover{ transition:.5s; transform:rotateY(-80deg); } }
 
-.section-card p,
-.club-card p,
-.mis-club-card p,
-.recomendacion-card p {
-  font-size: clamp(0.85rem, 3vw, 1rem);
-  color: #555;
+/* ========================= */
+/* Responsive mínimos        */
+/* ========================= */
+@media (max-width:768px){
+  .profile-btn.button{ font-size:1rem; letter-spacing:1px; }
 }
-
-/* === Botón unirme === */
-.unirme-btn {
-  background: linear-gradient(90deg, #2c5a91 0%, #5fa8e9 100%);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 0.4rem 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 0.5rem;
-  transition: transform 0.2s;
+@media (max-width:480px){
+  .main-header{ row-gap:.5rem; }
+  .BooksyLogo{ max-width:60vw; }
+  .main-nav{ flex-shrink:0; flex-grow:0; }
+  .profile-btn.button{ text-align:right; font-size:.9rem; }
 }
-
-.unirme-btn:hover {
-  transform: scale(1.05);
-}
-
-/* === Footer === */
-.main-footer {
-  background: #f7f7f3;
-  text-align: center;
-  padding: 1.5rem 1rem;
-  border-top: 1.5px solid #e0e6f6;
-  font-size: 0.95rem;
-  color: #2c5a91;
-}
-
-.footer-credits {
-  color: #888;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-}
-
-/* === Responsividad === */
-@media (max-width: 768px) {
-  .section-card,
-  .club-card,
-  .mis-club-card,
-  .recomendacion-card {
-    min-width: 220px;
-    max-width: 260px;
-  }
-
-  .hero-section h1 {
-    font-size: 2rem;
-  }
-}
-
-/* === FIX para móviles pequeños (≤480px) === */
-@media (max-width: 480px) {
-  .section-card,
-  .club-card,
-  .mis-club-card,
-  .recomendacion-card {
-    flex: 0 0 auto;
-    min-width: 90vw !important;  /* ocupar casi todo el ancho */
-    max-width: 95vw !important;
-    padding: 1.2rem;
-  }
-
-  /* Texto proporcional */
-  .section-card h3,
-  .club-card h3,
-  .mis-club-card h3,
-  .recomendacion-card h4 {
-    font-size: clamp(1rem, 5vw, 1.4rem);
-  }
-
-  .section-card p,
-  .club-card p,
-  .mis-club-card p,
-  .recomendacion-card p {
-    font-size: clamp(0.9rem, 4vw, 1.1rem);
-  }
-}
-
-/* === Estilos para libros 3D === */
-.book {
-  position: relative;
-  border-radius: 10px;
-  width: 200px !important;
-  height: 280px !important;
-  min-width: 200px;
-  max-width: 200px;
-  min-height: 280px;
-  max-height: 280px;
-  background-color: whitesmoke;
-  flex-shrink: 0;
-  -webkit-box-shadow: 1px 1px 12px #000;
-  box-shadow: 1px 1px 12px #000;
-  -webkit-transform: preserve-3d;
-  -ms-transform: preserve-3d;
-  transform: preserve-3d;
-  -webkit-perspective: 2000px;
-  perspective: 2000px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  color: #000;
-  margin: 10px;
-}
-
-.book .book-content {
-  padding: 20px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.book .book-title {
-  font-size: 18px;
-  font-weight: bold;
-  color: #2c5a91;
-  margin-bottom: 10px;
-  line-height: 1.3;
-}
-
-.book .book-author {
-  font-size: 14px;
-  color: #636e72;
-  font-style: italic;
-}
-
-.cover {
-  top: 0;
-  position: absolute;
-  background-color: lightgray;
-  width: 200px !important;
-  height: 280px !important;
-  border-radius: 10px;
-  cursor: pointer;
-  -webkit-transition: all 0.5s;
-  transition: all 0.5s;
-  -webkit-transform-origin: 0;
-  -ms-transform-origin: 0;
-  transform-origin: 0;
-  -webkit-box-shadow: 1px 1px 12px #000;
-  box-shadow: 1px 1px 12px #000;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.cover img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: fill;
-  object-position: center;
-  display: block;
-}
-
-.cover .default-cover {
-  background: linear-gradient(135deg, #eaf6ff 0%, #d1e7ff 100%);
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.cover .cover-text {
-  background: rgba(44, 90, 145, 0.9);
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: bold;
-  opacity: 0.95;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.book:hover .cover {
-  -webkit-transition: all 0.5s;
-  transition: all 0.5s;
-  -webkit-transform: rotatey(-80deg);
-  -ms-transform: rotatey(-80deg);
-  transform: rotatey(-80deg);
-}
-

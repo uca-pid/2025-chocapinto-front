@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booksy - Club de Lectura</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/componentes/notificaciones.css">
@@ -11,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
 <body class="main-body">
-    <!-- Contenedor de notificaciones -->
     <div id="notifications"></div>
     
     <header class="main-header">
@@ -54,25 +54,19 @@
     </section>
 
     <main>
-        <!-- Sección Mis Clubes -->
         <section class="mis-clubes-section">
-            <h2>Mis Clubes</h2>
+            <h2 style="padding: 0 1rem;">Mis Clubes</h2>
             <div class="mis-clubes-grid"></div>
         </section>
 
-        <!-- Sección Todos los Clubes -->
         <section class="main-sections">
-            <h2>Clubes de Lectura</h2>
-            <div style="text-align:center; margin-bottom:1.5rem;">
-                <button onclick="window.location.href='crear_club.html'" 
-                        style="padding:0.8rem 1.5rem; background:#0984e3; color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:700;">
-                    Crear nuevo club
-                </button>
+            <div class="clubes-header">
+                <h2>Clubes de Lectura</h2>
             </div>
+            
             <div id="clubesGrid" class="clubes-grid"></div>
         </section>
 
-        <!-- Sección Recomendaciones de libros -->
         <section>
             <div class="recomendaciones-section">
                 <h2>Recomendaciones de Libros</h2>
@@ -87,8 +81,5 @@
     </footer>
 
     <script type="module" src="../js/principal.js"></script>
-</body>
-</html>
-  
 </body>
 </html>
