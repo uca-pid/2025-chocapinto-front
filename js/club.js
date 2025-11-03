@@ -11,6 +11,7 @@ window.clubData = null;
 /**
  * Cierra sesión del usuario
  */
+//importado a header
 function logout() {
     localStorage.removeItem("username");
     localStorage.removeItem("userId");
@@ -22,6 +23,8 @@ function logout() {
 /**
  * Actualiza el display del username en el header
  */
+
+//importado a header
 function updateUsernameDisplay() {
     const username = localStorage.getItem("username");
     const usernameDisplay = document.getElementById("usernameDisplay");
@@ -84,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 800);
 });
 
-// Gestionar solicitud: aceptar o rechazar
+// Gestionar solicitud: aceptar o rechazar  core
 async function gestionarSolicitud(solicitudId, aceptar) {
     const clubId = getClubId();
     showLoader(aceptar ? "Aceptando solicitud..." : "Rechazando solicitud...");
@@ -108,43 +111,8 @@ async function gestionarSolicitud(solicitudId, aceptar) {
     }
 }
 
-async function eliminarUsuarioDelClub(userId, clubId) {
-    confirmarEliminacion("este usuario del club", async () => {
-        showLoader("Eliminando usuario del club...");
-        try {
-            const res = await fetch(`${API_URL}/club/${clubId}/removeMember/${userId}`, {
-                method: "DELETE"
-            });
-            const data = await res.json();
-            if (data.success) {
-                showNotification("success", "Usuario eliminado");
-                renderClub();
-            } else {
-                hideLoader();
-                showNotification("error", data.message || "No se pudo eliminar el usuario");
-            }
-        } catch (error) {
-            hideLoader();
-            showNotification("error", "Error de conexión");
-        }
-    });
-}
 
-async function obtenerDatosOwner(id_owner){
-    try {
-        const res = await fetch(`${API_URL}/user/${id_owner}`);
-        const data = await res.json();
-        if (data.success && data.user && data.user.username) {
-            document.getElementById('club-owner').textContent = `Moderador: ${data.user.username}`;
-        } else {
-            document.getElementById('club-owner').textContent = "Moderador: desconocido";
-        }
-    } catch (error) {
-        document.getElementById('club-owner').textContent = "Moderador: error de datos";
-    }
-}
-
-// Función para obtener información visual del estado del libro
+// Función para obtener información visual del estado del libro imortada a utils
 function getEstadoInfo(estado) {
     switch(estado) {
         case 'leido':
@@ -178,6 +146,7 @@ function getEstadoInfo(estado) {
 
 
 // Función para cambiar el estado de un libro
+//library
 async function cambiarEstadoLibro(bookId, nuevoEstado) {
     const clubId = getClubId();
     const username = localStorage.getItem("username");
@@ -224,6 +193,7 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
 }
 
 // Función auxiliar para obtener el label del estado
+//importado a utils
 function getEstadoLabel(estado) {
     switch(estado) {
         case 'leido': return '✅ Leído';
@@ -232,6 +202,7 @@ function getEstadoLabel(estado) {
         default: return estado;
     }
 }
+//book
 async function cargarCategorias() {
     try {
         const res = await fetch(`${API_URL}/categorias`);
@@ -245,6 +216,7 @@ async function cargarCategorias() {
     }
 }
 // Función para determinar si una categoría es predeterminada
+//book
 function esCategoriasPredeterminada(nombreCategoria) {
     const categoriasPredeterminadas = [
         'Ficción',
@@ -255,6 +227,8 @@ function esCategoriasPredeterminada(nombreCategoria) {
     ];
     return categoriasPredeterminadas.includes(nombreCategoria);
 }
+
+//book
 
 function renderCategoriasCheckboxes() {
   categoriasContainer.innerHTML = '';
@@ -306,6 +280,7 @@ function renderCategoriasCheckboxes() {
       });
     });
 }
+//book
 function eliminarCategoria(categoriaId) {
   confirmarEliminacion("esta categoría", () => {
     showLoader("Eliminando categoría...");
@@ -332,7 +307,7 @@ function eliminarCategoria(categoriaId) {
   });
 }
 
-
+//book
 function editarCategoria(categoriaId, nombreActual) {
   const nuevoNombre = prompt("Nuevo nombre para la categoría:", nombreActual);
   if (!nuevoNombre || nuevoNombre.trim() === "") return;
@@ -366,6 +341,7 @@ function editarCategoria(categoriaId, nombreActual) {
 }
 
 // --- Función para buscar libros en Google Books ---
+//book
 async function buscarLibrosGoogleBooksAPI(query) {
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
     try {
@@ -382,10 +358,13 @@ async function buscarLibrosGoogleBooksAPI(query) {
         return [];
     }
 }
+//importada a utils
 function getClubId() {
         const params = new URLSearchParams(window.location.search);
         return params.get('clubId');
-    }
+}
+
+//importado a core
 async function renderClub() {
     const clubId = getClubId();
     console.log("Club ID obtenido:", clubId);
@@ -589,6 +568,7 @@ let filtroEstado = 'todos';
 
 
 // Función principal de filtrado que combina búsqueda de texto, estado y categorías
+//library
 function aplicarFiltros(club, categoriasSeleccionadas = []) {
     const librosList = document.getElementById('libros-leidos-list');
     librosList.innerHTML = "";
@@ -733,7 +713,7 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
 }
 
 // Helpers
-
+// core
 function mostrarClubNoEncontrado(msg) {
     console.log("Mostrando club no encontrado:", msg);
     hideLoader(); // Asegurar que el loader se oculte
@@ -743,7 +723,7 @@ function mostrarClubNoEncontrado(msg) {
     if (nameElement) nameElement.textContent = "Club no encontrado";
     if (descElement) descElement.textContent = msg;
 }
-
+//core
 function mostrarDatosClub(club) {
     console.log("Mostrando datos del club:", club);
     const nameElement = document.getElementById('club-name');
@@ -820,16 +800,28 @@ function mostrarDatosClub(club) {
     // obtenerDatosOwner(club.id_owner); // Comentado: elemento club-owner no existe en HTML
     mostrarBotonesAccion(club);
 }
-
+//core
 function mostrarBotonesAccion(club) {
     const userId = localStorage.getItem("userId");
+    console.log('🔧 mostrarBotonesAccion - userId:', userId, 'club.id_owner:', club.id_owner);
+    
     // Botones del header
     const eliminarBtnHeader = document.getElementById("eliminarClubBtnHeader");
     const salirBtnHeader = document.getElementById("salirClubBtnHeader");
+    const requestsBtn = document.getElementById("requestsBtn");
+    
+    console.log('🔍 Elementos encontrados:', {
+        eliminarBtnHeader: !!eliminarBtnHeader,
+        salirBtnHeader: !!salirBtnHeader,
+        requestsBtn: !!requestsBtn
+    });
+    
     // Botones del cuerpo (mantener para compatibilidad)
     
     
     if (club.id_owner == userId) {
+        console.log('✅ Usuario es OWNER del club');
+        
         // Mostrar botón de eliminar en header
         if (eliminarBtnHeader) {
             eliminarBtnHeader.style.display = "inline-flex";
@@ -838,11 +830,22 @@ function mostrarBotonesAccion(club) {
         if (salirBtnHeader) {
             salirBtnHeader.style.display = "none";
         }
+        
+        // Mostrar botón de solicitudes para owners
+        if (requestsBtn) {
+            requestsBtn.style.display = "inline-flex";
+            console.log('✅ Botón de solicitudes mostrado');
+        } else {
+            console.error('❌ No se encontró el botón requestsBtn');
+        }
+        
         // Mantener compatibilidad con botones del cuerpo
        
         // Actualizar badge de solicitudes para owners
         actualizarBadgeSolicitudes(club);
     } else {
+        console.log('❌ Usuario NO es owner del club');
+        
         // Mostrar botón de salir en header
         if (salirBtnHeader) {
             salirBtnHeader.style.display = "inline-flex";
@@ -861,6 +864,7 @@ function mostrarBotonesAccion(club) {
         // Ocultar botón de solicitudes si no es owner
         if (requestsBtn) {
             requestsBtn.style.display = "none";
+            console.log('🚫 Botón de solicitudes ocultado (no es owner)');
         }
         // Ocultar badge para no-owners
         const requestsBadge = document.getElementById('requestsBadge');
@@ -871,47 +875,8 @@ function mostrarBotonesAccion(club) {
 }
 
 
-function mostrarSolicitudes(club) {
-    const solicitudesContainer = document.getElementById('solicitudes-container');
-    const solicitudesList = document.getElementById('solicitudes-list');
-    const userId = localStorage.getItem("userId");
-    const isOwner = club.id_owner == userId;
-    if (isOwner && club.solicitudes && club.solicitudes.length > 0) {
-        const pendientes = club.solicitudes.filter(s => s.estado === "pendiente");
-        if (pendientes.length > 0) {
-            solicitudesContainer.style.display = 'block';
-            solicitudesList.innerHTML = '';
-            pendientes.forEach(solicitud => {
-                const item = document.createElement('div');
-                item.style.cssText = 'background:#eaf6ff;padding:1rem 1.2rem;border-radius:10px;display:flex;align-items:center;justify-content:space-between;';
-                item.innerHTML = `<span style='color:#2c5a91;font-weight:600;'>${solicitud.username}</span> <span style='color:#636e72;'>quiere unirse</span>`;
-                const btns = document.createElement('div');
-                btns.style.display = 'flex';
-                btns.style.gap = '10px';
-                const aceptarBtn = document.createElement('button');
-                aceptarBtn.textContent = 'Aceptar';
-                aceptarBtn.style.cssText = 'background:#0984e3;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.2rem;font-weight:600;cursor:pointer;';
-                aceptarBtn.onclick = async () => { await gestionarSolicitud(solicitud.id, true); };
-                const rechazarBtn = document.createElement('button');
-                rechazarBtn.textContent = 'Rechazar';
-                rechazarBtn.style.cssText = 'background:#d63031;color:#fff;border:none;border-radius:8px;padding:0.5rem 1.2rem;font-weight:600;cursor:pointer;';
-                rechazarBtn.onclick = async () => { await gestionarSolicitud(solicitud.id, false); };
-                btns.appendChild(aceptarBtn);
-                btns.appendChild(rechazarBtn);
-                item.appendChild(btns);
-                solicitudesList.appendChild(item);
-            });
-        } else {
-            solicitudesContainer.style.display = 'none';
-        }
-    } else if (solicitudesContainer) {
-        solicitudesContainer.style.display = 'none';
-    }
-    
-    // Actualizar badge de solicitudes
-    actualizarBadgeSolicitudes(club);
-}
 
+//core
 function actualizarBadgeSolicitudes(club) {
     const requestsBadge = document.getElementById('requestsBadge');
     const userId = localStorage.getItem("userId");
@@ -933,6 +898,7 @@ function actualizarBadgeSolicitudes(club) {
     }
 }
 
+//core
 function actualizarEstadisticas(club) {
     // Contadores por estado
     let librosLeidos = 0;
@@ -979,38 +945,9 @@ function actualizarEstadisticas(club) {
     }
 }
 
-function mostrarLibrosLeidos(club) {
-    // Usar la nueva función de filtrado
-    aplicarFiltros(club);
-}
 
-function agregarBotonEliminarLibro(card, bookId) {
-    const deleteBtn = document.createElement('span');
-    deleteBtn.textContent = '❌';
-    deleteBtn.style.cssText = 'color:#d63031;cursor:pointer;font-size:1.3rem;position:absolute;top:10px;right:14px;';
-    deleteBtn.title = 'Eliminar libro';
-    deleteBtn.onclick = () => {
-        mostrarConfirmacion(
-            "¿Eliminar este libro?",
-            "El libro será removido del club y ya no aparecerá en la lista de libros leídos.",
-            async () => {
-                const clubId = getClubId();
-                const username = localStorage.getItem("username");
-                await eliminarLibro(bookId, clubId, username);
-                renderClub();
-            },
-            null,
-            {
-                confirmText: "Eliminar Libro",
-                cancelText: "Cancelar",
-                confirmClass: "red-btn",
-                cancelClass: "green-btn"
-            }
-        );
-    };
-    card.appendChild(deleteBtn);
-}
 
+//library
 async function eliminarLibro(bookId, clubId, username) {
     showLoader("Eliminando libro...");
     try {
@@ -1039,7 +976,7 @@ let categoriasDisponibles = [];
 const categoriasContainer = document.getElementById("categoriasContainer");
 const nuevaCategoriaInput = document.getElementById("nuevaCategoriaInput");
 const agregarCategoriaBtn = document.getElementById("agregarCategoriaBtn");
-
+//book
 agregarCategoriaBtn.addEventListener('click', async () => {
     const nombre = nuevaCategoriaInput.value.trim();
     if (!nombre) return;
@@ -1073,6 +1010,7 @@ agregarCategoriaBtn.addEventListener('click', async () => {
 });
 
 // Función para configurar el modal de libros
+//book
 function setupModalLibro() {
     const agregarLibroBtn = document.querySelector('.primary-action-btn');
     if (agregarLibroBtn && !agregarLibroBtn.hasAttribute('data-listener-added')) {
@@ -1111,7 +1049,7 @@ const buscadorLibro = document.getElementById("buscadorLibro");
 const resultadosBusquedaLibro = document.getElementById("resultadosBusquedaLibro");
 const tituloLibro = document.getElementById("tituloLibro");
 const autorLibro = document.getElementById("autorLibro");
-
+//book
 buscadorLibro.addEventListener("input", async function () {
     const query = buscadorLibro.value.trim();
     resultadosBusquedaLibro.innerHTML = "";
@@ -1156,7 +1094,7 @@ buscadorLibro.addEventListener("input", async function () {
         resultadosBusquedaLibro.appendChild(div);
     });
 });
-
+//book
 document.getElementById("formLibro").addEventListener("submit", async function(e) {
     e.preventDefault();
     const title = tituloLibro.value;
@@ -1228,9 +1166,9 @@ const comentariosList = document.getElementById("comentariosList");
 const nuevoComentario = document.getElementById("nuevoComentario");
 const enviarComentarioBtn = document.getElementById("enviarComentarioBtn");
 let currentBookId = null;
-
+//modal comments
 closeModalComentarios.onclick = () => { modalComentarios.style.display = "none"; };
-
+//library commets
 document.addEventListener("click", async (e) => {
   if (e.target.classList.contains("btn-comentarios") || e.target.closest(".btn-comentarios")) {
     const button = e.target.classList.contains("btn-comentarios") ? e.target : e.target.closest(".btn-comentarios");
@@ -1264,7 +1202,7 @@ document.addEventListener("click", async (e) => {
     );
   }
 });
-
+//comments
 async function cargarComentarios(bookId, clubId) {
   comentariosList.innerHTML = "<div style='color:#636e72;text-align:center;padding:20px;'>Cargando comentarios...</div>";
   const commentsCount = document.getElementById('comments-count');
@@ -1346,7 +1284,7 @@ async function cargarComentarios(bookId, clubId) {
     if (commentsCount) commentsCount.textContent = '0';
   }
 }
-
+//comments
 async function eliminarComentario(comentarioId, bookId, clubId) {
   showLoader("Eliminando comentario...");
   try {
@@ -1370,7 +1308,7 @@ async function eliminarComentario(comentarioId, bookId, clubId) {
 
 
 
-// Event listener para el botón de enviar (ahora funciona como submit)
+// Event listener para el botón de enviar (ahora funciona como submit) COMMENTS
 document.addEventListener('click', async (e) => {
   if (e.target.id === 'enviarComentarioBtn' || e.target.closest('#enviarComentarioBtn')) {
     e.preventDefault();
@@ -1402,7 +1340,7 @@ document.addEventListener('click', async (e) => {
   }
 });
 
-// Event listener para cambiar el estado de los libros
+// Event listener para cambiar el estado de los libros library
 document.addEventListener('change', async (e) => {
   if (e.target.classList.contains('estado-selector')) {
     const bookId = e.target.getAttribute('data-bookid');
@@ -1419,7 +1357,7 @@ document.addEventListener('change', async (e) => {
   }
 });
 
-// Event listener para el filtro de búsqueda de texto
+// Event listener para el filtro de búsqueda de texto library
 document.addEventListener('input', (e) => {
   if (e.target.id === 'search-books') {
     filtroTexto = e.target.value;
@@ -1428,7 +1366,7 @@ document.addEventListener('input', (e) => {
     }
   }
 });
-
+//core
 async function eliminarClub(){
     mostrarConfirmacion(
         "¿Eliminar este club?",
@@ -1469,7 +1407,7 @@ async function eliminarClub(){
         }
     );
 }
-
+//core
 async function salirDelClub(){
     mostrarConfirmacion(
         "¿Salir de este club?",
@@ -1511,7 +1449,7 @@ async function salirDelClub(){
     );
 }
 
-// Función para configurar event listeners de botones
+// Función para configurar event listeners de botones core
 function setupButtonEventListeners() {
     console.log("Configurando event listeners de botones...");
     
@@ -1569,9 +1507,9 @@ function setupButtonEventListeners() {
     setupHistorialClubEventListeners();
 }
 
-// Función para configurar la navegación entre tabs
+// Función para configurar la navegación entre tabs importado a navegation
 function setupTabNavigation() {
-    console.log("Configurando navegación entre tabs...");
+    
     
     // Detectar cambio de radio button
     
@@ -1610,7 +1548,7 @@ let historialClubData = [];
 let currentView = 'timeline';
 let clubStats = {};
 
-// Configurar modal del gráfico
+// Configurar modal del gráfico info modal
 function configurarModalGrafico() {
     const chartBtn = document.getElementById('ver-grafico-btn');
     const modal = document.getElementById('modalGrafico');
@@ -1657,7 +1595,7 @@ function configurarModalGrafico() {
     }
 }
 
-// Función para generar el gráfico de géneros
+// Función para generar el gráfico de géneros modal info
 function generarGraficoGeneros(estadoFiltro = 'todos') {
     console.log('Generando gráfico con filtro:', estadoFiltro);
     console.log('window.clubData:', window.clubData);
@@ -1917,7 +1855,7 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
     actualizarLeyendaGrafico(labels, data, colores.slice(0, labels.length), total);
 }
 
-// Función para actualizar la leyenda del gráfico
+// Función para actualizar la leyenda del gráfico modal info
 function actualizarLeyendaGrafico(labels, data, colores, total) {
     const leyenda = document.getElementById('chartLegend');
     if (!leyenda) return;
@@ -2027,7 +1965,7 @@ function actualizarInfoClubHistorial(club) {
     }
 }
 
-// Cargar historial del club
+// Cargar historial del club //history
 async function cargarHistorialClub(filtros = {}) {
     try {
         const clubId = getClubId();
@@ -2091,7 +2029,7 @@ async function cargarHistorialClub(filtros = {}) {
         showNotification('error', 'Error al cargar el historial del club');
     }
 }
-
+//history
 // Cargar estadísticas del club
 async function cargarEstadisticasClub(filtros = {}) {
     try {
@@ -2115,6 +2053,7 @@ async function cargarEstadisticasClub(filtros = {}) {
 
 
 // Actualizar estadísticas del historial del club
+//history
 function actualizarEstadisticasHistorialClub() {
     const totalLeidosEl = document.getElementById('club-total-leidos');
     const totalCambiosEl = document.getElementById('club-total-cambios');
@@ -2127,7 +2066,7 @@ function actualizarEstadisticasHistorialClub() {
     if (promedioClubEl) promedioClubEl.textContent = clubStats.promedioLectura || 0;
 }
 
-// Poblar filtro de usuarios
+// Poblar filtro de usuarios //history
 function poblarFiltroUsuarios() {
     const usuarioFilter = document.getElementById('historial-usuario-filter');
     if (!usuarioFilter) return;
@@ -2152,7 +2091,7 @@ function poblarFiltroUsuarios() {
     console.log('Usuarios disponibles en el filtro:', usuarios);
 }
 
-// Actualizar vista según el modo seleccionado
+// Actualizar vista según el modo seleccionado history
 function actualizarVistaHistorialClub() {
     const container = document.getElementById('historial-content');
     if (!container) return;
@@ -2170,7 +2109,7 @@ function actualizarVistaHistorialClub() {
     }
 }
 
-// Generar vista timeline del club
+// Generar vista timeline del club history
 function generarVistaTimelineClub() {
     if (historialClubData.length === 0) {
         return `
@@ -2228,7 +2167,7 @@ function generarVistaTimelineClub() {
     return `<div class="timeline-container">${timelineItems}</div>`;
 }
 
-// Generar vista de lista del club
+// Generar vista de lista del club history
 function generarVistaListaClub() {
     if (historialClubData.length === 0) {
         return `
@@ -2268,7 +2207,7 @@ function generarVistaListaClub() {
     return `<div class="list-container">${listItems}</div>`;
 }
 
-// Generar vista de estadísticas del club
+// Generar vista de estadísticas del club history
 function generarVistaEstadisticasClub() {
     const porGenero = clubStats.porGenero || {};
     const porUsuario = clubStats.porUsuario || {};
@@ -2346,7 +2285,7 @@ function generarVistaEstadisticasClub() {
     `;
 }
 
-// Funciones helper
+// Funciones helper importado a utils
 function getAccionTexto(estado) {
     const acciones = {
         'por_leer': 'agregó a por leer',
@@ -2356,12 +2295,14 @@ function getAccionTexto(estado) {
     return acciones[estado] || 'cambió el estado de';
 }
 
+//importado a utils
 function formatearMes(mesISO) {
     const [año, mes] = mesISO.split('-');
     const fecha = new Date(año, mes - 1);
     return fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 }
 
+//importado a utils
 function calcularDiasLectura(fechaInicio, fechaFin) {
     const inicio = new Date(fechaInicio);
     const fin = new Date(fechaFin);
@@ -2370,6 +2311,7 @@ function calcularDiasLectura(fechaInicio, fechaFin) {
 
 // Event listeners para el historial del club
 let historialEventListenersConfigured = false;
+//history
 function setupHistorialClubEventListeners() {
     if (historialEventListenersConfigured) {
         console.log('Event listeners del historial ya configurados, omitiendo...');
@@ -2488,7 +2430,7 @@ function setupHistorialClubEventListeners() {
     console.log('Event listeners del historial configurados correctamente');
 }
 
-// Obtener fechas para períodos predefinidos
+// Obtener fechas para períodos predefinidos history
 function obtenerFechasPeriodo(periodo) {
     const ahora = new Date();
     let desde, hasta;
@@ -2521,7 +2463,7 @@ function obtenerFechasPeriodo(periodo) {
     };
 }
 
-// Exportar historial del club
+// Exportar historial del club history
 function exportarHistorialClub() {
     if (historialClubData.length === 0) {
         showNotification('warning', 'No hay datos para exportar');
@@ -2551,7 +2493,7 @@ function exportarHistorialClub() {
     showNotification('success', 'Historial del club exportado correctamente');
 }
 
-// Obtener filtros actuales del club
+// Obtener filtros actuales del club history
 function obtenerFiltrosHistorialClub() {
     console.log('🔍 Obteniendo filtros del historial...');
     const filtros = {};
@@ -2598,7 +2540,7 @@ function obtenerFiltrosHistorialClub() {
     return filtros;
 }
 
-// Aplicar filtros localmente a los datos del historial
+// Aplicar filtros localmente a los datos del historial history
 function aplicarFiltrosLocal(data, filtros) {
     console.log('🔄 Aplicando filtros localmente...');
     console.log('📊 Datos originales:', data ? data.length : 0, 'elementos');
@@ -2652,7 +2594,7 @@ function aplicarFiltrosLocal(data, filtros) {
     return datosFiltrados;
 }
 
-// Función para mostrar el modal de ranking
+// Función para mostrar el modal de ranking modal info
 async function mostrarRanking() {
     const clubId = getClubId();
     const modal = document.getElementById('modalRanking');
@@ -2694,7 +2636,7 @@ async function mostrarRanking() {
     }
 }
 
-// Función para renderizar la lista de ranking
+// Función para renderizar la lista de ranking modal info
 function mostrarListaRanking(ranking, club) {
     const lista = document.getElementById('rankingList');
     
@@ -2730,7 +2672,7 @@ function mostrarListaRanking(ranking, club) {
 // Hacer la función global para que funcione el onclick
 window.mostrarRanking = mostrarRanking;
 
-// Función para mostrar el modal de miembros
+// Función para mostrar el modal de miembros modal info
 async function mostrarMiembros() {
     const modal = document.getElementById('modalMiembros');
     const loader = document.getElementById('membersLoader');
@@ -2769,7 +2711,7 @@ async function mostrarMiembros() {
     }
 }
 
-// Función para renderizar la lista de miembros
+// Función para renderizar la lista de miembros modal info
 function mostrarListaMiembros(miembros, club) {
     const lista = document.getElementById('membersList');
     const currentUserId = localStorage.getItem("userId");
@@ -2822,7 +2764,7 @@ function mostrarListaMiembros(miembros, club) {
     lista.innerHTML = html;
 }
 
-// Función para eliminar un miembro del club
+// Función para eliminar un miembro del club modal info
 function eliminarMiembro(miembroId, username) {
     const clubId = getClubId();
     
@@ -2879,7 +2821,7 @@ function eliminarMiembro(miembroId, username) {
 window.mostrarMiembros = mostrarMiembros;
 window.eliminarMiembro = eliminarMiembro;
 
-// Función para mostrar el modal de solicitudes
+// Función para mostrar el modal de solicitudes modal info
 function mostrarSolicitudesModal() {
     console.log("🚀 Mostrando modal de solicitudes");
     
@@ -2928,7 +2870,7 @@ function mostrarSolicitudesModal() {
         }
     }, 500);
 }
-
+//modal info
 function mostrarListaSolicitudes(solicitudes) {
     const lista = document.getElementById('requestsList');
     
@@ -2974,7 +2916,7 @@ function mostrarListaSolicitudes(solicitudes) {
     lista.innerHTML = html;
 }
 
-// Función para gestionar solicitudes desde el modal
+// Función para gestionar solicitudes desde el modal modal info
 async function gestionarSolicitudModal(solicitudId, aceptar) {
     const clubId = getClubId();
     
@@ -3019,6 +2961,7 @@ window.mostrarSolicitudesModal = mostrarSolicitudesModal;
 window.gestionarSolicitudModal = gestionarSolicitudModal;
 
 // Función para mostrar el modal de historial completo
+//history
 async function mostrarHistorialCompleto() {
     console.log("🚀 Mostrando historial completo");
     
@@ -3090,7 +3033,7 @@ async function mostrarHistorialCompleto() {
     }
 }
 
-// Función para cargar filtros de usuarios del modal
+// Función para cargar filtros de usuarios del modal history
 async function cargarFiltrosUsuariosModal() {
     const userFilter = document.getElementById('modal-historial-usuario-filter');
     
@@ -3127,13 +3070,9 @@ async function cargarFiltrosUsuariosModal() {
     console.log('✅ Usuarios cargados en filtro del modal:', usuarios.length, 'usuarios');
 }
 
-// Función para actualizar vista del historial en el modal
-function actualizarVistaHistorialModal() {
-    const datosOriginales = window.historialClubData || historialClubData || [];
-    actualizarVistaHistorialModalConDatos(datosOriginales);
-}
 
-// Función para actualizar vista del historial en el modal con datos específicos
+
+// Función para actualizar vista del historial en el modal con datos específicos history
 function actualizarVistaHistorialModalConDatos(datos) {
     const content = document.getElementById('historialModalContent');
     const empty = document.getElementById('historialModalEmpty');
@@ -3190,7 +3129,7 @@ function actualizarVistaHistorialModalConDatos(datos) {
     }
 }
 
-// Función para configurar filtros del historial en el modal
+// Función para configurar filtros del historial en el modal history
 function configurarFiltrosHistorialModal() {
     console.log('🔧 Configurando filtros del modal historial...');
     
@@ -3299,7 +3238,7 @@ function configurarFiltrosHistorialModal() {
     console.log('🎯 Configuración de filtros completada');
 }
 
-// Función para aplicar filtros en el modal
+// Función para aplicar filtros en el modal de history
 function aplicarFiltrosHistorialModal() {
     console.log('🔍 Aplicando filtros en modal...');
     
@@ -3362,7 +3301,7 @@ function aplicarFiltrosHistorialModal() {
     }, 300);
 }
 
-// Función para aplicar filtros personalizada para el modal
+// Función para aplicar filtros personalizada para el modal history
 function aplicarFiltrosModalCustom(datos, filtros) {
     console.log('🔄 Aplicando filtros personalizados...');
     console.log('📊 Datos originales:', datos ? datos.length : 0, 'elementos');
@@ -3444,6 +3383,7 @@ function aplicarFiltrosModalCustom(datos, filtros) {
 // ==================== FUNCIONES DE ACTIVIDAD RECIENTE REAL ====================
 
 // Función para cargar actividad reciente real (últimas 10 actividades)
+//widgets
 async function cargarActividadReciente() {
     const clubId = getClubId();
     const activityList = document.getElementById('recent-activity-list');
@@ -3500,6 +3440,7 @@ async function cargarActividadReciente() {
 }
 
 // Función para crear un item de actividad real
+//widgets
 function crearItemActividadReal(activity) {
     const item = document.createElement('div');
     item.className = 'activity-item';
@@ -3521,6 +3462,7 @@ function crearItemActividadReal(activity) {
 }
 
 // Función para obtener el display de la actividad según el estado real
+//widgets
 function getActivityDisplayReal(activity) {
     const username = activity.user?.username || 'Usuario desconocido';
     const bookTitle = activity.book?.title || 'Libro desconocido';
@@ -3578,7 +3520,7 @@ function getActivityDisplayReal(activity) {
     }
 }
 
-// Función para formatear tiempo relativo
+// Función para formatear tiempo relativo importado a utils
 function formatTimeAgoReal(dateString) {
     if (!dateString) return 'Fecha desconocida';
     
@@ -3615,6 +3557,7 @@ function formatTimeAgoReal(dateString) {
 }
 
 // Funciones auxiliares para estados de error
+//widgets
 function mostrarActividadVacia(container) {
     container.innerHTML = `
         <div class="activity-item">
@@ -3638,6 +3581,7 @@ function mostrarActividadVacia(container) {
     }
 }
 
+//widgets
 function mostrarActividadError(container) {
     container.innerHTML = `
         <div class="activity-item">
@@ -3656,7 +3600,7 @@ function mostrarActividadError(container) {
     }
 }
 
-// Función para obtener filtros del modal
+// Función para obtener filtros del modal history
 function obtenerFiltrosHistorialModal() {
     const filtros = {};
     
@@ -3688,7 +3632,7 @@ function obtenerFiltrosHistorialModal() {
     return filtros;
 }
 
-// Función para limpiar filtros del modal
+// Función para limpiar filtros del modal history
 function limpiarFiltrosHistorialModal() {
     console.log('🧹 Limpiando filtros del modal...');
     
@@ -3711,7 +3655,7 @@ function limpiarFiltrosHistorialModal() {
     aplicarFiltrosHistorialModal();
 }
 
-// Función para configurar view toggles del modal
+// Función para configurar view toggles del modal history
 function configurarViewTogglesModal() {
     const toggles = document.querySelectorAll('#modalHistorial .view-toggle');
     
@@ -3762,6 +3706,7 @@ window.mostrarHistorialCompleto = mostrarHistorialCompleto;
 
 // }
 // Función global para mostrar modal de agregar libro
+//book
 function mostrarModalAgregarLibro() {
     console.log("Mostrando modal agregar libro");
     document.getElementById('modalLibro').style.display = 'flex';
@@ -3791,6 +3736,7 @@ function mostrarModalAgregarLibro() {
 window.mostrarModalAgregarLibro = mostrarModalAgregarLibro;
 
 // ==================== CATEGORIES DISPLAY FUNCTIONS ====================
+//widgets
 async function cargarCategoriasClub() {
     try {
         // Usar los datos del club que ya están cargados
@@ -3820,6 +3766,7 @@ async function cargarCategoriasClub() {
         mostrarCategoriasVacio();
     }
 }
+//widgets
 
 function calcularEstadisticasCategorias(libros) {
     const categoriasCount = {};
@@ -3849,6 +3796,7 @@ function calcularEstadisticasCategorias(libros) {
     return categoriasArray;
 }
 
+//widgets
 function mostrarCategoriasDisplay(categorias) {
     const container = document.getElementById('categories-display-list');
     
@@ -3916,7 +3864,7 @@ function mostrarCategoriasDisplay(categorias) {
     
     container.innerHTML = html;
 }
-
+//widgets
 function mostrarCategoriasVacio() {
     const container = document.getElementById('categories-display-list');
     container.innerHTML = `
@@ -3933,6 +3881,8 @@ function mostrarCategoriasVacio() {
 }
 
 // Función para actualizar las categorías cuando se modifique el club
+
+//widgets
 function actualizarCategoriasDisplay() {
     cargarCategoriasClub();
 }
@@ -3949,6 +3899,7 @@ document.addEventListener('DOMContentLoaded', function() {
 window.actualizarCategoriasDisplay = actualizarCategoriasDisplay;
 
 // ==================== READING PROGRESS FUNCTIONS ====================
+//widgets
 async function cargarProgresoLectura() {
     try {
         const clubId = getClubId();
@@ -3980,7 +3931,7 @@ async function cargarProgresoLectura() {
         mostrarProgresoVacio();
     }
 }
-
+//widgets
 function mostrarProgresoLectura(libros) {
     const container = document.getElementById('progress-list');
     const counter = document.getElementById('active-books-count');
@@ -4024,7 +3975,7 @@ function mostrarProgresoLectura(libros) {
     
     container.innerHTML = html;
 }
-
+//widgets
 function mostrarProgresoVacio() {
     const container = document.getElementById('progress-list');
     const counter = document.getElementById('active-books-count');
@@ -4041,6 +3992,8 @@ function mostrarProgresoVacio() {
 }
 
 // Función para actualizar el progreso cuando se modifique un libro
+
+//widgets
 function actualizarProgresoLectura() {
     cargarProgresoLectura();
 }
