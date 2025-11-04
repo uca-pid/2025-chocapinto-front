@@ -218,50 +218,77 @@ function renderCategoriasCheckboxes() {
   const userId = localStorage.getItem("userId");
   const clubId = getClubId();
 
-  fetch(`${API_URL}/club/${clubId}`)
-    .then(res => res.json())
-    .then(data => {
-      const isOwner = data.club && data.club.id_owner == userId;
+  // Verificar permisos del usuario basado en ClubMember
+  verificarRolUsuario().then(userRole => {
+    const canManageCategories = userRole.canManageCategories;
+    
+    categoriasDisponibles.forEach(cat => {
+      const label = document.createElement('label');
+      label.style.marginRight = '12px';
+      label.style.fontWeight = '500';
+      label.style.color = '#2c5a91';
 
-      categoriasDisponibles.forEach(cat => {
-        const label = document.createElement('label');
-        label.style.marginRight = '12px';
-        label.style.fontWeight = '500';
-        label.style.color = '#2c5a91';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = cat.id;
+      checkbox.className = 'categoria-checkbox';
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = cat.id;
-        checkbox.className = 'categoria-checkbox';
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(' ' + cat.nombre));
 
-        label.appendChild(checkbox);
-        label.appendChild(document.createTextNode(' ' + cat.nombre));
+      // Si es OWNER o MODERADOR y la categoría NO es predeterminada, mostrar opciones de editar/eliminar
+      if (canManageCategories && !esCategoriasPredeterminada(cat.nombre)) {
+          const editBtn = document.createElement("span");
+          editBtn.textContent = " ✏️";
+          editBtn.style.cursor = "pointer";
+          editBtn.title = `Editar categoría (${userRole.role})`;
+          editBtn.onclick = () => editarCategoria(cat.id, cat.nombre);
+          label.appendChild(editBtn);
 
-        // Si sos moderador y la categoría NO es predeterminada, mostrar opciones de editar/eliminar
-        if (isOwner && !esCategoriasPredeterminada(cat.nombre)) {
-            const editBtn = document.createElement("span");
-            editBtn.textContent = " ✏️";
-            editBtn.style.cursor = "pointer";
-            editBtn.title = "Editar categoría";
-            editBtn.onclick = () => editarCategoria(cat.id, cat.nombre);
-            label.appendChild(editBtn);
+          const deleteBtn = document.createElement("span");
+          deleteBtn.textContent = " 🗑️";
+          deleteBtn.style.cursor = "pointer";
+          deleteBtn.title = `Eliminar categoría (${userRole.role})`;
+          deleteBtn.onclick = () => eliminarCategoria(cat.id);
+          label.appendChild(deleteBtn);
+      }
 
-            const deleteBtn = document.createElement("span");
-            deleteBtn.textContent = " 🗑️";
-            deleteBtn.style.cursor = "pointer";
-            deleteBtn.title = "Eliminar categoría";
-            deleteBtn.onclick = () => eliminarCategoria(cat.id);
-            label.appendChild(deleteBtn);
-        }
-
-        categoriasContainer.appendChild(label);
-      });
+      categoriasContainer.appendChild(label);
     });
+  }).catch(error => {
+    console.error('Error al verificar permisos para categorías:', error);
+    // En caso de error, solo mostrar las categorías sin opciones de edición
+    categoriasDisponibles.forEach(cat => {
+      const label = document.createElement('label');
+      label.style.marginRight = '12px';
+      label.style.fontWeight = '500';
+      label.style.color = '#2c5a91';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = cat.id;
+      checkbox.className = 'categoria-checkbox';
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(' ' + cat.nombre));
+      categoriasContainer.appendChild(label);
+    });
+  });
 }
 
-function eliminarCategoria(categoriaId) {
+async function eliminarCategoria(categoriaId) {
+  // Verificar permisos antes de eliminar
+  const userRole = await verificarRolUsuario();
+  
+  if (!userRole.canManageCategories) {
+    showNotification("error", "No tienes permisos para eliminar categorías");
+    return;
+  }
+
   confirmarEliminacion("esta categoría", () => {
+    console.log(`🗑️ ${userRole.role} eliminando categoría ID: ${categoriaId}`);
     showLoader("Eliminando categoría...");
+    
     fetch(`${API_URL}/categorias/${categoriaId}`, {
       method: "DELETE"
     })
@@ -272,7 +299,7 @@ function eliminarCategoria(categoriaId) {
           categoriasDisponibles = categoriasDisponibles.filter(c => c.id !== categoriaId);
           renderCategoriasCheckboxes();
           hideLoader();
-          showNotification("success", "Categoría eliminada");
+          showNotification("success", `Categoría eliminada por ${userRole.role}`);
         } else {
           hideLoader();
           showNotification("error", data.message || "Error al eliminar categoría");
@@ -285,11 +312,21 @@ function eliminarCategoria(categoriaId) {
   });
 }
 
-function editarCategoria(categoriaId, nombreActual) {
-  const nuevoNombre = prompt("Nuevo nombre para la categoría:", nombreActual);
+async function editarCategoria(categoriaId, nombreActual) {
+  // Verificar permisos antes de editar
+  const userRole = await verificarRolUsuario();
+  
+  if (!userRole.canManageCategories) {
+    showNotification("error", "No tienes permisos para editar categorías");
+    return;
+  }
+
+  const nuevoNombre = prompt(`Editando categoría como ${userRole.role}.\nNuevo nombre:`, nombreActual);
   if (!nuevoNombre || nuevoNombre.trim() === "") return;
 
+  console.log(`✏️ ${userRole.role} editando categoría ID: ${categoriaId} - Nuevo nombre: ${nuevoNombre.trim()}`);
   showLoader("Editando categoría...");
+  
   fetch(`${API_URL}/categorias/${categoriaId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -305,7 +342,7 @@ function editarCategoria(categoriaId, nombreActual) {
         }
         renderCategoriasCheckboxes();
         hideLoader();
-        showNotification("success", "Categoría editada");
+        showNotification("success", `Categoría editada por ${userRole.role}`);
       } else {
         hideLoader();
         showNotification("error", data.message || "Error al editar categoría");
@@ -369,7 +406,7 @@ agregarCategoriaBtn.addEventListener('click', async () => {
             await actualizarCategoriasEnDashboard();
             nuevaCategoriaInput.value = '';
             hideLoader();
-            showNotification("success", `Categoría "${data.categoria.nombre}" creada exitosamente`);
+            showNotification("success", `Categoría "${data.categoria.nombre}" creada por ${userRole.role}`);
         } else {
             hideLoader();
             showNotification("error", "Error al crear categoría");
