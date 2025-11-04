@@ -512,11 +512,24 @@ function mostrarListaMiembros(miembros, club) {
     const currentUserId = localStorage.getItem("userId");
     const isCurrentUserOwner = club.id_owner == currentUserId;
     
+    console.log('🔍 DEBUG mostrarListaMiembros:');
+    console.log('   - currentUserId:', currentUserId);
+    console.log('   - club.id_owner:', club.id_owner);
+    console.log('   - isCurrentUserOwner:', isCurrentUserOwner);
+    console.log('   - miembros:', miembros);
+    
     const html = miembros.map((miembro) => {
         const initials = miembro.username.charAt(0).toUpperCase();
         const isOwner = club.id_owner == miembro.id;
         const isCurrentUser = currentUserId == miembro.id;
         const canRemove = isCurrentUserOwner && !isCurrentUser && !isOwner;
+        
+        // Obtener el rol del miembro (nuevo sistema)
+        const memberRole = miembro.role || (isOwner ? 'OWNER' : 'LECTOR');
+        const canChangeRole = isCurrentUserOwner && !isCurrentUser && !isOwner;
+        
+        // Configurar display del rol
+        const roleInfo = getRoleDisplayInfo(memberRole, isOwner);
         
         // Calcular tiempo como miembro (simulado)
         const joinDate = new Date(miembro.createdAt || Date.now());
@@ -532,31 +545,87 @@ function mostrarListaMiembros(miembros, club) {
                     <h4 class="member-name">
                         ${miembro.username}
                         ${isCurrentUser ? '<span style="color: #666; font-size: 12px;">(Tú)</span>' : ''}
-                        ${isOwner ? '<span class="member-badge owner">Moderador</span>' : '<span class="member-badge">Miembro</span>'}
+                        <span class="member-badge ${roleInfo.cssClass}">${roleInfo.displayText}</span>
                     </h4>
                     <p class="member-role">
-                        ${isOwner ? '🛡️ Administrador del club' : '📖 Lector activo'}
+                        ${roleInfo.description}
                     </p>
                 </div>
                 <div class="member-stats">
                     <div class="member-join-date">Desde ${joinDateStr}</div>
-                    <div class="member-activity">${isOwner ? 'Fundador' : 'Activo'}</div>
+                    <div class="member-activity">${roleInfo.activityText}</div>
                 </div>
-                ${canRemove ? `
-                    <div class="member-actions">
+                <div class="member-actions">
+                    ${canChangeRole ? `
+                        <div class="role-management">
+                            ${memberRole === 'LECTOR' ? `
+                                <button class="promote-btn" onclick="cambiarRolMiembro(${miembro.id}, '${miembro.username}', 'MODERADOR')" title="Promover a Moderador">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            ${memberRole === 'MODERADOR' ? `
+                                <button class="demote-btn" onclick="cambiarRolMiembro(${miembro.id}, '${miembro.username}', 'LECTOR')" title="Quitar Moderador">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M7 13l3 3 7-7"/>
+                                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.12 0 4.07.74 5.61 1.97"/>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                    ${canRemove ? `
                         <button class="remove-member-btn" onclick="eliminarMiembro(${miembro.id}, '${miembro.username}')" title="Eliminar miembro">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18"/>
                                 <line x1="6" y1="6" x2="18" y2="18"/>
                             </svg>
                         </button>
-                    </div>
-                ` : ''}
+                    ` : ''}
+                </div>
             </li>
         `;
     }).join('');
     
     lista.innerHTML = html;
+}
+
+/**
+ * Obtiene la información de display para un rol específico
+ */
+function getRoleDisplayInfo(role, isOwner) {
+    if (isOwner) {
+        return {
+            displayText: 'Owner',
+            cssClass: 'owner',
+            description: '🛡️ Propietario del club',
+            activityText: 'Fundador'
+        };
+    }
+    
+    const roleConfigs = {
+        'OWNER': {
+            displayText: 'Owner',
+            cssClass: 'owner',
+            description: '🛡️ Propietario del club',
+            activityText: 'Fundador'
+        },
+        'MODERADOR': {
+            displayText: 'Moderador',
+            cssClass: 'moderador',
+            description: '⚡ Moderador del club',
+            activityText: 'Moderador'
+        },
+        'LECTOR': {
+            displayText: 'Miembro',
+            cssClass: 'miembro',
+            description: '📖 Lector activo',
+            activityText: 'Activo'
+        }
+    };
+    
+    return roleConfigs[role] || roleConfigs['LECTOR'];
 }
 
 function eliminarMiembro(miembroId, username) {
@@ -607,6 +676,74 @@ function eliminarMiembro(miembroId, username) {
             confirmText: "Eliminar",
             cancelText: "Cancelar",
             confirmClass: "red-btn"
+        }
+    );
+}
+
+/**
+ * Cambiar el rol de un miembro del club
+ */
+async function cambiarRolMiembro(miembroId, username, nuevoRol) {
+    const clubId = getClubId();
+    
+    const accionTexto = nuevoRol === 'MODERADOR' ? 'promover a Moderador' : 'quitar el rol de Moderador';
+    const confirmText = nuevoRol === 'MODERADOR' 
+        ? `¿Estás seguro de que quieres <strong>promover a ${username}</strong> como Moderador del club?<br><br>Los moderadores pueden gestionar libros y contenido del club.`
+        : `¿Estás seguro de que quieres <strong>quitar el rol de Moderador</strong> a ${username}?<br><br>Volverá a ser un miembro regular del club.`;
+    
+    mostrarConfirmacion(
+        `${nuevoRol === 'MODERADOR' ? 'Promover' : 'Quitar'} Moderador`,
+        confirmText,
+        async () => {
+            try {
+                showLoader(`${nuevoRol === 'MODERADOR' ? 'Promoviendo' : 'Quitando rol de moderador a'} ${username}...`);
+                
+                const res = await fetch(`${API_URL}/club/${clubId}/change-role/${miembroId}`, {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        newRole: nuevoRol
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    const successMessage = nuevoRol === 'MODERADOR' 
+                        ? `${username} ha sido promovido a Moderador` 
+                        : `Se ha quitado el rol de Moderador a ${username}`;
+                    
+                    showNotification("success", successMessage);
+                    
+                    // Cerrar el modal temporalmente
+                    document.getElementById('modalMiembros').style.display = 'none';
+                    document.getElementById('modalMiembros').classList.remove('show');
+                    
+                    // Actualizar los datos del club
+                    await renderClub();
+                    
+                    // Reabrir el modal con datos actualizados después de un pequeño delay
+                    setTimeout(() => {
+                        mostrarMiembros();
+                    }, 500);
+                    
+                } else {
+                    showNotification("error", data.message || "Error al cambiar el rol del miembro");
+                }
+            } catch (error) {
+                console.error("Error al cambiar rol del miembro:", error);
+                showNotification("error", "Error de conexión al cambiar el rol del miembro");
+            } finally {
+                hideLoader();
+            }
+        },
+        null, // onCancel callback
+        {
+            confirmText: nuevoRol === 'MODERADOR' ? "Promover" : "Quitar Rol",
+            cancelText: "Cancelar",
+            confirmClass: nuevoRol === 'MODERADOR' ? "blue-btn" : "orange-btn"
         }
     );
 }
@@ -747,6 +884,7 @@ window.mostrarRanking = mostrarRanking;
 
 window.mostrarMiembros = mostrarMiembros;
 window.eliminarMiembro = eliminarMiembro;
+window.cambiarRolMiembro = cambiarRolMiembro;
 
 window.mostrarSolicitudesModal = mostrarSolicitudesModal;
 window.mostrarSolicitudes = mostrarSolicitudesModal; // Alias for HTML compatibility

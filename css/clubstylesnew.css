@@ -330,6 +330,33 @@
   font-size: var(--text-xs);
   color: var(--gray-500);
   line-height: 1.2;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+/* Estilos específicos para cada rol */
+.user-status.role-owner {
+  color: #d97706;
+  background-color: #fef3c7;
+  font-weight: 600;
+}
+
+.user-status.role-moderador {
+  color: #059669;
+  background-color: #d1fae5;
+  font-weight: 600;
+}
+
+.user-status.role-lector {
+  color: var(--primary-blue);
+  background-color: #dbeafe;
+}
+
+.user-status.error {
+  color: var(--red-500);
+  background-color: #fee2e2;
 }
 
 /* ==================== RESPONSIVE ==================== */
@@ -825,6 +852,92 @@ main {
 
 .categoria-nueva {
   animation: slideInFromTop 0.3s ease-out;
+}
+
+/* ==================== PERMISSION NOTICE STYLES ==================== */
+.permission-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--gray-600);
+  text-align: center;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+.permission-notice svg {
+  margin-right: var(--space-2);
+  opacity: 0.7;
+}
+
+.permission-notice:hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6);
+  border-color: var(--gray-400);
+}
+
+/* Role-specific styling */
+.role-owner .permission-notice {
+  display: none; /* Owners don't see permission notices */
+}
+
+.role-moderador .permission-notice {
+  display: none; /* Moderators don't see permission notices */
+}
+
+.role-lector .permission-notice {
+  display: flex; /* Readers see permission notices */
+}
+
+/* Enhanced category management styles for different roles */
+.role-owner #crearCategoriaBox,
+.role-moderador #crearCategoriaBox {
+  display: block;
+  background: linear-gradient(135deg, #e8f5e8, #d1f2d1);
+  border: 2px solid var(--green-500);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.role-lector #crearCategoriaBox {
+  display: none;
+}
+
+/* Role indicator styles */
+.role-indicator {
+  position: absolute !important;
+  top: 15px !important;
+  right: 50px !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  z-index: 10 !important;
+  box-shadow: var(--shadow-sm);
+  animation: fadeInBounce 0.5s ease-out;
+}
+
+@keyframes fadeInBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Responsive design for progress-actions grid */
@@ -3328,6 +3441,14 @@ main {
       background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
     }
 
+    .member-badge.moderador {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .member-badge.miembro {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
     .member-stats {
       margin-left: auto;
       display: flex;
@@ -3352,6 +3473,102 @@ main {
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .role-management {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 8px;
+    }
+
+    .promote-btn,
+    .demote-btn {
+      background: transparent;
+      border: 2px solid;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .promote-btn {
+      border-color: #10b981;
+      color: #10b981;
+    }
+
+    .promote-btn:hover {
+      background: #10b981;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .demote-btn {
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+
+    .demote-btn:hover {
+      background: #f59e0b;
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .promote-btn:active,
+    .demote-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Tooltips para los botones de roles */
+    .promote-btn::after {
+      content: "Promover a Moderador";
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 1000;
+    }
+
+    .promote-btn:hover::after {
+      opacity: 1;
+    }
+
+    .demote-btn::after {
+      content: "Quitar Moderador";
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 1000;
+    }
+
+    .demote-btn:hover::after {
+      opacity: 1;
     }
 
     .remove-member-btn {
@@ -4754,4 +4971,11 @@ main {
   .modalHistorial .timeline-content {
     padding: 6px 8px;
   }
+}
+
+/* ==================== USER ROLE STATUS STYLES ==================== */
+.user-status {
+  font-size: var(--text-xs);
+  color: var(--gray-500);
+  line-height: 1.2;
 }

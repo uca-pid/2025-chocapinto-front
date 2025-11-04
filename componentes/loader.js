@@ -142,4 +142,9 @@ function hideLoader() {
 }
 
 // Exportar el componente y las funciones
+// Exponer funciones globalmente
+window.showLoader = showLoader;
+window.hideLoader = hideLoader;
+
+// También para ES6 modules
 export { LoaderComponent, appLoader, showLoader, hideLoader };

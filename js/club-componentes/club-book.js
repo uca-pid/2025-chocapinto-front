@@ -1,61 +1,186 @@
 let categoriasDisponibles = [];
 
+// ========== VERIFICACIÓN DE ROLES ==========
+
+/**
+ * Verifica el rol del usuario actual en el club
+ * @returns {Promise<{canManageCategories: boolean, role: string}>}
+ */
+async function verificarRolUsuario() {
+    try {
+        const clubId = getClubId();
+        const userId = localStorage.getItem("userId");
+        
+        if (!clubId || !userId) {
+            return { canManageCategories: false, role: 'LECTOR' };
+        }
+
+        const response = await fetch(`${API_URL}/club/${clubId}`);
+        const data = await response.json();
+        
+        if (data.success && data.club && data.club.members) {
+            const userMember = data.club.members.find(member => member.id == userId);
+            
+            if (userMember) {
+                const role = userMember.role || 'LECTOR';
+                const canManageCategories = role === 'OWNER' || role === 'MODERADOR';
+                
+                console.log(`👤 Usuario actual: Rol=${role}, PuedeGestionarCategorías=${canManageCategories}`);
+                
+                return { canManageCategories, role };
+            }
+        }
+        
+        // Si no se encuentra el usuario en los miembros, verificar si es owner por id_owner
+        if (data.success && data.club && data.club.id_owner == userId) {
+            return { canManageCategories: true, role: 'OWNER' };
+        }
+        
+        return { canManageCategories: false, role: 'LECTOR' };
+        
+    } catch (error) {
+        console.error('Error al verificar rol de usuario:', error);
+        return { canManageCategories: false, role: 'LECTOR' };
+    }
+}
+
+/**
+ * Configura la visibilidad de elementos según el rol del usuario
+ */
+async function configurarPermisosCategorias() {
+    const userRole = await verificarRolUsuario();
+    
+    // Aplicar clase CSS al body para estilos específicos del rol
+    document.body.classList.remove('role-owner', 'role-moderador', 'role-lector');
+    document.body.classList.add(`role-${userRole.role.toLowerCase()}`);
+    
+    // Elementos relacionados con gestión de categorías
+    const crearCategoriaBox = document.getElementById('crearCategoriaBox');
+    const modal = document.getElementById('modalLibro');
+    
+    // Configurar visibilidad de controles de gestión
+    if (crearCategoriaBox) {
+        if (userRole.canManageCategories) {
+            crearCategoriaBox.style.display = 'block';
+            console.log(`✅ ${userRole.role}: Puede gestionar categorías`);
+        } else {
+            crearCategoriaBox.style.display = 'none';
+            console.log(`❌ ${userRole.role}: No puede gestionar categorías`);
+        }
+    }
+    
+    // Agregar indicador de rol para usuarios
+    const roleIndicator = modal?.querySelector('.role-indicator');
+    if (roleIndicator) {
+        roleIndicator.remove();
+    }
+    
+    if (modal && !modal.querySelector('.role-indicator')) {
+        const indicator = document.createElement('div');
+        indicator.className = 'role-indicator';
+        indicator.style.cssText = `
+            position: absolute;
+            top: 15px;
+            right: 50px;
+            background: ${getRoleColor(userRole.role)};
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 10;
+        `;
+        indicator.textContent = getRoleDisplayName(userRole.role);
+        modal.appendChild(indicator);
+    }
+    
+    // Agregar aviso explicativo para usuarios sin permisos
+    if (!userRole.canManageCategories) {
+        const categoriasContainer = document.getElementById('categoriasContainer');
+        if (categoriasContainer && !categoriasContainer.querySelector('.permission-notice')) {
+            const notice = document.createElement('div');
+            notice.className = 'permission-notice';
+            notice.innerHTML = `
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                </svg>
+                Solo moderadores y owners pueden crear nuevas categorías
+            `;
+            categoriasContainer.insertBefore(notice, categoriasContainer.firstChild);
+        }
+    } else {
+        // Remover aviso si el usuario tiene permisos
+        const existingNotice = document.querySelector('.permission-notice');
+        if (existingNotice) {
+            existingNotice.remove();
+        }
+    }
+    
+    return userRole;
+}
+
+/**
+ * Obtiene el color del rol para el indicador
+ */
+function getRoleColor(role) {
+    const colors = {
+        'OWNER': '#e74c3c',     // Rojo
+        'MODERADOR': '#f39c12', // Naranja
+        'LECTOR': '#3498db'     // Azul
+    };
+    return colors[role] || '#95a5a6';
+}
+
+/**
+ * Obtiene el nombre de visualización del rol
+ */
+function getRoleDisplayName(role) {
+    const names = {
+        'OWNER': '👑 Owner',
+        'MODERADOR': '⭐ Moderador',
+        'LECTOR': '📖 Lector'
+    };
+    return names[role] || role;
+}
+
 function setupModalLibro() {
     const agregarLibroBtn = document.querySelector('.primary-action-btn');
     if (agregarLibroBtn && !agregarLibroBtn.hasAttribute('data-listener-added')) {
         // Marcar que ya se agregó el listener para evitar duplicados
         agregarLibroBtn.setAttribute('data-listener-added', 'true');
         
-        agregarLibroBtn.addEventListener('click', () => {
-            console.log("Botón agregar libro clickeado");
+        agregarLibroBtn.addEventListener('click', async () => {
+            console.log("📖 Abriendo modal de agregar libro");
             document.getElementById('modalLibro').style.display = 'block';
-            cargarCategorias();
-            // Mostrar input de crear categoría solo si es owner
-            const clubId = getClubId();
-            if (clubId) {
-                fetch(`${API_URL}/club/${clubId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const userId = localStorage.getItem("userId");
-                        const isOwner = data.club && data.club.id_owner == userId;
-                        const crearCategoriaBox = document.getElementById('crearCategoriaBox');
-                        if (crearCategoriaBox) {
-                            crearCategoriaBox.style.display = isOwner ? 'block' : 'none';
-                        }
-                    })
-                    .catch(error => {
-                        console.error("Error al verificar ownership:", error);
-                    });
-            }
+            
+            // Cargar categorías y configurar permisos
+            await cargarCategorias();
+            await configurarPermisosCategorias();
         });
-        console.log("Event listener agregado al botón de agregar libro");
+        console.log("✅ Event listener agregado al botón de agregar libro");
     } else if (!agregarLibroBtn) {
-        console.log("No se encontró el botón de agregar libro (.primary-action-btn)");
+        console.log("⚠️ No se encontró el botón de agregar libro (.primary-action-btn)");
     }
 }
 
-function mostrarModalAgregarLibro() {
-    console.log("Mostrando modal agregar libro");
-    document.getElementById('modalLibro').style.display = 'flex';
-    document.getElementById('modalLibro').style.zIndex = '1000';
-    cargarCategorias();
+async function mostrarModalAgregarLibro() {
+    console.log("📖 Mostrando modal agregar libro");
+    const modal = document.getElementById('modalLibro');
     
-    // Mostrar input de crear categoría solo si es owner
-    const clubId = getClubId();
-    if (clubId) {
-        fetch(`${API_URL}/club/${clubId}`)
-            .then(res => res.json())
-            .then(data => {
-                const userId = localStorage.getItem("userId");
-                const isOwner = data.club && data.club.id_owner == userId;
-                const crearCategoriaBox = document.getElementById('crearCategoriaBox');
-                if (crearCategoriaBox) {
-                    crearCategoriaBox.style.display = isOwner ? 'block' : 'none';
-                }
-            })
-            .catch(error => {
-                console.error("Error al verificar ownership:", error);
-            });
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.zIndex = '1000';
+        
+        // Cargar categorías y configurar permisos basado en el rol
+        await cargarCategorias();
+        await configurarPermisosCategorias();
+        
+        console.log("✅ Modal de agregar libro configurado según permisos del usuario");
+    } else {
+        console.error("❌ No se encontró el modal de agregar libro");
     }
 }
 
@@ -210,13 +335,25 @@ async function buscarLibrosGoogleBooksAPI(query) {
 }
 
 agregarCategoriaBtn.addEventListener('click', async () => {
-    const nombre = nuevaCategoriaInput.value.trim();
-    if (!nombre) return;
-    // Evitar duplicados
-    if (categoriasDisponibles.some(cat => cat.nombre.toLowerCase() === nombre.toLowerCase())) {
-        showNotification("warning", "La categoría ya existe");
+    // ✋ Verificar permisos antes de crear categoría
+    const userRole = await verificarRolUsuario();
+    if (!userRole.canManageCategories) {
+        showNotification("error", "❌ Solo moderadores y owners pueden crear categorías");
         return;
     }
+    
+    const nombre = nuevaCategoriaInput.value.trim();
+    if (!nombre) {
+        showNotification("warning", "⚠️ Ingresa un nombre para la categoría");
+        return;
+    }
+    
+    // Evitar duplicados
+    if (categoriasDisponibles.some(cat => cat.nombre.toLowerCase() === nombre.toLowerCase())) {
+        showNotification("warning", "⚠️ La categoría ya existe");
+        return;
+    }
+    
     showLoader("Creando categoría...");
     try {
         const res = await fetch(`${API_URL}/categorias`, {
@@ -360,6 +497,10 @@ function initBookModal() {
     window.buscarLibrosGoogleBooksAPI = buscarLibrosGoogleBooksAPI;
     window.actualizarCategoriasEnModal = actualizarCategoriasEnModal;
     window.actualizarCategoriasEnDashboard = actualizarCategoriasEnDashboard;
+    window.verificarRolUsuario = verificarRolUsuario;
+    window.configurarPermisosCategorias = configurarPermisosCategorias;
+    window.getRoleColor = getRoleColor;
+    window.getRoleDisplayName = getRoleDisplayName;
     
     console.log('✅ Modal de libros inicializado correctamente');
 }
@@ -437,4 +578,10 @@ window.actualizarCategoriasEnDashboard = actualizarCategoriasEnDashboard;
 window.initBookModal = initBookModal;
 
 // Export for ES6 modules
-export { initBookModal, actualizarCategoriasEnModal, actualizarCategoriasEnDashboard };
+export { 
+    initBookModal, 
+    actualizarCategoriasEnModal, 
+    actualizarCategoriasEnDashboard, 
+    verificarRolUsuario, 
+    configurarPermisosCategorias 
+};
