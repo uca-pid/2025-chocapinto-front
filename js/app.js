@@ -24,7 +24,7 @@ import { API_URL } from "./env.js";
             }
 
             // Redirigir al main
-            window.location.href = "main.html";
+            window.location.href = "/html/main.html";
         } else {
             document.getElementById("errorMsg").style.display = "block";
         }
