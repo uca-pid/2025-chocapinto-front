@@ -85,18 +85,169 @@ main {
 }
 
 /* ========================= */
-/* Hero / Banner             */
+/* Hero Card Principal       */
 /* ========================= */
-.hero-section{
-  background: linear-gradient(120deg,#e6eafc 0%,#f7f7f3 100%);
-  padding: clamp(2rem, 2vw + 1rem, 3rem) var(--page-padding-inline);
-  text-align:center;
+
+.hero-card-section {
+    padding: clamp(2rem, 3vw, 4rem) var(--page-padding-inline);
+    background: #f7fbff; /* Fondo para que destaque del body */
+    border-bottom: 1px solid var(--border-soft);
 }
-.hero-section h1{
-  font-family:"Dancing Script", cursive; color:var(--brand-dark);
-  font-size: clamp(1.8rem, 1vw + 1.4rem, 2.5rem); line-height:1.2; margin-bottom:1rem;
+
+.hero-card {
+    background: #fff;
+    border: 1px solid #d0e7ff;
+    border-radius: 20px;
+    padding: clamp(2rem, 4vw, 3rem);
+    box-shadow: 0 10px 30px rgba(44, 90, 145, 0.1);
+    max-width: 1000px;
+    margin: 0 auto;
+    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
 }
-.hero-desc{ color:#444; font-size:clamp(1rem,.4vw+.9rem,1.2rem); max-width:60ch; margin:0 auto; line-height:1.4; }
+
+/* Estilos de Tipografía */
+.hero-card h1 {
+    font-family: "Dancing Script", cursive;
+    color: var(--brand-dark);
+    font-size: clamp(2.2rem, 2vw + 1.8rem, 3.2rem);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+.hero-card p {
+    color: #444;
+    font-size: clamp(1rem, 0.5vw + 1rem, 1.2rem);
+    max-width: 50ch;
+    margin-bottom: 1.5rem;
+}
+
+/* Acciones (Botones) */
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, var(--brand-dark) 0%, #0984e3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 1rem;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 90, 145, 0.4);
+}
+
+.btn-secondary {
+    background: #fff;
+    color: var(--brand-dark);
+    border: 2px solid var(--brand-dark);
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+
+.btn-secondary:hover {
+    background: #eaf6ff;
+}
+
+/* Decoración (Tarjetas) */
+.hero-decoration {
+    position: relative;
+    width: 250px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+.deco-card {
+    position: absolute;
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    width: 200px;
+    height: 100px;
+    box-shadow: 0 4px 15px rgba(44, 90, 145, 0.2);
+    border: 1px solid #e0e6f6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.3s;
+}
+
+.card-top {
+    top: 0;
+    right: 0;
+    transform: rotate(5deg);
+    z-index: 2;
+}
+
+.card-bottom {
+    bottom: 0;
+    left: 0;
+    transform: translate(30px, 30px) rotate(-10deg);
+    background: #eaf6ff;
+    z-index: 1;
+}
+
+/* Badges */
+.card-hp-badge, .card-romance-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.card-hp-badge {
+    background-color: #2c5a91;
+}
+
+.card-romance-badge {
+    background-color: #e74c3c;
+    font-size: 1.5rem;
+}
+
+.card-title {
+    font-weight: 600;
+    color: var(--brand-dark);
+}
+
+/* Responsive para ocultar la decoración en pantallas muy pequeñas */
+@media (max-width: 768px) {
+    .hero-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+    }
+    .hero-decoration {
+        display: none; 
+    }
+    .hero-actions {
+        justify-content: center;
+    }
+    .hero-card p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
 
 /* ========================= */
 /* Secciones / Títulos       */
@@ -109,7 +260,7 @@ main {
   font-weight:700; color:var(--brand-dark); font-family:"Dancing Script", cursive; line-height:1.2;
   margin-bottom:1rem; padding-left:var(--page-padding-inline); padding-right:var(--page-padding-inline);
 }
-.mis-clubes-section h2{ margin-bottom:.75rem; } /* menos aire encima del estado vacío */
+.mis-clubes-section h2{ margin-bottom:.75rem; } 
 
 /* ========================= */
 /* Grillas / Carruseles      */
@@ -131,20 +282,40 @@ main {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Clubes de Lectura: SIEMPRE carrusel */
+/* Clubes de Lectura: SIN carrusel, límite de 2 visibles */
+.clubes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ver-mas-link {
+    font-size: 1rem;
+    color: var(--brand-dark); 
+    text-decoration: none;
+    font-weight: 600;
+    margin-right: 0; 
+    transition: color 0.2s;
+}
+
+.ver-mas-link:hover {
+    color: var(--brand-mid);
+}
+
 .clubes-grid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;           /* <-- clave */
-  gap: 1rem;
-  padding-top: 15px;
-  padding-bottom: 1rem;
-  padding-left: var(--page-padding-inline);
-  padding-right: var(--page-padding-inline);
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    padding-top: 15px;
+    padding-bottom: 1rem;
+    padding-left: 0; 
+    padding-right: 0;
+    
+    overflow-x: hidden; /* ¡Eliminar el scroll horizontal! */
+    overflow-y: hidden;
+    scroll-snap-type: none;
+    -webkit-overflow-scrolling: auto;
 }
 
 .mis-clubes-grid::-webkit-scrollbar,
@@ -183,19 +354,21 @@ main {
 }
 
 /* ========================= */
-/* Clubes de Lectura (uniforme + carrusel) */
+/* Clubes de Lectura (Límite 2) */
 /* ========================= */
+
 .clubes-grid > .club-card,
 .clubes-grid > .create-club-card{
+  /* ANCHO AJUSTADO PARA QUE 2 TARJETAS ENCAJEN PERFECTAMENTE */
+  flex: 0 0 calc(50% - 0.5rem); 
+  min-width: 0;
+  max-width: none;
+  
   height: 240px; min-height:240px; max-height:240px;
   display:flex; flex-direction:column; align-items:center;
   padding:1.25rem 1rem; box-sizing:border-box;
-
-  /* ancho fijo por tarjeta dentro del carrusel */
-  flex: 0 0 300px;
-  min-width: 280px;
-  max-width: 320px;
 }
+
 .clubes-grid > .club-card .club-logo,
 .clubes-grid > .create-club-card .create-icon-container{ margin-bottom:.75rem !important; }
 .clubes-grid > .club-card p{ margin-bottom:1rem; }
@@ -210,6 +383,19 @@ main {
   border:1px solid #c7e0ff;
 }
 .create-club-card .create-icon{ color:var(--brand-dark); }
+
+/* Responsive para que la sección de 2 clubes se apile en móviles */
+@media (max-width: 600px) {
+    .clubes-grid {
+        justify-content: center;
+        overflow-x: auto; /* Reestablecer carrusel en móviles */
+    }
+    .clubes-grid > .club-card,
+    .clubes-grid > .create-club-card {
+        flex: 0 0 85%; /* Muestra 1 tarjeta grande por fila */
+    }
+}
+
 
 /* ========================= */
 /* Recomendación (libros)    */
@@ -338,4 +524,184 @@ main {
   .BooksyLogo{ max-width:60vw; }
   .main-nav{ flex-shrink:0; flex-grow:0; }
   .profile-btn.button{ text-align:right; font-size:.9rem; }
+}
+/* ========================= */
+/* Layout de Dos Columnas    */
+/* ========================= */
+.contenedor-principal-columnas {
+    display: flex;
+    gap: 30px; /* Espacio entre columnas */
+    padding-top: 1rem;
+    align-items: flex-start; /* Asegura que las columnas comiencen arriba */
+}
+
+.columna-clubes {
+    flex: 1.5; /* Reducido para ser más angosto */
+    min-width: 0;
+    padding-inline: 0 !important;
+}
+
+
+.columna-ranking {
+    flex: 1; /* Ocupa más proporción del espacio libre */
+    min-width: 250px;
+    position: sticky; 
+    top: 70px; 
+    padding-inline: 0 !important;
+    
+    /* AJUSTE DE ALTURA: Para alinear con la tarjeta de Mis Clubes */
+    margin-top: 5.5rem; 
+}
+
+/* Nota: Para asegurarnos de que la columna de la izquierda mantenga un buen espaciado */
+.mis-clubes-section, .main-sections{
+    margin-top: 2rem; 
+}
+/* Manejo de responsive para apilar las columnas en dispositivos pequeños */
+@media (max-width: 900px) {
+    .contenedor-principal-columnas {
+        flex-direction: column; /* Apila las columnas */
+        gap: 0;
+    }
+    .columna-clubes, .columna-ranking {
+        flex: 1;
+        width: 100%;
+        position: static; /* Desactiva sticky en móviles */
+    }
+    .ranking-usuarios-section {
+        margin: 2rem auto; /* Añade margen cuando está apilado */
+    }
+}
+
+/* ========================= */
+/* Estilos del Ranking       */
+/* ========================= */
+.ranking-usuarios-section {
+    background: #ffffff;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-soft);
+    margin-bottom: 2rem;
+}
+
+.ranking-usuarios-section h2 {
+    font-family: Arial, sans-serif;
+    font-size: 1.6rem;
+    color: var(--brand-dark);
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #f0f4fa;
+    transition: background-color 0.2s;
+}
+
+.ranking-item:last-child {
+    border-bottom: none;
+}
+
+.ranking-item:hover {
+    background-color: #f7fbff;
+    border-radius: 4px;
+}
+
+.ranking-puesto {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--brand-mid);
+    width: 30px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.ranking-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 10px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    flex-shrink: 0;
+}
+
+.ranking-info {
+    flex-grow: 1;
+    text-align: left;
+    min-width: 0;
+}
+
+.ranking-info h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.ranking-metrica {
+    font-weight: 700;
+    color: var(--brand-dark);
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+/* Estilos especiales para el TOP 3 */
+.ranking-item:nth-child(1) .ranking-puesto { color: gold; font-size: 1.6rem; }
+.ranking-item:nth-child(2) .ranking-puesto { color: silver; font-size: 1.5rem; }
+.ranking-item:nth-child(3) .ranking-puesto { color: #cd7f32; font-size: 1.45rem; }
+
+.ranking-item:nth-child(1) .ranking-avatar { border-color: gold; }
+.ranking-item:nth-child(2) .ranking-avatar { border-color: silver; }
+.ranking-item:nth-child(3) .ranking-avatar { border-color: #cd7f32; }
+
+/* ========================= */
+/* Estilos para Explorar Clubes (explorar_clubes.html) */
+/* ========================= */
+
+.clubes-grid.exploracion-grid {
+    /* Sobrescribir el carrusel para que sea un mosaico completo */
+    flex-wrap: wrap; 
+    overflow-x: visible;
+    scroll-snap-type: none;
+    justify-content: flex-start;
+    padding-inline: 0 !important; /* Usamos el padding del main-sections */
+    margin: 0 auto;
+}
+
+.clubes-grid.exploracion-grid > .club-card,
+.clubes-grid.exploracion-grid > .create-club-card {
+    /* Mosaico de 3 columnas en desktop */
+    flex: 0 1 calc(33.333% - 1rem); /* 3 por fila, ajustando el gap de 1rem */
+    min-width: 280px;
+    max-width: none;
+    margin-bottom: 1rem;
+}
+
+/* Responsive para la exploración: 2 columnas en tablets */
+@media (max-width: 1024px) and (min-width: 600px) {
+    .clubes-grid.exploracion-grid > .club-card,
+    .clubes-grid.exploracion-grid > .create-club-card {
+        flex: 0 1 calc(50% - 0.5rem); /* 2 por fila, ajustando el gap */
+    }
+}
+
+/* Responsive para la exploración: 1 columna en móviles */
+@media (max-width: 600px) {
+    .clubes-grid.exploracion-grid {
+        justify-content: center;
+    }
+    .clubes-grid.exploracion-grid > .club-card,
+    .clubes-grid.exploracion-grid > .create-club-card {
+        flex: 0 1 95%; 
+    }
 }

@@ -44,36 +44,66 @@
         </nav>
     </header>
 
-    <section class="hero-section hero-banner">
-        <div class="hero-banner__content">
-            <h1>Tu Club de Lectura</h1>
-            <p class="hero-desc">
-            Descubrí libros, unite a clubes y compartí lecturas con otras personas.
-            </p>
+    <section class="hero-card-section">
+        <div class="hero-card">
+            <div class="hero-text-content">
+                <h1>Tu Club de Lectura</h1>
+                <p>Descubrí libros, unite a clubes y compartí lecturas con otras personas.</p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="mostrarTodosClubes(event)">
+                        Explorar clubes
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='#misClubesSection'">
+                        Mis clubes
+                    </button>
+                </div>
+            </div>
+            <div class="hero-decoration">
+                <div class="deco-card card-top">
+                    <span class="card-hp-badge">HP</span>
+                    <span class="card-title">Harry Potter</span>
+                </div>
+                <div class="deco-card card-bottom">
+                    <span class="card-romance-badge">♥</span>
+                    <span class="card-title">Romance</span>
+                </div>
+            </div>
         </div>
     </section>
 
-    <main>
-        <section class="mis-clubes-section">
-            <h2 style="padding: 0 1rem;">Mis Clubes</h2>
-            <div class="mis-clubes-grid"></div>
-        </section>
+    <main class="contenedor-principal-columnas">
+        <section class="columna-clubes">
+            
+            <div class="mis-clubes-section">
+                <h2 style="padding: 0 1rem;">Mis Clubes</h2>
+                <div class="mis-clubes-grid"></div>
+            </div>
 
-        <section class="main-sections">
-            <div class="clubes-header">
-                <h2>Clubes de Lectura</h2>
+            <div class="main-sections">
+                <div class="clubes-header">
+                    <h2>Clubes de Lectura</h2>
+                    <a href="explorar_clubes.html" class="ver-mas-link">Ver más ></a>
+                </div>
+                <div id="clubesGrid" class="clubes-grid"></div>
             </div>
             
-            <div id="clubesGrid" class="clubes-grid"></div>
         </section>
 
-        <section>
-            <div class="recomendaciones-section">
-                <h2>Recomendaciones de Libros</h2>
-                <div class="recomendaciones-row" id="recomendacionesGrid"></div>
+        <section class="columna-ranking">
+            <div class="ranking-usuarios-section">
+                <h2>🏆 Ranking de Lectores</h2>
+                <div id="rankingGrid" class="ranking-grid">
+                    </div>
             </div>
         </section>
     </main>
+
+    <section>
+        <div class="recomendaciones-section">
+            <h2>Recomendaciones de Libros</h2>
+            <div class="recomendaciones-row" id="recomendacionesGrid"></div>
+        </div>
+    </section>
 
     <footer class="main-footer">
         <p>¿Deseás más información de los clubes? Escribinos a <a href="mailto:mail@booksy.com">mail@booksy.com</a></p>
