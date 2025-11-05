@@ -1,0 +1,355 @@
+/* ========== SISTEMA DE PERÍODOS DE LECTURA ========== */
+
+.modal-votacion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.modal-content-votacion {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 20px 60px rgba(44, 90, 145, 0.3);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.modal-content-votacion.large {
+  max-width: 800px;
+}
+
+.modal-header-votacion {
+  background: linear-gradient(135deg, #2c5a91 0%, #3d7bc6 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header-votacion h3 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.close-votacion {
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.close-votacion:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body-votacion {
+  padding: 25px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.form-group-votacion {
+  margin-bottom: 20px;
+}
+
+.form-group-votacion label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #2c5a91;
+}
+
+.form-group-votacion input[type="text"],
+.form-group-votacion input[type="datetime-local"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e6f6;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-group-votacion input:focus {
+  outline: none;
+  border-color: #2c5a91;
+}
+
+.libros-selection {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e0e6f6;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.libro-option {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.libro-option:hover {
+  background: #e9ecef;
+}
+
+.libro-option input {
+  margin-right: 12px;
+}
+
+.libro-option label {
+  cursor: pointer;
+  flex: 1;
+  font-weight: normal !important;
+  margin-bottom: 0 !important;
+  color: #333 !important;
+}
+
+.opciones-votacion {
+  margin-bottom: 20px;
+}
+
+.opcion-votacion {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 10px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.opcion-votacion:hover {
+  background: #e9ecef;
+  border-color: #2c5a91;
+}
+
+.opcion-votacion input {
+  margin-right: 15px;
+  transform: scale(1.2);
+}
+
+.opcion-info {
+  flex: 1;
+}
+
+.opcion-titulo {
+  font-weight: bold;
+  color: #2c5a91;
+  margin-bottom: 4px;
+}
+
+.opcion-autor {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.opcion-votos {
+  background: #2c5a91;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.votacion-info {
+  background: #e8f4f8;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.votacion-fechas {
+  margin-top: 10px;
+}
+
+.votacion-fechas p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.lectura-info {
+  background: #f0f8e8;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.form-actions-votacion {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.form-actions-votacion button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.form-actions-votacion button[type="submit"],
+.btn-primary {
+  background: linear-gradient(135deg, #2c5a91, #3d7bc6);
+  color: white;
+}
+
+.form-actions-votacion button[type="submit"]:hover,
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1e3d5f, #2c5a91);
+  transform: translateY(-2px);
+}
+
+.form-actions-votacion button[type="button"]:not(.btn-primary):not(.btn-admin) {
+  background: #6c757d;
+  color: white;
+}
+
+.admin-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+}
+
+.btn-admin {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.btn-admin:hover {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  transform: translateY(-2px);
+}
+
+.siguiente-periodo {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e6f6;
+}
+
+.historial-periodo {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-left: 4px solid #2c5a91;
+}
+
+.periodo-nombre {
+  font-weight: bold;
+  color: #2c5a91;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.periodo-ganador {
+  background: #d4edda;
+  padding: 10px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.periodo-resultados {
+  margin-top: 10px;
+}
+
+.resultado-libro {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Estados del botón dinámico */
+#btn-votacion-dinamico {
+  transition: all 0.3s ease;
+}
+
+#btn-votacion-dinamico:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#btn-votacion-dinamico.estado-inactivo {
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+}
+
+#btn-votacion-dinamico.estado-votacion {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  animation: pulseVotacion 2s infinite;
+}
+
+#btn-votacion-dinamico.estado-leyendo {
+  background: linear-gradient(135deg, #fd7e14, #e55200);
+}
+
+@keyframes pulseVotacion {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .modal-content-votacion {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modal-body-votacion {
+    padding: 15px;
+  }
+  
+  .form-actions-votacion {
+    flex-direction: column;
+  }
+  
+  .opcion-votacion {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .opcion-votacion input {
+    margin-bottom: 10px;
+  }
+}

@@ -1,3 +1,46 @@
+<div id="modalCrearVotacion" class="modal-backdrop" style="display:none;">
+  <div class="modal-content">
+    
+    <div class="modal-header">
+      <h3>Crear Nueva Votación</h3>
+      <button id="modal-crear-votacion-close" class="modal-close-btn" title="Cerrar">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form id="form-crear-votacion">
+        
+        <div class="form-group">
+          <label for="votacion-nombre">Nombre del Período</label>
+          <input type="text" id="votacion-nombre" name="votacion-nombre" class="form-input" placeholder="Ej: Lectura de Enero 2026" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="votacion-fin-votacion">Fecha Límite (Votación)</label>
+            <input type="datetime-local" id="votacion-fin-votacion" name="votacion-fin-votacion" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="votacion-fin-lectura">Fecha Límite (Lectura)</label>
+            <input type="datetime-local" id="votacion-fin-lectura" name="votacion-fin-lectura" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Libros para Votar (de tu lista "Por Leer")</label>
+          <div id="votacion-lista-libros" class="book-list-container">
+            <div class="loader-simple">Cargando libros...</div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="submit" class="btn-submit">Iniciar Votación</button>
+        </div>
+        
+      </form>
+    </div>
+
+  </div>
+</div>
 
 <div id="modalComentarios" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
   <div class="comments-card">
@@ -580,17 +623,19 @@
                 </div>
                 <span>Agregar Libro</span>
               </button>
+
+              <button class="quick-action-btn primary" id="btn-crear-votacion">
+  <div class="action-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
+      <polyline points="9,11 12,8 15,11"/>
+      <line x1="12" y1="8" x2="12" y2="21"/>
+    </svg>
+  </div>
+  <span>Crear Votación</span>
+</button>
+             
               
-              <button class="quick-action-btn secondary" onclick="alert('Funcion de votacion en desarrollo')">
-                <div class="action-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
-                    <polyline points="9,11 12,8 15,11"/>
-                    <line x1="12" y1="8" x2="12" y2="21"/>
-                  </svg>
-                </div>
-                <span>Votaciones</span>
-              </button>
               
               <button class="quick-action-btn secondary" onclick="mostrarRanking()">
                 <div class="action-icon">
@@ -789,8 +834,8 @@
 </div>
 
 <div id="notifications" class="notification-container"></div>
-   <script src="../componentes/loader.js"></script>
-   <script src="../componentes/notificacion.js"></script>
+   <script type="module"src="../componentes/loader.js"></script>
+   <script type="module" src="../componentes/notificacion.js"></script>
    <script type="module" src="../js/clubnew.js"></script>
 
 </body>

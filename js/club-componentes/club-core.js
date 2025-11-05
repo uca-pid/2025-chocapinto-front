@@ -181,6 +181,12 @@ async function renderClub() {
         // Ocultar loader una vez que todo esté cargado
         hideLoader();
 
+        // Inicializar el sistema de botón dinámico de votación ahora que los datos están listos
+        if (typeof window.initBotonDinamico === 'function') {
+            console.log("🗳️ Inicializando botón dinámico de votación...");
+            window.initBotonDinamico();
+        }
+
         // Actualizar las secciones adicionales
         setTimeout(() => {
             if (typeof cargarProgresoLectura === 'function') {
