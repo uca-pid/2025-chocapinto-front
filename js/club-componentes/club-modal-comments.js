@@ -1,6 +1,6 @@
 // Modal Comments Initialization
 function initCommentsModal() {
-    console.log("Initializing Comments Modal");
+    
     
     // Use global modal reference
     const modalComentarios = window.modalComentarios;
@@ -29,7 +29,7 @@ document.addEventListener("click", async (e) => {
     window.currentBookId = button.dataset.bookid;
     const clubId = getClubId();
     window.modalComentarios.style.display = "flex";
-    console.log("Cargando comentarios para libro ID:", window.currentBookId);
+    
     await cargarComentarios(window.currentBookId, clubId);
   }
   
@@ -84,7 +84,7 @@ async function cargarComentarios(bookId, clubId) {
         const userRole = getUserRoleInClub(clubData.club, userId);
         const canManageComments = canUserManageClub(clubData.club, userId); // Owner y Moderador pueden gestionar
         
-        console.log('🔍 Permisos de comentarios - userRole:', userRole, 'canManageComments:', canManageComments);
+        
 
         data.comentarios.forEach(c => {
           const commentItem = document.createElement("div");
@@ -140,7 +140,7 @@ async function cargarComentarios(bookId, clubId) {
                 confirmMessage,
                 confirmSubtext,
                 async () => {
-                  console.log(`🗑️ Eliminando comentario ID ${c.id} - Usuario: ${userRole.role}, Es dueño: ${isCommentOwner}`);
+                  
                   await eliminarComentario(c.id, bookId, clubId);
                 },
                 null,

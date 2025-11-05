@@ -165,7 +165,7 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
         
         if (data.success) {
             hideLoader();
-            console.log(`📚 Estado del libro actualizado automáticamente a: ${getEstadoLabel(nuevoEstado)}`);
+            
             // Recargar los datos del club para actualizar las estadísticas
             renderClub();
             // Actualizar la sección de progreso de lectura
@@ -254,7 +254,7 @@ document.addEventListener("click", async (e) => {
 
 // ========== INICIALIZACIÓN ==========
 function initLibrary() {
-    console.log('📚 Inicializando library...');
+    
     
     // Configurar event listeners para filtros
     setupLibraryEventListeners();
@@ -263,7 +263,7 @@ function initLibrary() {
     window.aplicarFiltros = aplicarFiltros;
     window.eliminarLibro = eliminarLibro;
     
-    console.log('✅ Library inicializado correctamente');
+    
 }
 
 function setupLibraryEventListeners() {

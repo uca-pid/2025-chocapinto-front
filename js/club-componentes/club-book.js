@@ -25,7 +25,7 @@ async function verificarRolUsuario() {
                 const role = userMember.role || 'LECTOR';
                 const canManageCategories = role === 'OWNER' || role === 'MODERADOR';
                 
-                console.log(`👤 Usuario actual: Rol=${role}, PuedeGestionarCategorías=${canManageCategories}`);
+               
                 
                 return { canManageCategories, role };
             }
@@ -62,10 +62,10 @@ async function configurarPermisosCategorias() {
     if (crearCategoriaBox) {
         if (userRole.canManageCategories) {
             crearCategoriaBox.style.display = 'block';
-            console.log(`✅ ${userRole.role}: Puede gestionar categorías`);
+            
         } else {
             crearCategoriaBox.style.display = 'none';
-            console.log(`❌ ${userRole.role}: No puede gestionar categorías`);
+            
         }
     }
     
@@ -153,21 +153,24 @@ function setupModalLibro() {
         agregarLibroBtn.setAttribute('data-listener-added', 'true');
         
         agregarLibroBtn.addEventListener('click', async () => {
-            console.log("📖 Abriendo modal de agregar libro");
-            document.getElementById('modalLibro').style.display = 'block';
+            
+            document.getElementById('modalLibro').style.display = 'flex';
             
             // Cargar categorías y configurar permisos
             await cargarCategorias();
             await configurarPermisosCategorias();
+            
+            // Resetear el modal al estado inicial
+            resetearModalLibro();
         });
-        console.log("✅ Event listener agregado al botón de agregar libro");
+       
     } else if (!agregarLibroBtn) {
-        console.log("⚠️ No se encontró el botón de agregar libro (.primary-action-btn)");
+        console.warn("⚠️ No se encontró el botón de agregar libro (.primary-action-btn)");
     }
 }
 
 async function mostrarModalAgregarLibro() {
-    console.log("📖 Mostrando modal agregar libro");
+    
     const modal = document.getElementById('modalLibro');
     
     if (modal) {
@@ -178,10 +181,62 @@ async function mostrarModalAgregarLibro() {
         await cargarCategorias();
         await configurarPermisosCategorias();
         
-        console.log("✅ Modal de agregar libro configurado según permisos del usuario");
+        // Resetear el modal al estado inicial
+        resetearModalLibro();
+        
     } else {
         console.error("❌ No se encontró el modal de agregar libro");
     }
+}
+
+// Función para resetear el modal al estado inicial
+function resetearModalLibro() {
+    // Limpiar búsqueda
+    const buscador = document.getElementById('buscadorLibro');
+    if (buscador) buscador.value = '';
+    
+    // Ocultar secciones
+    const searchResults = document.getElementById('searchResultsSection');
+    const selectedBook = document.getElementById('selectedBookSection');
+    const resultadosBusqueda = document.getElementById('resultadosBusquedaLibro');
+    
+    if (searchResults) searchResults.style.display = 'none';
+    if (selectedBook) selectedBook.style.display = 'none';
+    if (resultadosBusqueda) resultadosBusqueda.innerHTML = '';
+    
+    // Limpiar campos ocultos
+    ['tituloLibro', 'autorLibro', 'portadaLibro', 'idApiLibro'].forEach(id => {
+        const campo = document.getElementById(id);
+        if (campo) campo.value = '';
+    });
+    
+    // Deshabilitar botón de envío
+    const submitBtn = document.getElementById('submitLibroBtn');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Selecciona un libro
+        `;
+    }
+    
+    // Limpiar mensaje
+    const mensaje = document.getElementById('msgLibro');
+    if (mensaje) {
+        mensaje.style.display = 'none';
+        mensaje.className = 'message-libro';
+    }
+}
+
+// Función para cambiar libro seleccionado
+function cambiarLibroSeleccionado() {
+    resetearModalLibro();
+    document.getElementById('buscadorLibro').focus();
 }
 
 async function cargarCategorias() {
@@ -286,7 +341,7 @@ async function eliminarCategoria(categoriaId) {
   }
 
   confirmarEliminacion("esta categoría", () => {
-    console.log(`🗑️ ${userRole.role} eliminando categoría ID: ${categoriaId}`);
+    
     showLoader("Eliminando categoría...");
     
     fetch(`${API_URL}/categorias/${categoriaId}`, {
@@ -324,7 +379,7 @@ async function editarCategoria(categoriaId, nombreActual) {
   const nuevoNombre = prompt(`Editando categoría como ${userRole.role}.\nNuevo nombre:`, nombreActual);
   if (!nuevoNombre || nuevoNombre.trim() === "") return;
 
-  console.log(`✏️ ${userRole.role} editando categoría ID: ${categoriaId} - Nuevo nombre: ${nuevoNombre.trim()}`);
+ 
   showLoader("Editando categoría...");
   
   fetch(`${API_URL}/categorias/${categoriaId}`, {
@@ -371,125 +426,223 @@ async function buscarLibrosGoogleBooksAPI(query) {
     }
 }
 
-agregarCategoriaBtn.addEventListener('click', async () => {
-    // ✋ Verificar permisos antes de crear categoría
-    const userRole = await verificarRolUsuario();
-    if (!userRole.canManageCategories) {
-        showNotification("error", "❌ Solo moderadores y owners pueden crear categorías");
-        return;
-    }
+// Configurar el botón de agregar categoría
+function configurarBotonAgregarCategoria() {
+    const agregarCategoriaBtn = document.getElementById("agregarCategoriaBtn");
+    if (!agregarCategoriaBtn) return;
     
-    const nombre = nuevaCategoriaInput.value.trim();
-    if (!nombre) {
-        showNotification("warning", "⚠️ Ingresa un nombre para la categoría");
-        return;
-    }
-    
-    // Evitar duplicados
-    if (categoriasDisponibles.some(cat => cat.nombre.toLowerCase() === nombre.toLowerCase())) {
-        showNotification("warning", "⚠️ La categoría ya existe");
-        return;
-    }
-    
-    showLoader("Creando categoría...");
-    try {
-        const res = await fetch(`${API_URL}/categorias`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ nombre })
-        });
-        const data = await res.json();
-        if (data.success && data.categoria) {
-            categoriasDisponibles.push(data.categoria);
-            // ✅ Actualización dinámica sin recargar toda la página
-            await actualizarCategoriasEnModal(data.categoria);
-            await actualizarCategoriasEnDashboard();
-            nuevaCategoriaInput.value = '';
-            hideLoader();
-            showNotification("success", `Categoría "${data.categoria.nombre}" creada por ${userRole.role}`);
-        } else {
+    agregarCategoriaBtn.addEventListener('click', async () => {
+        const nuevaCategoriaInput = document.getElementById("nuevaCategoriaInput");
+        
+        // ✋ Verificar permisos antes de crear categoría
+        const userRole = await verificarRolUsuario();
+        if (!userRole.canManageCategories) {
+            showNotification("error", "❌ Solo moderadores y owners pueden crear categorías");
+            return;
+        }
+        
+        const nombre = nuevaCategoriaInput.value.trim();
+        if (!nombre) {
+            showNotification("warning", "⚠️ Ingresa un nombre para la categoría");
+            return;
+        }
+        
+        // Evitar duplicados
+        if (categoriasDisponibles.some(cat => cat.nombre.toLowerCase() === nombre.toLowerCase())) {
+            showNotification("warning", "⚠️ La categoría ya existe");
+            return;
+        }
+        
+        showLoader("Creando categoría...");
+        try {
+            const res = await fetch(`${API_URL}/categorias`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ nombre })
+            });
+            const data = await res.json();
+            if (data.success && data.categoria) {
+                categoriasDisponibles.push(data.categoria);
+                // ✅ Actualización dinámica sin recargar toda la página
+                await actualizarCategoriasEnModal(data.categoria);
+                await actualizarCategoriasEnDashboard();
+                nuevaCategoriaInput.value = '';
+                hideLoader();
+                showNotification("success", `Categoría "${data.categoria.nombre}" creada por ${userRole.role}`);
+            } else {
+                hideLoader();
+                showNotification("error", "Error al crear categoría");
+            }
+        } catch (error) {
             hideLoader();
             showNotification("error", "Error al crear categoría");
         }
-    } catch (error) {
-        hideLoader();
-        showNotification("error", "Error al crear categoría");
-    }
-});
+    });
+}
 
-buscadorLibro.addEventListener("input", async function () {
+// Configurar el event listener del buscador
+function configurarBuscadorLibro() {
+    const buscadorLibro = document.getElementById("buscadorLibro");
+    if (!buscadorLibro) return;
+    
+    buscadorLibro.addEventListener("input", async function () {
     const query = buscadorLibro.value.trim();
-    resultadosBusquedaLibro.innerHTML = "";
-    if (query.length < 2) return;
-    const libros = await buscarLibrosGoogleBooksAPI(query);
-    if (libros.length === 0) {
-        resultadosBusquedaLibro.innerHTML = "<div style='padding:0.5rem;color:#636e72;'>No se encontraron libros.</div>";
+    const resultadosBusqueda = document.getElementById('resultadosBusquedaLibro');
+    const searchResultsSection = document.getElementById('searchResultsSection');
+    const selectedBookSection = document.getElementById('selectedBookSection');
+    const searchLoader = document.getElementById('searchLoader');
+    
+    // Limpiar resultados previos
+    resultadosBusqueda.innerHTML = "";
+    
+    if (query.length < 2) {
+        searchResultsSection.style.display = 'none';
+        selectedBookSection.style.display = 'none';
         return;
     }
+    
+    // Mostrar loader
+    searchLoader.style.display = 'block';
+    searchResultsSection.style.display = 'block';
+    
+    const libros = await buscarLibrosGoogleBooksAPI(query);
+    
+    // Ocultar loader
+    searchLoader.style.display = 'none';
+    
+    if (libros.length === 0) {
+        resultadosBusqueda.innerHTML = `
+            <div class="no-results">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                    <line x1="11" y1="8" x2="11" y2="16"/>
+                    <line x1="8" y1="11" x2="14" y2="11"/>
+                </svg>
+                <p>No se encontraron libros</p>
+                <span>Intenta con otros términos de búsqueda</span>
+            </div>
+        `;
+        return;
+    }
+    
     libros.forEach(libro => {
         const div = document.createElement("div");
-        div.className = "busqueda-libro-item";
-        div.innerHTML = `<div style='display:flex;align-items:center;gap:10px;'>${libro.thumbnail ? `<img src='${libro.thumbnail}' style='width:40px;height:auto;border-radius:4px;'>` : ""}<div><strong>${libro.title}</strong> <span style='color:#636e72;font-size:0.95em;'>${libro.author}</span></div></div>`;
-        div.style.cursor = "pointer";
-        div.style.marginBottom = "12px";
-        div.style.borderRadius = "14px";
-        div.style.border = "2px solid #5fa8e9";
-        div.style.background = "#eaf6ff";
-        div.style.padding = "10px 14px";
-        console.log(libro);
-        div.onclick = () => {
-            // Restablecer el estilo de todos los elementos
-            document.querySelectorAll(".busqueda-libro-item").forEach(item => {
-                item.style.background = "#eaf6ff";
-                item.style.border = "2px solid #5fa8e9";
-            });
-
-            // Resaltar el libro seleccionado
-            div.style.background = "#d1e7ff";
-            div.style.border = "2px solid #0984e3";
-
-            // Mostrar datos del libro seleccionado en la consola
-            console.log("Libro seleccionado:", libro);
-
-            // Actualizar los valores del formulario
-            tituloLibro.value = libro.title;
-            autorLibro.value = libro.author;
-            portadaLibro.value = libro.thumbnail || "";
-            buscadorLibro.value = libro.title;
-            resultadosBusquedaLibro.innerHTML = `<div style='color:#0984e3;padding:0.5rem;display:flex;align-items:center;gap:10px;margin-bottom:0.5rem;border:2px solid #0984e3;border-radius:8px;background:#eaf6ff;'>${libro.thumbnail ? `<img src='${libro.thumbnail}' style='width:40px;height:auto;border-radius:4px;margin-bottom:0.5rem;'>` : ""}Libro seleccionado: <strong>${libro.title}</strong></div>`;
-        };
-        resultadosBusquedaLibro.appendChild(div);
+        div.className = "search-result-item";
+        div.innerHTML = `
+            <div class="result-cover">
+                ${libro.thumbnail ? 
+                    `<img src="${libro.thumbnail}" alt="Portada de ${libro.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                     <div class="cover-placeholder" style="display: none;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                     </div>` 
+                    : 
+                    `<div class="cover-placeholder">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        </svg>
+                     </div>`
+                }
+            </div>
+            <div class="result-info">
+                <h4>${libro.title}</h4>
+                <p>${libro.author}</p>
+            </div>
+            <div class="result-action">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9,18 15,12 9,6"/>
+                </svg>
+            </div>
+        `;
+        
+        div.onclick = () => seleccionarLibro(libro);
+        resultadosBusqueda.appendChild(div);
     });
 });
+}
 
-document.getElementById("formLibro").addEventListener("submit", async function(e) {
+// Función para seleccionar un libro
+function seleccionarLibro(libro) {
+    // Llenar campos ocultos
+    document.getElementById('tituloLibro').value = libro.title;
+    document.getElementById('autorLibro').value = libro.author;
+    document.getElementById('portadaLibro').value = libro.thumbnail || "";
+    
+    // Mostrar libro seleccionado
+    const selectedBookSection = document.getElementById('selectedBookSection');
+    const selectedBookCover = document.getElementById('selectedBookCover');
+    const selectedBookTitle = document.getElementById('selectedBookTitle');
+    const selectedBookAuthor = document.getElementById('selectedBookAuthor');
+    
+    selectedBookCover.src = libro.thumbnail || '';
+    selectedBookTitle.textContent = libro.title;
+    selectedBookAuthor.textContent = libro.author;
+    
+    selectedBookSection.style.display = 'block';
+    
+    // Ocultar resultados de búsqueda
+    document.getElementById('searchResultsSection').style.display = 'none';
+    
+    // Habilitar botón de envío
+    const submitBtn = document.getElementById('submitLibroBtn');
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Agregar al Club
+        `;
+    }
+}
+
+// Configurar el formulario de agregar libro
+function configurarFormularioLibro() {
+    const formLibro = document.getElementById("formLibro");
+    if (!formLibro) return;
+    
+    formLibro.addEventListener("submit", async function(e) {
     e.preventDefault();
-    const title = tituloLibro.value;
-    const author = autorLibro.value;
-    const thumbnail = portadaLibro.value;
+    
+    const title = document.getElementById('tituloLibro').value;
+    const author = document.getElementById('autorLibro').value;
+    const thumbnail = document.getElementById('portadaLibro').value;
     const id_api = document.getElementById("idApiLibro").value;
     const clubId = getClubId();
     const username = localStorage.getItem("username");
     const msg = document.getElementById("msgLibro");
-    msg.textContent = "";
+    const submitBtn = document.getElementById('submitLibroBtn');
+    
+    // Limpiar mensaje previo
+    msg.className = "message-libro";
     msg.style.display = "none";
+    
     if (!title) {
-        msg.textContent = "Seleccioná un libro de la búsqueda";
-        msg.style.background = "#ffeaea";
-        msg.style.color = "#d63031";
-        msg.style.display = "block";
+        mostrarMensajeModal("error", "Seleccioná un libro de la búsqueda");
         return;
     }
+    
     // Obtener categorías seleccionadas
     const categoriasSeleccionadas = Array.from(document.querySelectorAll('.categoria-checkbox:checked')).map(cb => cb.value);
     if (categoriasSeleccionadas.length === 0) {
-        msg.textContent = "Seleccioná al menos una categoría";
-        msg.style.background = "#ffeaea";
-        msg.style.color = "#d63031";
-        msg.style.display = "block";
+        mostrarMensajeModal("error", "Seleccioná al menos una categoría para el libro");
         return;
     }
-    showLoader("Agregando libro al club...");
+    
+    // Deshabilitar botón y mostrar loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <div class="loader-spinner-small"></div>
+        Agregando libro...
+    `;
+    
     try {
         const res = await fetch(`${API_URL}/club/${clubId}/addBook`, {
             method: "POST",
@@ -497,35 +650,60 @@ document.getElementById("formLibro").addEventListener("submit", async function(e
             body: JSON.stringify({ title, author, thumbnail, id_api, username, categorias: categoriasSeleccionadas })
         });
         const data = await res.json();
+        
         if (res.ok && data.success) {
-            hideLoader();
-            msg.textContent = "Libro agregado con éxito";
-            msg.style.background = "#eaf6ff";
-            msg.style.color = "#0984e3";
-            msg.style.display = "block";
-            setTimeout(() => { document.getElementById('modalLibro').style.display='none'; renderClub(); }, 1200);
+            mostrarMensajeModal("success", `📚 "${title}" fue agregado al club exitosamente`);
+            setTimeout(() => { 
+                document.getElementById('modalLibro').style.display='none'; 
+                renderClub(); 
+            }, 2000);
         } else {
-            hideLoader();
-            msg.textContent = data.message || "Error al agregar libro";
-            msg.style.background = "#ffeaea";
-            msg.style.color = "#d63031";
-            msg.style.display = "block";
+            mostrarMensajeModal("error", data.message || "Error al agregar el libro al club");
+            // Rehabilitar botón
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    <line x1="12" y1="8" x2="12" y2="16"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+                Agregar al Club
+            `;
         }
     } catch (error) {
-        hideLoader();
-        msg.textContent = "Error de conexión con el servidor";
-        msg.style.background = "#ffeaea";
-        msg.style.color = "#d63031";
-        msg.style.display = "block";
+        mostrarMensajeModal("error", "Error de conexión con el servidor");
+        // Rehabilitar botón
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                <line x1="12" y1="8" x2="12" y2="16"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Agregar al Club
+        `;
     }
 });
+}
+
+// Función para mostrar mensajes en el modal
+function mostrarMensajeModal(tipo, texto) {
+    const msg = document.getElementById("msgLibro");
+    msg.className = `message-libro ${tipo}`;
+    msg.textContent = texto;
+    msg.style.display = "block";
+}
 
 // ========== INICIALIZACIÓN ==========
 function initBookModal() {
-    console.log('📖 Inicializando modal de libros...');
     
-    // Configurar modal de libros
+    // Configurar todos los elementos del modal
     setupModalLibro();
+    configurarBuscadorLibro();
+    configurarBotonAgregarCategoria();
+    configurarFormularioLibro();
     
     // Exponer funciones globalmente
     window.setupModalLibro = setupModalLibro;
@@ -539,7 +717,7 @@ function initBookModal() {
     window.getRoleColor = getRoleColor;
     window.getRoleDisplayName = getRoleDisplayName;
     
-    console.log('✅ Modal de libros inicializado correctamente');
+    
 }
 
 // ========== FUNCIONES PARA ACTUALIZACIÓN DINÁMICA DE CATEGORÍAS ==========
@@ -579,7 +757,7 @@ async function actualizarCategoriasEnModal(nuevaCategoria) {
             checkbox.classList.remove('categoria-nueva');
         }, 300);
         
-        console.log(`✅ Categoría "${nuevaCategoria.nombre}" agregada dinámicamente al modal`);
+        
         
     } catch (error) {
         console.error('Error al actualizar categorías en modal:', error);
@@ -594,7 +772,7 @@ async function actualizarCategoriasEnDashboard() {
         // Simplemente llamar a la función de actualización de estadísticas existente
         if (typeof window.actualizarEstadisticas === 'function' && window.clubData) {
             window.actualizarEstadisticas(window.clubData);
-            console.log('✅ Estadísticas del dashboard actualizadas dinámicamente');
+            
         }
         
         // Si existe algún widget de categorías específico, actualizarlo también
@@ -610,6 +788,10 @@ async function actualizarCategoriasEnDashboard() {
 // Exponer las funciones globalmente
 window.actualizarCategoriasEnModal = actualizarCategoriasEnModal;
 window.actualizarCategoriasEnDashboard = actualizarCategoriasEnDashboard;
+window.cambiarLibroSeleccionado = cambiarLibroSeleccionado;
+window.seleccionarLibro = seleccionarLibro;
+window.resetearModalLibro = resetearModalLibro;
+window.mostrarMensajeModal = mostrarMensajeModal;
 
 // Exportar función de inicialización
 window.initBookModal = initBookModal;
@@ -620,5 +802,9 @@ export {
     actualizarCategoriasEnModal, 
     actualizarCategoriasEnDashboard, 
     verificarRolUsuario, 
-    configurarPermisosCategorias 
+    configurarPermisosCategorias,
+    cambiarLibroSeleccionado,
+    seleccionarLibro,
+    resetearModalLibro,
+    mostrarMensajeModal
 };
