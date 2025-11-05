@@ -1,3 +1,6 @@
+import { API_URL } from "../env.js";
+import { getClubId } from "./club-utils.js";
+
 async function cargarProgresoLectura() {
     try {
         const clubId = getClubId();
@@ -8,18 +11,28 @@ async function cargarProgresoLectura() {
         }
 
         console.log('Cargando progreso de lectura para club:', clubId);
-        const response = await fetch(`${API_URL}/club/${clubId}`);
-        const data = await response.json();
         
-        if (data.success && data.club && data.club.readBooks) {
-            console.log('Libros recibidos:', data.club.readBooks.length);
+        // Obtener información del período activo y libros del club
+        const [clubResponse, estadoResponse] = await Promise.all([
+            fetch(`${API_URL}/club/${clubId}`),
+            fetch(`${API_URL}/api/club/${clubId}/estado-actual`)
+        ]);
+        
+        const clubData = await clubResponse.json();
+        const estadoData = await estadoResponse.json();
+        
+        if (clubData.success && clubData.club && clubData.club.readBooks) {
+            console.log('Libros recibidos:', clubData.club.readBooks.length);
             // Filtrar solo los libros que están siendo leídos actualmente
-            const librosLeyendo = data.club.readBooks.filter(libro => {
+            const librosLeyendo = clubData.club.readBooks.filter(libro => {
                 console.log(`Libro: ${libro.title}, Estado: ${libro.estado}`);
                 return libro.estado === 'leyendo';
             });
             console.log('Libros con estado "leyendo":', librosLeyendo.length, librosLeyendo);
-            mostrarProgresoLectura(librosLeyendo);
+            
+            // Pasar la información del período activo si existe
+            const periodoActivo = estadoData.success && estadoData.estado === 'LEYENDO' ? estadoData.periodo : null;
+            mostrarProgresoLectura(librosLeyendo, periodoActivo);
         } else {
             console.log('No se recibieron libros o la respuesta no fue exitosa');
             mostrarProgresoVacio();
@@ -30,7 +43,7 @@ async function cargarProgresoLectura() {
     }
 }
 
-function mostrarProgresoLectura(libros) {
+function mostrarProgresoLectura(libros, periodoActivo = null) {
     const container = document.getElementById('progress-list');
     const counter = document.getElementById('active-books-count');
     
@@ -43,10 +56,37 @@ function mostrarProgresoLectura(libros) {
     counter.textContent = `${libros.length} libro${libros.length !== 1 ? 's' : ''} activo${libros.length !== 1 ? 's' : ''}`;
     
     const html = libros.map(libro => {
-        // Calcular progreso usando la estructura correcta
-        const paginaActual = libro.paginaActual || 0;
-        const totalPaginas = libro.totalPages || libro.pages || 0;
-        const porcentaje = totalPaginas > 0 ? Math.round((paginaActual / totalPaginas) * 100) : 0;
+        let porcentaje = 0;
+        let detalleProgreso = '';
+        
+        if (periodoActivo && periodoActivo.fechaFinLectura) {
+            // Calcular progreso basado en tiempo restante del período de lectura
+            const fechaInicio = new Date(periodoActivo.createdAt || periodoActivo.updatedAt);
+            const fechaFin = new Date(periodoActivo.fechaFinLectura);
+            const ahora = new Date();
+            
+            // Calcular días totales del período y días transcurridos
+            const diasTotales = Math.ceil((fechaFin - fechaInicio) / (1000 * 60 * 60 * 24));
+            const diasTranscurridos = Math.ceil((ahora - fechaInicio) / (1000 * 60 * 60 * 24));
+            const diasRestantes = Math.max(0, Math.ceil((fechaFin - ahora) / (1000 * 60 * 60 * 24)));
+            
+            // Calcular porcentaje de tiempo transcurrido
+            porcentaje = diasTotales > 0 ? Math.min(100, Math.max(0, Math.round((diasTranscurridos / diasTotales) * 100))) : 0;
+            
+            // Detalle del progreso basado en tiempo
+            if (diasRestantes > 0) {
+                detalleProgreso = `${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} restante${diasRestantes !== 1 ? 's' : ''}`;
+            } else {
+                detalleProgreso = 'Período finalizado';
+                porcentaje = 100;
+            }
+        } else {
+            // Fallback al sistema anterior de páginas si no hay período activo
+            const paginaActual = libro.paginaActual || 0;
+            const totalPaginas = libro.totalPages || libro.pages || 0;
+            porcentaje = totalPaginas > 0 ? Math.round((paginaActual / totalPaginas) * 100) : 0;
+            detalleProgreso = `${paginaActual} de ${totalPaginas} páginas`;
+        }
         
         return `
             <div class="progress-item" data-libro-id="${libro.id}">
@@ -60,7 +100,7 @@ function mostrarProgresoLectura(libros) {
                     <h4>${libro.title || 'Título no disponible'}</h4>
                     <p>${libro.author || 'Autor desconocido'}</p>
                     <div class="progress-details">
-                        <span>${paginaActual} de ${totalPaginas} páginas</span>
+                        <span>${detalleProgreso}</span>
                         <span>${porcentaje}%</span>
                     </div>
                     <div class="progress-bar">

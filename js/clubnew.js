@@ -11,6 +11,7 @@ import { initUtils, getClubId, getEstadoInfo, getEstadoLabel, formatTimeAgoReal,
 import { API_URL } from './env.js';
 import { showLoader, hideLoader } from "../componentes/loader.js";
 import { initClubVotingComponent } from './club-componentes/club-voting.js';
+import { initPeriodosHistoryComponent } from './club-componentes/club-periodos-history.js';
 console.log("Cargando coordinador principal club.js...");
 
 
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initCore();
     initLibrary();
     initClubVotingComponent();
+    initPeriodosHistoryComponent();
     initWidgets();
     initBookModal();
     initCommentsModal();

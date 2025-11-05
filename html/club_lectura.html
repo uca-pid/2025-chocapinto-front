@@ -400,6 +400,50 @@
       </div>
     </div>
 
+<!-- Modal de Períodos de Lectura -->
+<div id="modalPeriodosLectura" class="modal-backdrop" style="display:none;">
+  <div class="modal-content modal-periodos-lectura">
+    <div class="modal-header-periodos">
+      <div class="header-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+      </div>
+      <div class="header-content">
+        <h2>Historial de Períodos de Lectura</h2>
+        <span class="period-subtitle">Todos los períodos anteriores del club</span>
+      </div>
+      <button class="modal-close-btn-periodos" onclick="document.getElementById('modalPeriodosLectura').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body-periodos">
+      <div id="periodosLoader" class="periodos-loader">
+        <div class="spinner"></div>
+        <p>Cargando períodos de lectura...</p>
+      </div>
+      
+      <div id="periodosList" class="periodos-list" style="display:none;">
+        <!-- Los períodos se cargarán aquí dinámicamente -->
+      </div>
+      
+      <div id="periodosEmpty" class="periodos-empty" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        <h3>No hay períodos anteriores</h3>
+        <p>Aún no se han completado períodos de lectura en este club.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 
@@ -595,7 +639,15 @@
           <div class="reading-progress-card">
             <div class="progress-header">
               <h3 class="section-title">Progreso de Lectura</h3>
-              <span class="active-books-count" id="active-books-count">3 libros activos</span>
+              <div class="progress-header-actions">
+                <span class="active-books-count" id="active-books-count">3 libros activos</span>
+                <button class="progress-history-btn" id="btn-historial-periodos" title="Ver períodos anteriores">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                  </svg>
+                </button>
+              </div>
             </div>
             <div class="progress-list" id="progress-list">
               <!-- Los libros en progreso se cargarán aquí dinámicamente -->

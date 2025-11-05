@@ -3115,6 +3115,7 @@ main {
       align-items: center;
       justify-content: center;
     }
+    
 
     .chart-modal-box {
        background: linear-gradient(135deg, #4facfe 0%, #357abd 100%);
@@ -3560,7 +3561,18 @@ main {
         opacity: 0;
       }
     }
-
+    .chat-btm{
+      background: linear-gradient(135deg, #667eea 0%, #2a458f 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
     /* Responsive Design for Chart Modal */
     @media (max-width: 768px) {
       #modalGrafico {
@@ -6551,5 +6563,397 @@ main {
     top: 16px;
     right: 16px;
     order: 3;
+  }
+}
+
+/* ==================== PROGRESS HEADER BUTTON ==================== */
+.progress-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-history-btn {
+  background: linear-gradient(135deg, #667eea 0%, #2a458f 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.progress-history-btn:hover {
+  background: var(--primary-blue);
+  color: var(--white);
+  transform: scale(1.1);
+}
+
+.progress-history-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.progress-history-btn:hover svg {
+  transform: rotate(15deg);
+}
+
+/* ==================== MODAL PERÍODOS DE LECTURA STYLES ==================== */
+#modalPeriodosLectura {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.modal-periodos-lectura {
+  background: linear-gradient(135deg, var(--white) 0%, var(--stat-blue-light) 100%);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  transform: scale(0.9);
+  animation: modalSlideIn 0.3s ease-out forwards;
+  border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+.modal-header-periodos {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--white);
+  padding: 24px;
+  border-radius: 20px 20px 0 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-header-periodos::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="dots-periodos" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="20" fill="url(%23dots-periodos)"/></svg>');
+  opacity: 0.3;
+}
+
+.modal-header-periodos .header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.modal-header-periodos .header-content {
+  flex: 1;
+  z-index: 1;
+}
+
+.modal-header-periodos h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal-header-periodos .period-subtitle {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.modal-close-btn-periodos {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: var(--white);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.modal-close-btn-periodos:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.modal-body-periodos {
+  padding: 32px 24px;
+  background: var(--white);
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+}
+
+/* Loader */
+.periodos-loader {
+  text-align: center;
+  color: var(--primary-blue);
+  padding: 64px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.periodos-loader .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--gray-200);
+  border-top: 3px solid var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.periodos-loader p {
+  margin: 0;
+  font-weight: 500;
+  color: var(--gray-600);
+}
+
+/* Empty State */
+.periodos-empty {
+  text-align: center;
+  padding: 64px 32px;
+  color: var(--gray-500);
+}
+
+.periodos-empty svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.periodos-empty h3 {
+  margin: 0 0 8px 0;
+  color: var(--gray-700);
+  font-size: 1.25rem;
+}
+
+.periodos-empty p {
+  margin: 0;
+  color: var(--gray-500);
+}
+
+/* Períodos List */
+.periodos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.periodo-card {
+  background: var(--white);
+  border: 2px solid var(--gray-100);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.periodo-card:hover {
+  border-color: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(74, 144, 226, 0.15);
+}
+
+.periodo-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.periodo-card:hover::before {
+  transform: scaleX(1);
+}
+
+.periodo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.periodo-info h4 {
+  margin: 0 0 8px 0;
+  color: var(--gray-800);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.periodo-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--gray-600);
+}
+
+.periodo-status {
+  background: var(--stat-blue-light);
+  color: var(--primary-blue);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.periodo-status.completado {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.periodo-status.cancelado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.periodo-body {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.libro-ganador {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.libro-portada-pequena {
+  width: 50px;
+  height: 70px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+}
+
+.libro-portada-pequena img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-portada-pequena {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+  color: var(--gray-400);
+}
+
+.libro-detalles h5 {
+  margin: 0 0 4px 0;
+  color: var(--gray-800);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.libro-detalles p {
+  margin: 0;
+  color: var(--gray-500);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.periodo-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  text-align: center;
+}
+
+.votos-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+
+.votos-label {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-periodos-lectura {
+    width: 95%;
+    max-height: 95vh;
+    border-radius: 16px;
+  }
+  
+  .modal-header-periodos {
+    padding: 20px;
+    border-radius: 16px 16px 0 0;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .modal-body-periodos {
+    padding: 24px 20px;
+  }
+  
+  .periodo-body {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .libro-ganador {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .modal-close-btn-periodos {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+  
+  .progress-header-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
   }
 }
