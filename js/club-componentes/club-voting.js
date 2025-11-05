@@ -1,3 +1,5 @@
+import { showNotification } from "../../componentes/notificacion.js";
+
 function initClubVotingComponent() {
     console.log("Inicializando componente de votación del club...");
     
@@ -17,6 +19,7 @@ function initClubVotingComponent() {
     // Exponer funciones globalmente si es necesario
     window.abrirModalCrearVotacion = abrirModalCrearVotacion;
     window.initBotonDinamico = initBotonDinamico; // Exponer para llamada externa
+    window.actualizarBotonDinamico = actualizarBotonDinamico; // Exponer para actualizaciones
     
     console.log("Componente de votación inicializado correctamente");
 }
@@ -115,11 +118,10 @@ async function cargarLibrosPorLeer() {
     
     console.log("Cargando libros por leer del club:", clubId);
     
-    // Usar el endpoint de debug que tiene los IDs correctos
-    console.log("🐞 Usando endpoint de debug que tiene los ClubBook IDs correctos...");
+   
     const debugRes = await fetch(`${window.API_URL}/api/club/${clubId}/libros-debug`);
     const debugData = await debugRes.json();
-    console.log("🐞 DEBUG - Respuesta completa:", debugData);
+    
     
     if (debugData.success && debugData.libros) {
       // Filtrar solo libros en estado "por_leer"
@@ -136,21 +138,39 @@ async function cargarLibrosPorLeer() {
             clubBookId: libro.id, // Este es el ClubBook ID correcto
             titulo: libro.titulo,
             autor: libro.autor,
-            estado: libro.estado
+            estado: libro.estado,
+            portada: libro.portada  
           });
           
           // Usar el ID del debug endpoint (que es el ClubBook ID correcto)
           const clubBookId = libro.id;
-          console.log(`✅ Libro: ${libro.titulo} - ClubBook ID correcto: ${clubBookId}`);
+          console.log(libro.portada)
           
           return `
             <div class="book-checkbox-item">
               <input type="checkbox" name="clubBookIds" value="${clubBookId}" id="book-${clubBookId}">
+              <div class="book-cover">
+                ${libro.portada ? `
+                  <img src="${libro.portada}" alt="Portada de ${libro.titulo}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <div class="placeholder-cover" style="display: none;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                  </div>
+                ` : `
+                  <div class="placeholder-cover">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                  </div>
+                `}
+              </div>
               <label for="book-${clubBookId}">
                 <div class="book-info">
                   <strong>${libro.titulo}</strong>
-                  <br><small style="color: #6b7280;">${libro.autor || 'Autor desconocido'}</small>
-                  <br><small style="color: #94a3b8;">✅ ClubBook ID: ${clubBookId}</small>
+                  <small class="book-author">${libro.autor || 'Autor desconocido'}</small>
                 </div>
               </label>
             </div>
@@ -181,7 +201,7 @@ async function handleCrearVotacion(e) {
   
   if (!form) {
     console.error("Formulario no encontrado");
-    alert("Error: No se pudo encontrar el formulario");
+    showNotification("error", "Error: No se pudo encontrar el formulario");
     return;
   }
   
@@ -209,11 +229,11 @@ async function handleCrearVotacion(e) {
 
   // 2. Validar
   if (data.clubBookIds.length === 0) {
-    alert("Debes seleccionar al menos un libro para la votación.");
+    showNotification("alert", "Debes seleccionar al menos un libro para la votación.");
     return;
   }
   if (!data.nombre || !data.fechaFinVotacion || !data.fechaFinLectura) {
-    alert(`Por favor, completa todos los campos:
+    showNotification("alert", `Por favor, completa todos los campos:
 - Nombre: ${data.nombre}
 - Fecha fin votación: ${data.fechaFinVotacion}
 - Fecha fin lectura: ${data.fechaFinLectura}`);
@@ -249,22 +269,30 @@ async function handleCrearVotacion(e) {
       if (window.showNotification) {
         window.showNotification("success", "¡Votación creada con éxito!");
       } else {
-        alert("¡Votación creada con éxito!");
+        showNotification("success", "¡Votación creada con éxito!");
       }
       cerrarModalCrearVotacion();
-      // Actualizar el botón en lugar de recargar toda la página
-      setTimeout(() => {
-        actualizarBotonDinamico(true); // Forzar refresh porque se creó una votación
-      }, 500);
+      
+      // Actualizar el botón dinámico inmediatamente
+      console.log("🔄 Votación creada exitosamente, actualizando botón dinámico...");
+      actualizarBotonDinamico();
+      
+      // También recargar datos del club si es necesible
+      if (typeof window.renderClub === 'function') {
+        setTimeout(() => {
+          console.log("🔄 Recargando datos del club...");
+          window.renderClub();
+        }, 500);
+      }
     } else {
       console.error("❌ Error del servidor:", resultado);
-      alert(`Error: ${resultado.message || 'Error al crear la votación'}`);
+      showNotification("error", `Error: ${resultado.message || 'Error al crear la votación'}`);
     }
     
   } catch (error) {
     console.error("❌ Error de red:", error);
     window.hideLoader();
-    alert("Error de conexión con el servidor.");
+    showNotification("error", "Error de conexión con el servidor.");
   }
 }
 
@@ -276,91 +304,55 @@ async function handleCrearVotacion(e) {
 function initBotonDinamico() {
     console.log("🔄 Inicializando botón dinámico...");
     
-    // Actualizar el botón inmediatamente usando datos ya cargados
+    // Actualizar el botón inmediatamente
     actualizarBotonDinamico();
     
-    // No más polling constante - solo actualizaremos cuando sea necesario
-    console.log("✅ Botón dinámico inicializado sin polling automático");
+    // Actualizar cada 30 segundos para cambios en tiempo real
+    setInterval(actualizarBotonDinamico, 30000);
 }
 
 /**
  * Actualiza el botón según el estado actual del club
- * Ahora optimizado para usar datos ya cargados
  */
-async function actualizarBotonDinamico(forceRefresh = false) {
+async function actualizarBotonDinamico() {
     try {
         const clubId = window.getClubId();
-        if (!clubId) return;
-        
-        let estadoData;
-        
-        if (forceRefresh) {
-            // Solo hacer fetch si se solicita explícitamente
-            console.log("� Actualizando estado del club (forzado)...");
-            const res = await fetch(`${window.API_URL}/api/club/${clubId}/estado-actual`);
-            estadoData = await res.json();
-        } else {
-            // Intentar usar datos ya cargados primero
-            console.log("📋 Usando datos locales para determinar estado...");
-            estadoData = obtenerEstadoDesdeClubData();
-            
-            // Si no hay datos locales suficientes, entonces hacer fetch
-            if (!estadoData.success) {
-                console.log("🌐 Datos locales insuficientes, consultando servidor...");
-                const res = await fetch(`${window.API_URL}/api/club/${clubId}/estado-actual`);
-                estadoData = await res.json();
-            }
+        if (!clubId) {
+            console.error("❌ No se pudo obtener clubId");
+            return;
         }
         
-        console.log("📊 Estado del club:", estadoData);
+        console.log(`🔍 Obteniendo estado actual del club ${clubId}...`);
         
-        if (estadoData.success) {
-            actualizarBotonSegunEstado(estadoData.estado, estadoData.periodo);
+        // Llamar al endpoint de estado actual
+        const url = `${window.API_URL}/api/club/${clubId}/estado-actual`;
+        console.log(`🌐 Consultando: ${url}`);
+        
+        const res = await fetch(url);
+        
+        console.log(`📡 Response status: ${res.status}`);
+        
+        if (!res.ok) {
+            console.error(`❌ Error HTTP: ${res.status} ${res.statusText}`);
+            return;
+        }
+        
+        const data = await res.json();
+        
+        console.log("📊 Estado del club completo:", JSON.stringify(data, null, 2));
+        
+        if (data.success) {
+            console.log(`🎯 Estado encontrado: ${data.estado}`);
+            if (data.periodo) {
+                console.log(`📋 Período activo: ${data.periodo.nombre} (ID: ${data.periodo.id})`);
+            }
+            actualizarBotonSegunEstado(data.estado, data.periodo);
         } else {
-            console.error("Error al obtener estado:", estadoData);
-            // Mostrar botón por defecto
-            mostrarBotonPorDefecto();
+            console.error("❌ Respuesta de error:", data);
         }
         
     } catch (error) {
-        console.error("Error actualizando botón dinámico:", error);
-        mostrarBotonPorDefecto();
-    }
-}
-
-/**
- * Intenta determinar el estado del club usando los datos ya cargados
- */
-function obtenerEstadoDesdeClubData() {
-    if (!window.clubData) {
-        return { success: false, message: "No hay datos del club cargados" };
-    }
-    
-    // Por ahora, si no tenemos información de períodos en clubData,
-    // asumimos estado INACTIVO como seguro
-    // Esto evita requests innecesarios para la mayoría de casos
-    
-    console.log("📋 Determinando estado desde datos locales...");
-    
-    // Si hay alguna indicación de período activo en clubData, podríamos usarla aquí
-    // Por ahora, defaulteamos a INACTIVO que es el estado más común
-    
-    return {
-        success: true,
-        estado: 'INACTIVO',
-        periodo: null,
-        source: 'local-default'
-    };
-}
-
-/**
- * Muestra el botón en estado por defecto cuando no hay datos
- */
-function mostrarBotonPorDefecto() {
-    const boton = document.getElementById('btn-crear-votacion');
-    if (boton) {
-        configurarBotonInactivo(boton);
-        console.log("🎯 Botón configurado en estado por defecto (INACTIVO)");
+        console.error("❌ Error actualizando botón dinámico:", error);
     }
 }
 
@@ -369,7 +361,10 @@ function mostrarBotonPorDefecto() {
  */
 function actualizarBotonSegunEstado(estado, periodo) {
     const botonContainer = document.getElementById('btn-crear-votacion');
-    if (!botonContainer) return;
+    if (!botonContainer) {
+        console.error("❌ No se encontró el elemento btn-crear-votacion");
+        return;
+    }
     
     console.log(`🎯 Actualizando botón para estado: ${estado}`);
     
@@ -379,23 +374,30 @@ function actualizarBotonSegunEstado(estado, periodo) {
     
     switch (estado) {
         case 'INACTIVO':
+            console.log("🔘 Configurando botón para estado INACTIVO");
             configurarBotonInactivo(nuevoBoton);
             break;
         case 'VOTACION':
+            console.log("🗳️ Configurando botón para estado VOTACION");
             configurarBotonVotacion(nuevoBoton, periodo);
             break;
         case 'LEYENDO':
+            console.log("📚 Configurando botón para estado LEYENDO");
             configurarBotonLeyendo(nuevoBoton, periodo);
             break;
         default:
-            console.warn("Estado desconocido:", estado);
+            console.warn("⚠️ Estado desconocido:", estado);
     }
+    
+    console.log("✅ Botón actualizado correctamente");
 }
 
 /**
  * Configura el botón para estado INACTIVO (crear nueva votación)
  */
 function configurarBotonInactivo(boton) {
+    console.log("🔘 Configurando botón para estado INACTIVO");
+    
     boton.innerHTML = `
         <div class="action-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -408,15 +410,20 @@ function configurarBotonInactivo(boton) {
     `;
     boton.className = 'quick-action-btn primary';
     boton.onclick = abrirModalCrearVotacion;
+    
+    console.log(`✅ Botón configurado como INACTIVO - Clase: ${boton.className}`);
 }
 
 /**
  * Configura el botón para estado VOTACION (ver votación activa)
  */
 function configurarBotonVotacion(boton, periodo) {
-    const totalVotos = periodo?.totalVotosEmitidos || 0;
+    console.log("🗳️ Configurando botón de votación con período:", periodo);
     
-    boton.innerHTML = `
+    const totalVotos = periodo?.totalVotosEmitidos || 0;
+    console.log(`📊 Total de votos emitidos: ${totalVotos}`);
+    
+    const nuevoHTML = `
         <div class="action-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 12l2 2 4-4"/>
@@ -425,8 +432,14 @@ function configurarBotonVotacion(boton, periodo) {
         </div>
         <span>Ver Votación (${totalVotos} votos)</span>
     `;
+    
+    console.log("🎨 HTML del botón:", nuevoHTML);
+    
+    boton.innerHTML = nuevoHTML;
     boton.className = 'quick-action-btn secondary voting-active';
     boton.onclick = () => abrirModalVotacionActiva(periodo);
+    
+    console.log(`✅ Botón configurado como VOTACION - Clase: ${boton.className}`);
 }
 
 /**
@@ -548,26 +561,94 @@ function crearModalLectura(periodo) {
     modal.style.display = 'flex';
     
     const libro = periodo.libroGanador?.book;
+    const fechaFinalizacion = new Date(periodo.fechaFinLectura);
+    const diasRestantes = Math.ceil((fechaFinalizacion - new Date()) / (1000 * 60 * 60 * 24));
     
     modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📚 Leyendo Actualmente</h3>
-                <button class="modal-close-btn" onclick="this.closest('.modal-backdrop').remove()">&times;</button>
+        <div class="modal-content modal-lectura">
+            <div class="modal-header-lectura">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                </div>
+                <div class="header-content">
+                    <h2>Leyendo Actualmente</h2>
+                    <span class="period-badge">${periodo.nombre}</span>
+                </div>
+                <button class="modal-close-btn-lectura" onclick="this.closest('.modal-backdrop').remove()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-            <div class="modal-body">
-                <div class="libro-actual">
-                    <h4>${libro?.title || 'Título no disponible'}</h4>
-                    <p><strong>Autor:</strong> ${libro?.author || 'Autor desconocido'}</p>
-                    <p><strong>Período:</strong> ${periodo.nombre}</p>
-                    <p><strong>Finaliza:</strong> ${new Date(periodo.fechaFinLectura).toLocaleString()}</p>
+            
+            <div class="modal-body-lectura">
+                <div class="libro-card">
+                    <div class="libro-cover">
+                        ${libro?.portada ? `
+                            <img src="${libro.portada}" alt="Portada del libro" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="placeholder-cover" style="display: none;">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                            </div>
+                        ` : `
+                            <div class="placeholder-cover">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                </svg>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <div class="libro-info">
+                        <h3 class="libro-title">${libro?.title || 'Título no disponible'}</h3>
+                        <p class="libro-author">por ${libro?.author || 'Autor desconocido'}</p>
+                        
+                        <div class="reading-progress">
+                            <div class="progress-item">
+                                <span class="label">Estado</span>
+                                <span class="value active">En Lectura</span>
+                            </div>
+                            <div class="progress-item">
+                                <span class="label">Finaliza</span>
+                                <span class="value">${fechaFinalizacion.toLocaleDateString('es-ES', { 
+                                    day: 'numeric', 
+                                    month: 'long', 
+                                    year: 'numeric' 
+                                })}</span>
+                            </div>
+                            <div class="progress-item">
+                                <span class="label">Tiempo restante</span>
+                                <span class="value ${diasRestantes <= 7 ? 'warning' : ''}">${diasRestantes > 0 ? `${diasRestantes} días` : 'Vencido'}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 ${tienePermisos ? `
-                    <div class="moderador-actions">
-                        <button class="btn-submit" onclick="concluirLectura(${periodo.id})">
-                            🔒 Concluir Lectura (Moderador)
+                    <div class="admin-section">
+                        <div class="admin-header">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <circle cx="12" cy="16" r="1"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <span>Acciones de Moderador</span>
+                        </div>
+                        <button class="btn-concluir-lectura" onclick="concluirLectura(${periodo.id})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9,11 12,14 22,4"/>
+                                <path d="M21,12v7a2,2 0 0,1 -2,2H5a2,2 0 0,1 -2,-2V5a2,2 0 0,1 2,-2h11"/>
+                            </svg>
+                            Concluir Lectura
                         </button>
+                        <p class="admin-note">Al concluir, el libro se marcará como leído y el club volverá al estado inactivo.</p>
                     </div>
                 ` : ''}
             </div>
@@ -591,7 +672,7 @@ async function votar(opcionId, libroTitulo) {
         const periodoId = estadoData.periodo?.id;
         
         if (!periodoId) {
-            alert('Error: No se pudo obtener el período activo');
+            showNotification("error", 'Error: No se pudo obtener el período activo');
             return;
         }
         
@@ -607,18 +688,18 @@ async function votar(opcionId, libroTitulo) {
         window.hideLoader();
         
         if (res.ok && resultado.success) {
-            alert(`¡Voto registrado por "${libroTitulo}"!`);
-            // Cerrar modal y actualizar (forzar refresh porque cambió el estado)
+            showNotification("success", `¡Voto registrado por "${libroTitulo}"!`);
+            // Cerrar modal y actualizar
             document.getElementById('modalVotacionActiva')?.remove();
-            actualizarBotonDinamico(true);
+            actualizarBotonDinamico();
         } else {
-            alert(`Error: ${resultado.message || 'No se pudo registrar el voto'}`);
+            showNotification("error", `Error: ${resultado.message || 'No se pudo registrar el voto'}`);
         }
         
     } catch (error) {
-        console.error('Error al votar:', error);
+        
         window.hideLoader();
-        alert('Error de conexión al votar');
+        showNotification("error",'Error de conexión al votar');
     }
 }
 
@@ -629,43 +710,73 @@ async function cerrarVotacion(periodoId) {
     // Verificar permisos primero
     const tienePermisos = esModeradorOOwner();
     if (!tienePermisos) {
-        alert('❌ Solo los moderadores y owners pueden cerrar votaciones.');
+        if (window.showNotification) {
+            window.showNotification("error", "Solo los moderadores y owners pueden cerrar votaciones.");
+        } else {
+            showNotification("error", '❌ Solo los moderadores y owners pueden cerrar votaciones.');
+        }
         return;
     }
     
-    if (!confirm('¿Estás seguro de cerrar la votación?\n\n⚠️ En caso de empate, se elegirá un ganador al azar automáticamente.')) return;
-    
-    try {
-        const username = localStorage.getItem('username');
-        
-        window.showLoader('Cerrando votación...');
-        
-        const res = await fetch(`${window.API_URL}/api/periodo/${periodoId}/cerrar-votacion`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-        });
-        
-        const resultado = await res.json();
-        window.hideLoader();
-        
-        if (res.ok && resultado.success) {
-            const mensaje = resultado.empate ? 
-                `¡Votación cerrada!\n\n🎲 Hubo empate y se eligió al azar:\n"${resultado.ganador.libro.title}"` :
-                `¡Votación cerrada!\n\n🏆 Ganador: "${resultado.ganador.libro.title}"`;
-            
-            alert(mensaje);
-            document.getElementById('modalVotacionActiva')?.remove();
-            actualizarBotonDinamico(true); // Forzar refresh porque cambió el estado
-        } else {
-            alert(`Error: ${resultado.message || 'No se pudo cerrar la votación'}`);
+    // Usar modal de confirmación personalizado
+    window.mostrarConfirmacion(
+        "¿Cerrar la votación?",
+        "Esta acción cerrará la votación y determinará el libro ganador. En caso de empate, se elegirá un ganador al azar automáticamente.",
+        async () => {
+            try {
+                const username = localStorage.getItem('username');
+                
+                window.showLoader('Cerrando votación...');
+                
+                const res = await fetch(`${window.API_URL}/api/periodo/${periodoId}/cerrar-votacion`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                
+                const resultado = await res.json();
+                window.hideLoader();
+                
+                if (res.ok && resultado.success) {
+                    const mensaje = resultado.empate ? 
+                        `¡Votación cerrada! Hubo empate y se eligió al azar: "${resultado.ganador.libro.title}"` :
+                        `¡Votación cerrada! Ganador: "${resultado.ganador.libro.title}"`;
+                    
+                    if (window.showNotification) {
+                        window.showNotification("success", mensaje);
+                    } else {
+                        showNotification("alert",mensaje);
+                    }
+                    
+                    document.getElementById('modalVotacionActiva')?.remove();
+                    actualizarBotonDinamico();
+                } else {
+                    const errorMsg = `Error: ${resultado.message || 'No se pudo cerrar la votación'}`;
+                    if (window.showNotification) {
+                        window.showNotification("error", errorMsg);
+                    } else {
+                        showNotification("error", errorMsg);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error al cerrar votación:', error);
+                window.hideLoader();
+                if (window.showNotification) {
+                    window.showNotification("error", "Error de conexión al cerrar la votación");
+                } else {
+                    showNotification("error", 'Error de conexión');
+                }
+            }
+        },
+        null,
+        {
+            confirmText: "Cerrar Votación",
+            cancelText: "Cancelar",
+            confirmClass: "red-btn",
+            cancelClass: "green-btn"
         }
-        
-    } catch (error) {
-        console.error('Error al cerrar votación:', error);
-        window.hideLoader();
-        alert('Error de conexión');
-    }
+    );
 }
 
 /**
@@ -675,39 +786,70 @@ async function concluirLectura(periodoId) {
     // Verificar permisos primero
     const tienePermisos = esModeradorOOwner();
     if (!tienePermisos) {
-        alert('❌ Solo los moderadores y owners pueden concluir períodos de lectura.');
+        if (window.showNotification) {
+            window.showNotification("error", "Solo los moderadores y owners pueden concluir períodos de lectura.");
+        } else {
+            showNotification("alert",'❌ Solo los moderadores y owners pueden concluir períodos de lectura.');
+        }
         return;
     }
     
-    if (!confirm('¿Estás seguro de concluir este período de lectura?')) return;
-    
-    try {
-        const username = localStorage.getItem('username');
-        
-        window.showLoader('Concluyendo lectura...');
-        
-        const res = await fetch(`${window.API_URL}/api/periodo/${periodoId}/concluir-lectura`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-        });
-        
-        const resultado = await res.json();
-        window.hideLoader();
-        
-        if (res.ok && resultado.success) {
-            alert(`¡Lectura concluida! "${resultado.libroLeido?.title}" marcado como leído.`);
-            document.getElementById('modalLectura')?.remove();
-            actualizarBotonDinamico(true); // Forzar refresh porque cambió el estado
-        } else {
-            alert(`Error: ${resultado.message || 'No se pudo concluir la lectura'}`);
+    // Usar modal de confirmación personalizado
+    window.mostrarConfirmacion(
+        "¿Concluir período de lectura?",
+        "Esta acción marcará el libro como leído y el club volverá al estado inactivo. Los miembros podrán crear una nueva votación.",
+        async () => {
+            try {
+                const username = localStorage.getItem('username');
+                
+                window.showLoader('Concluyendo lectura...');
+                
+                const res = await fetch(`${window.API_URL}/api/periodo/${periodoId}/concluir-lectura`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                
+                const resultado = await res.json();
+                window.hideLoader();
+                
+                if (res.ok && resultado.success) {
+                    const mensaje = `¡Lectura concluida! "${resultado.libroLeido?.title}" marcado como leído.`;
+                    if (window.showNotification) {
+                        window.showNotification("success", mensaje);
+                    } else {
+                        showNotification("success", mensaje);
+                    }
+                    
+                    document.getElementById('modalLectura')?.remove();
+                    actualizarBotonDinamico();
+                } else {
+                    const errorMsg = `Error: ${resultado.message || 'No se pudo concluir la lectura'}`;
+                    if (window.showNotification) {
+                        window.showNotification("error", errorMsg);
+                    } else {
+                        showNotification("error", errorMsg);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error al concluir lectura:', error);
+                window.hideLoader();
+                if (window.showNotification) {
+                    window.showNotification("error", "Error de conexión al concluir la lectura");
+                } else {
+                    showNotification("error", 'Error de conexión');
+                }
+            }
+        },
+        null,
+        {
+            confirmText: "Concluir Lectura",
+            cancelText: "Cancelar",
+            confirmClass: "green-btn",
+            cancelClass: "gray-btn"
         }
-        
-    } catch (error) {
-        console.error('Error al concluir lectura:', error);
-        window.hideLoader();
-        alert('Error de conexión');
-    }
+    );
 }
 
 /**
@@ -777,18 +919,9 @@ function esModeradorOOwner() {
     }
 }
 
-/**
- * Función pública para refrescar el estado del botón manualmente
- */
-function refrescarEstadoVotacion() {
-    console.log("🔄 Refrescando estado de votación manualmente...");
-    return actualizarBotonDinamico(true);
-}
-
 // Exponer funciones globalmente para onclick handlers
 window.votar = votar;
 window.cerrarVotacion = cerrarVotacion;
 window.concluirLectura = concluirLectura;
-window.refrescarEstadoVotacion = refrescarEstadoVotacion;
 
-export { initClubVotingComponent, refrescarEstadoVotacion };
+export { initClubVotingComponent };

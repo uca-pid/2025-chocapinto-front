@@ -9,31 +9,39 @@
     <div class="modal-body">
       <form id="form-crear-votacion">
         
-        <div class="form-group">
+        <div class="form-group-votacion">
           <label for="votacion-nombre">Nombre del Período</label>
-          <input type="text" id="votacion-nombre" name="votacion-nombre" class="form-input" placeholder="Ej: Lectura de Enero 2026" required>
+          <input type="text" id="votacion-nombre" name="votacion-nombre" placeholder="Ej: Lectura de Enero 2026" required>
         </div>
 
         <div class="form-row">
-          <div class="form-group">
+          <div class="form-group-votacion">
             <label for="votacion-fin-votacion">Fecha Límite (Votación)</label>
-            <input type="datetime-local" id="votacion-fin-votacion" name="votacion-fin-votacion" class="form-input" required>
+            <input type="datetime-local" id="votacion-fin-votacion" name="votacion-fin-votacion" required>
           </div>
-          <div class="form-group">
+          <div class="form-group-votacion">
             <label for="votacion-fin-lectura">Fecha Límite (Lectura)</label>
-            <input type="datetime-local" id="votacion-fin-lectura" name="votacion-fin-lectura" class="form-input" required>
+            <input type="datetime-local" id="votacion-fin-lectura" name="votacion-fin-lectura" required>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Libros para Votar (de tu lista "Por Leer")</label>
-          <div id="votacion-lista-libros" class="book-list-container">
+        <div class="libros-section">
+          <h4>Selecciona los libros para la votación</h4>
+          <div id="votacion-lista-libros">
             <div class="loader-simple">Cargando libros...</div>
           </div>
         </div>
         
-        <div class="modal-footer">
-          <button type="submit" class="btn-submit">Iniciar Votación</button>
+        <div class="form-actions">
+          <button type="button" class="btn-crear-votacion-cancel" onclick="cerrarModalCrearVotacion()">Cancelar</button>
+          <button type="submit" class="btn-crear-votacion-submit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
+              <polyline points="9,11 12,8 15,11"/>
+              <line x1="12" y1="8" x2="12" y2="21"/>
+            </svg>
+            Iniciar Votación
+          </button>
         </div>
         
       </form>

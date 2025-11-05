@@ -13,7 +13,7 @@ async function renderClub() {
         const data = await res.json();
         console.log("Datos del club recibidos:", data);
         if (!res.ok || !data.success) {
-            console.log("Error en la respuesta:", data.message);
+            
             mostrarClubNoEncontrado(data.message || "No existe el club.");
             return;
         }
@@ -351,7 +351,7 @@ function mostrarBotonesAccion(club) {
     // Mostrar/ocultar botón de eliminar club (solo owner)
     if (eliminarBtnHeader) {
         eliminarBtnHeader.style.display = canDelete ? "inline-flex" : "none";
-        console.log(`🔧 Botón eliminar: ${canDelete ? 'mostrado (OWNER)' : 'oculto'}`);
+        
     }
     
     // Mostrar/ocultar botón de salir del club (moderadores y lectores pueden salir)

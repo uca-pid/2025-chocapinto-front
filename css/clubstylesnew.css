@@ -1042,6 +1042,252 @@ main {
   font-style: italic;
 }
 
+/* ===== MODAL DE LECTURA ESTÉTICO ===== */
+
+/* Modal de lectura con diseño mejorado */
+.modal-lectura {
+  max-width: 600px !important;
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Header del modal de lectura */
+.modal-header-lectura {
+  background: linear-gradient(135deg, #2c5aa0, #5fa8e9);
+  color: white;
+  padding: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  position: relative;
+}
+
+.modal-header-lectura .header-icon {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--space-3);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-header-lectura .header-content h2 {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.period-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-top: var(--space-1);
+  display: inline-block;
+}
+
+.modal-close-btn-lectura {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+}
+
+.modal-close-btn-lectura:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Body del modal de lectura */
+.modal-body-lectura {
+  padding: var(--space-6);
+  background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+}
+
+/* Card del libro */
+.libro-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  border: 1px solid #e2e8f0;
+}
+
+.libro-cover {
+  flex-shrink: 0;
+  width: 120px;
+  height: 180px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.2);
+}
+
+.libro-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder-cover {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #eaf6ff, #c3dafe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2c5aa0;
+}
+
+.libro-info {
+  flex: 1;
+}
+
+.libro-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-2) 0;
+  line-height: 1.3;
+}
+
+.libro-author {
+  font-size: var(--text-base);
+  color: #64748b;
+  margin: 0 0 var(--space-4) 0;
+  font-style: italic;
+}
+
+/* Progreso de lectura */
+.reading-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.progress-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  border-left: 4px solid #5fa8e9;
+}
+
+.progress-item .label {
+  font-size: var(--text-sm);
+  color: #64748b;
+  font-weight: 500;
+}
+
+.progress-item .value {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.progress-item .value.active {
+  color: #059669;
+}
+
+.progress-item .value.warning {
+  color: #dc2626;
+}
+
+/* Sección de administrador */
+.admin-section {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border: 2px solid #fef3c7;
+  box-shadow: 0 4px 12px -2px rgba(245, 158, 11, 0.1);
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: #92400e;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.btn-concluir-lectura {
+  width: 100%;
+  background: linear-gradient(135deg, #059669, #10b981);
+  color: white;
+  border: none;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.btn-concluir-lectura:hover {
+  background: linear-gradient(135deg, #047857, #059669);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+}
+
+.admin-note {
+  font-size: var(--text-xs);
+  color: #92400e;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive para modal de lectura */
+@media (max-width: 768px) {
+  .modal-lectura {
+    max-width: 95% !important;
+    margin: var(--space-4);
+  }
+  
+  .modal-header-lectura {
+    padding: var(--space-4);
+  }
+  
+  .modal-body-lectura {
+    padding: var(--space-4);
+  }
+  
+  .libro-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .libro-cover {
+    width: 150px;
+    height: 225px;
+    margin: 0 auto;
+  }
+  
+  .progress-item {
+    flex-direction: column;
+    gap: var(--space-1);
+    text-align: center;
+  }
+}
+
 /* Responsive para modales de votación */
 @media (max-width: 768px) {
   .opcion-btn {
@@ -5259,7 +5505,7 @@ main {
 
 .modal-header h3 {
   margin: 0;
-  color: var(--primary-blue);
+  color: white;
   font-size: 1.25rem;
   font-weight: 700;
 }
@@ -5433,5 +5679,447 @@ main {
   .modal-header,
   .modal-body {
     padding: 16px;
+  }
+}
+
+/* ==================== MODAL CREAR VOTACIÓN STYLES ==================== */
+#modalCrearVotacion {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+#modalCrearVotacion .modal-content {
+  background: linear-gradient(135deg, var(--white) 0%, var(--stat-blue-light) 100%);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 600px;
+  max-height: 85vh;
+  overflow: hidden;
+  transform: scale(0.9);
+  animation: modalSlideIn 0.3s ease-out forwards;
+  border: 1px solid rgba(74, 144, 226, 0.2);
+}
+
+@keyframes modalSlideIn {
+  to {
+    transform: scale(1);
+  }
+}
+
+#modalCrearVotacion .modal-header {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--white);
+  padding: 24px;
+  border-radius: 16px 16px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+#modalCrearVotacion .modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="20" fill="url(%23dots)"/></svg>');
+  opacity: 0.3;
+}
+
+#modalCrearVotacion .modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+#modalCrearVotacion .modal-header h3::before {
+  content: '🗳️';
+  font-size: 1.8rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#modal-crear-votacion-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: var(--white);
+  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+#modal-crear-votacion-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+#modalCrearVotacion .modal-body {
+  padding: 32px 24px;
+  background: var(--white);
+  overflow-y: auto;
+  max-height: calc(85vh - 100px);
+}
+
+/* Form Styles */
+#form-crear-votacion {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group-votacion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group-votacion label {
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group-votacion label::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: linear-gradient(to bottom, var(--primary-blue), var(--primary-blue-dark));
+  border-radius: 2px;
+}
+
+.form-group-votacion input[type="text"],
+.form-group-votacion input[type="datetime-local"] {
+  padding: 12px 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: var(--white);
+}
+
+.form-group-votacion input[type="text"]:focus,
+.form-group-votacion input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Form Row Layout */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Book List Styles */
+.libros-section {
+  margin-top: 8px;
+}
+
+.libros-section h4 {
+  color: var(--gray-700);
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.libros-section h4::before {
+  content: '📚';
+  font-size: 1.2rem;
+}
+
+#votacion-lista-libros {
+  border: 2px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
+  min-height: 120px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.book-checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--white);
+  border: 2px solid var(--gray-100);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.book-checkbox-item:hover {
+  border-color: var(--primary-blue);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
+  transform: translateY(-1px);
+}
+
+.book-checkbox-item:last-child {
+  margin-bottom: 0;
+}
+
+.book-checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary-blue);
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.book-checkbox-item label {
+  cursor: pointer;
+  flex: 1;
+  margin: 0;
+}
+
+.book-checkbox-item .book-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.book-checkbox-item .book-info strong {
+  color: var(--gray-800);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.book-checkbox-item .book-info small {
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.book-checkbox-item input[type="checkbox"]:checked + label {
+  .book-info strong {
+    color: var(--primary-blue);
+  }
+}
+
+.book-checkbox-item input[type="checkbox"]:checked {
+  transform: scale(1.1);
+}
+
+/* Book Cover Styles */
+.book-cover {
+  width: 50px;
+  height: 70px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+}
+
+.book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.book-cover .placeholder-cover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+  color: var(--gray-400);
+}
+
+.book-checkbox-item:hover .book-cover img {
+  transform: scale(1.05);
+}
+
+.book-checkbox-item .book-author {
+  color: var(--gray-500) !important;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Empty and Error States */
+.empty-text {
+  text-align: center;
+  color: var(--gray-500);
+  font-style: italic;
+  padding: 32px 16px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border: 2px dashed var(--gray-300);
+}
+
+.error-text {
+  text-align: center;
+  color: var(--red-500);
+  padding: 32px 16px;
+  background: #fef2f2;
+  border-radius: 8px;
+  border: 2px dashed #fecaca;
+  font-weight: 500;
+}
+
+.loader-simple {
+  text-align: center;
+  color: var(--primary-blue);
+  padding: 32px 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.loader-simple::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--gray-200);
+  border-top: 2px solid var(--primary-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.btn-crear-votacion-submit {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--white);
+  border: none;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 140px;
+  justify-content: center;
+}
+
+.btn-crear-votacion-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(74, 144, 226, 0.3);
+}
+
+.btn-crear-votacion-submit:active {
+  transform: translateY(0);
+}
+
+.btn-crear-votacion-cancel {
+  background: transparent;
+  color: var(--gray-600);
+  border: 2px solid var(--gray-300);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-crear-votacion-cancel:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #modalCrearVotacion .modal-content {
+    width: 95%;
+    max-height: 90vh;
+    margin: 20px;
+  }
+  
+  #modalCrearVotacion .modal-header {
+    padding: 20px;
+  }
+  
+  #modalCrearVotacion .modal-body {
+    padding: 24px 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-crear-votacion-submit,
+  .btn-crear-votacion-cancel {
+    width: 100%;
+  }
+  
+  .book-checkbox-item {
+    padding: 12px;
+  }
+  
+  #votacion-lista-libros {
+    max-height: 200px;
   }
 }
