@@ -320,7 +320,8 @@ function initBotonDinamico() {
     actualizarBotonDinamico();
     
     // Actualizar cada 30 segundos para cambios en tiempo real
-    setInterval(actualizarBotonDinamico, 30000);
+    // Usar intervalo más frecuente para verificaciones automáticas
+    setInterval(actualizarBotonDinamico, 15000); // 15 segundos para detectar vencimientos más rápido
 }
 
 /**
@@ -336,7 +337,10 @@ async function actualizarBotonDinamico() {
         
         console.log(`🔍 Obteniendo estado actual del club ${clubId}...`);
         
-        // Llamar al endpoint de estado actual
+        // Guardar estado anterior para detectar cambios automáticos
+        const estadoAnterior = window.ultimoEstadoClub || null;
+        
+        // Llamar al endpoint de estado actual (que ahora verifica vencimientos automáticamente)
         const url = `${window.API_URL}/api/club/${clubId}/estado-actual`;
         console.log(`🌐 Consultando: ${url}`);
         
@@ -358,6 +362,17 @@ async function actualizarBotonDinamico() {
             if (data.periodo) {
                 console.log(`📋 Período activo: ${data.periodo.nombre} (ID: ${data.periodo.id})`);
             }
+            
+            // Detectar cambios automáticos de estado
+            detectarCambiosAutomaticos(estadoAnterior, data);
+            
+            // Guardar estado actual para próxima comparación
+            window.ultimoEstadoClub = {
+                estado: data.estado,
+                periodoId: data.periodo?.id || null,
+                timestamp: new Date()
+            };
+            
             actualizarBotonSegunEstado(data.estado, data.periodo);
         } else {
             console.error("❌ Respuesta de error:", data);
@@ -1037,6 +1052,65 @@ function esModeradorOOwner() {
     } catch (error) {
         console.error("❌ Error verificando permisos:", error);
         return false;
+    }
+}
+
+/**
+ * Detecta y notifica cambios automáticos de estado
+ */
+function detectarCambiosAutomaticos(estadoAnterior, estadoActual) {
+    if (!estadoAnterior) return; // Primera carga, no hay comparación
+    
+    const estadoAnteriorTipo = estadoAnterior.estado;
+    const estadoActualTipo = estadoActual.estado;
+    
+    // Detectar cierre automático de votación
+    if (estadoAnteriorTipo === 'VOTACION' && estadoActualTipo === 'LEYENDO') {
+        const libroGanador = estadoActual.periodo?.libroGanador?.book?.title || 'libro seleccionado';
+        mostrarNotificacionCierreAutomatico(
+            '🗳️ Votación cerrada automáticamente',
+            `El tiempo de votación expiró. Comenzando lectura de "${libroGanador}"`
+        );
+    }
+    
+    // Detectar conclusión automática de lectura
+    else if (estadoAnteriorTipo === 'LEYENDO' && estadoActualTipo === 'INACTIVO') {
+        mostrarNotificacionCierreAutomatico(
+            '📚 Lectura concluida automáticamente', 
+            `El período de lectura ha finalizado. El club está listo para una nueva votación.`
+        );
+    }
+    
+    // Detectar votación cerrada sin ganador
+    else if (estadoAnteriorTipo === 'VOTACION' && estadoActualTipo === 'INACTIVO') {
+        mostrarNotificacionCierreAutomatico(
+            '⚠️ Votación cerrada sin votos',
+            'El tiempo de votación expiró sin recibir votos. Inicia una nueva votación.'
+        );
+    }
+}
+
+/**
+ * Muestra notificación especial para cierres automáticos
+ */
+function mostrarNotificacionCierreAutomatico(titulo, mensaje) {
+    console.log(`🤖 ${titulo}: ${mensaje}`);
+    
+    // Usar el sistema de notificaciones existente
+    if (window.showNotification) {
+        window.showNotification("info", `${titulo}\n${mensaje}`);
+    } else if (typeof showNotification !== 'undefined') {
+        showNotification("info", `${titulo}\n${mensaje}`);
+    } else {
+        // Fallback a alert si no hay sistema de notificaciones
+        alert(`${titulo}\n\n${mensaje}`);
+    }
+    
+    // También actualizar cualquier widget de progreso que pueda estar afectado
+    if (window.cargarProgresoLectura) {
+        setTimeout(() => {
+            window.cargarProgresoLectura();
+        }, 1000); // Esperar un segundo para que se actualice la BD
     }
 }
 
