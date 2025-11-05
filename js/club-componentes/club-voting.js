@@ -63,6 +63,18 @@ export function initCrearVotacionModal() {
 function abrirModalCrearVotacion() {
   console.log("Abriendo modal para crear votación...");
   
+  // Verificar permisos antes de abrir el modal
+  const tienePermisos = esModeradorOOwner();
+  if (!tienePermisos) {
+    console.log("🚫 Usuario sin permisos de moderador/owner - Acceso denegado al modal");
+    if (window.showNotification) {
+      window.showNotification("error", "Solo los moderadores y owners pueden crear votaciones.");
+    } else {
+      showNotification("error", "Solo los moderadores y owners pueden crear votaciones.");
+    }
+    return;
+  }
+  
   const modal = document.getElementById('modalCrearVotacion');
   const form = document.getElementById('form-crear-votacion');
   const bookListContainer = document.getElementById('votacion-lista-libros');
@@ -398,6 +410,18 @@ function actualizarBotonSegunEstado(estado, periodo) {
 function configurarBotonInactivo(boton) {
     console.log("🔘 Configurando botón para estado INACTIVO");
     
+    // Verificar permisos de moderador/owner
+    const tienePermisos = esModeradorOOwner();
+    
+    if (!tienePermisos) {
+        // Si no tiene permisos, ocultar el botón completamente
+        console.log("🚫 Usuario sin permisos de moderador/owner - Ocultando botón");
+        boton.style.display = 'none';
+        return;
+    }
+    
+    // Si tiene permisos, mostrar el botón normalmente
+    boton.style.display = 'flex';
     boton.innerHTML = `
         <div class="action-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -500,41 +524,138 @@ function crearModalVotacionActiva(periodo) {
     modal.className = 'modal-backdrop';
     modal.style.display = 'flex';
     
+    const fechaFinalizacion = new Date(periodo.fechaFinVotacion);
+    const ahora = new Date();
+    const tiempoRestante = Math.max(0, Math.ceil((fechaFinalizacion - ahora) / (1000 * 60 * 60 * 24)));
+    
     modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🗳️ Votación Activa: ${periodo.nombre}</h3>
-                <button class="modal-close-btn" onclick="this.closest('.modal-backdrop').remove()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="votacion-info">
-                    <p><strong>Total de votos:</strong> ${periodo.totalVotosEmitidos || 0}</p>
-                    <p><strong>Finaliza:</strong> ${new Date(periodo.fechaFinVotacion).toLocaleString()}</p>
+        <div class="modal-content modal-votacion-activa">
+            <div class="modal-header-votacion">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c.552 0 1-.448 1-1V8c0-.552-.448-1-1-1h-1V6c0-2.761-2.239-5-5-5H8C5.239 1 3 3.239 3 6v1H2c-.552 0-1 .448-1 1v3c0 .552.448 1 1 1h1v1c0 2.761 2.239 5 5 5h8c2.761 0 5-2.239 5-5v-1z"/>
+                    </svg>
                 </div>
-                
-                <div class="votacion-actions">
-                    ${tienePermisos ? `
-                        <button class="btn-cerrar-votacion" onclick="cerrarVotacion(${periodo.id})">
-                            🔒 Cerrar Votación
-                        </button>
-                    ` : ''}
-                    <small class="empate-info">⚠️ En caso de empate, se elegirá un ganador al azar</small>
+                <div class="header-content">
+                    <h2>Votación en Progreso</h2>
+                    <span class="period-badge">${periodo.nombre}</span>
+                </div>
+                <button class="modal-close-btn-votacion" onclick="this.closest('.modal-backdrop').remove()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="modal-body-votacion">
+                <div class="votacion-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">${periodo.totalVotosEmitidos || 0}</span>
+                            <span class="stat-label">Votos Emitidos</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number ${tiempoRestante <= 1 ? 'warning' : ''}">${tiempoRestante}</span>
+                            <span class="stat-label">${tiempoRestante === 1 ? 'Día restante' : 'Días restantes'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number">${periodo.opciones.length}</span>
+                            <span class="stat-label">Opciones</span>
+                        </div>
+                    </div>
                 </div>
 
-                <h4>Opciones disponibles:</h4>
-                <div class="opciones-votacion" id="opcionesVotacion">
-                    ${periodo.opciones.map(opcion => `
-                        <div class="opcion-item">
-                            <button class="opcion-btn" onclick="votar(${opcion.id}, '${opcion.clubBook.book.title}')">
-                                <div class="opcion-info">
-                                    <strong>${opcion.clubBook.book.title}</strong>
-                                    <small>${opcion.clubBook.book.author || 'Autor desconocido'}</small>
+                <div class="votacion-opciones-container">
+                    <h3>Opciones de Votación</h3>
+                    <div class="opciones-votacion-grid">
+                        ${periodo.opciones.map(opcion => `
+                            <div class="opcion-card">
+                                <div class="opcion-portada">
+                                    ${opcion.clubBook.book.portada ? `
+                                        <img src="${opcion.clubBook.book.portada}" alt="Portada de ${opcion.clubBook.book.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="placeholder-portada" style="display: none;">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                            </svg>
+                                        </div>
+                                    ` : `
+                                        <div class="placeholder-portada">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                            </svg>
+                                        </div>
+                                    `}
                                 </div>
-                                <div class="votos-count">${opcion.totalVotos || 0} votos</div>
-                            </button>
-                        </div>
-                    `).join('')}
+                                <div class="opcion-content">
+                                    <h4>${opcion.clubBook.book.title}</h4>
+                                    <p class="opcion-autor">${opcion.clubBook.book.author || 'Autor desconocido'}</p>
+                                    <div class="votos-info">
+                                        <span class="votos-numero">${opcion.totalVotos || 0}</span>
+                                        <span class="votos-texto">${(opcion.totalVotos || 0) === 1 ? 'voto' : 'votos'}</span>
+                                    </div>
+                                    <button class="btn-votar" onclick="votar(${opcion.id}, '${opcion.clubBook.book.title.replace(/'/g, "\\'")}')">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M9 12l2 2 4-4"/>
+                                        </svg>
+                                        Votar por este libro
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
+
+                ${tienePermisos ? `
+                    <div class="admin-section-votacion">
+                        <div class="admin-header">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <circle cx="12" cy="16" r="1"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            <span>Acciones de Moderador</span>
+                        </div>
+                        <button class="btn-cerrar-votacion-admin" onclick="cerrarVotacion(${periodo.id})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="10" rx="2" ry="2"/>
+                                <circle cx="12" cy="16" r="1"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            Cerrar Votación
+                        </button>
+                        <p class="admin-note">⚠️ En caso de empate, se elegirá un ganador automáticamente al azar.</p>
+                    </div>
+                ` : ''}
             </div>
         </div>
     `;
