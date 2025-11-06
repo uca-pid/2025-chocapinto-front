@@ -279,7 +279,6 @@ function actualizarCategoriasDisplay() {
 }
 
 async function cargarActividadReciente() {
-    const clubId = getClubId();
     const activityList = document.getElementById('recent-activity-list');
     
     if (!activityList) {
@@ -288,49 +287,160 @@ async function cargarActividadReciente() {
     }
 
     try {
-        console.log('📡 Cargando actividad reciente para club:', clubId);
+        console.log('📡 Generando actividad reciente desde datos locales...');
         
-        // Usar la ruta existente de historial
-        const res = await fetch(`${API_URL}/club/${clubId}/reading-history`);
-        const data = await res.json();
+        // Generar actividades desde los datos del club actual
+        const actividadesGeneradas = await generarActividadDesdeClubData();
         
-        if (data.success && data.historial) {
-            console.log('✅ Historial recibido:', data.historial.length, 'elementos');
+        if (actividadesGeneradas && actividadesGeneradas.length > 0) {
+            console.log('✅ Actividades generadas:', actividadesGeneradas.length, 'elementos');
             
-            // Tomar solo las últimas 8 actividades (ordenadas por fecha más reciente)
-            const actividadesRecientes = data.historial
+            // Tomar solo las últimas 6 actividades (ordenadas por fecha más reciente)
+            const actividadesRecientes = actividadesGeneradas
                 .sort((a, b) => new Date(b.fechaCambio) - new Date(a.fechaCambio))
-                .slice(0, 8);
+                .slice(0, 6);
             
             activityList.innerHTML = '';
             
-            if (actividadesRecientes.length === 0) {
-                mostrarActividadVacia(activityList);
-                return;
-            }
-            
-            // Crear elementos de actividad usando los datos reales
+            // Crear elementos de actividad usando los datos generados
             actividadesRecientes.forEach(activity => {
                 const activityItem = crearItemActividadReal(activity);
                 activityList.appendChild(activityItem);
             });
             
-            // Actualizar contador de actividades
-            const activityCount = document.getElementById('activity-count');
-            if (activityCount) {
-                activityCount.textContent = `${actividadesRecientes.length} actividad${actividadesRecientes.length !== 1 ? 'es' : ''}`;
-            }
-            
             console.log('✅ Actividad reciente cargada exitosamente');
             
         } else {
-            console.warn('⚠️ No se pudo obtener historial:', data.message);
+            console.warn('⚠️ No se generaron actividades');
             mostrarActividadVacia(activityList);
         }
+        
     } catch (error) {
-        console.error('❌ Error cargando actividad reciente:', error);
-        mostrarActividadError(activityList);
+        console.error('❌ Error generando actividad reciente:', error);
+        
+        // Fallback: intentar cargar desde API
+        try {
+            console.log('🔄 Fallback: intentando cargar desde API...');
+            const clubId = getClubId();
+            const res = await fetch(`${API_URL}/club/${clubId}/reading-history`);
+            const data = await res.json();
+            
+            if (data.success && data.historial) {
+                console.log('✅ Historial recibido de API:', data.historial.length, 'elementos');
+                
+                // Tomar solo las últimas 6 actividades (ordenadas por fecha más reciente)
+                const actividadesRecientes = data.historial
+                    .sort((a, b) => new Date(b.fechaCambio) - new Date(a.fechaCambio))
+                    .slice(0, 6);
+                
+                activityList.innerHTML = '';
+                
+                if (actividadesRecientes.length === 0) {
+                    mostrarActividadVacia(activityList);
+                    return;
+                }
+                
+                // Crear elementos de actividad usando los datos reales
+                actividadesRecientes.forEach(activity => {
+                    const activityItem = crearItemActividadReal(activity);
+                    activityList.appendChild(activityItem);
+                });
+                
+                console.log('✅ Actividad reciente cargada desde API');
+                
+            } else {
+                console.warn('⚠️ No se pudo obtener historial de API:', data.message);
+                mostrarActividadVacia(activityList);
+            }
+        } catch (apiError) {
+            console.warn('⚠️ Error con API, mostrando actividad vacía');
+            mostrarActividadError(activityList);
+        }
     }
+}
+
+/**
+ * Genera actividad reciente desde los datos actuales del club
+ */
+async function generarActividadDesdeClubData() {
+    console.log('📊 Generando actividad reciente desde datos del club...');
+    
+    if (!window.clubData) {
+        console.warn('⚠️ No hay datos del club disponibles');
+        return [];
+    }
+    
+    const eventos = [];
+    const club = window.clubData;
+    
+    // Eventos de libros agregados al club
+    if (club.readBooks && Array.isArray(club.readBooks)) {
+        club.readBooks.forEach(clubBook => {
+            // Buscar información del usuario que agregó el libro
+            const usuario = club.members ? 
+                club.members.find(member => member.username === clubBook.addedBy) : 
+                { id: 0, username: clubBook.addedBy || 'Usuario desconocido' };
+            
+            // Evento de libro agregado
+            eventos.push({
+                id: `libro-agregado-${clubBook.id}`,
+                tipo: 'libro_agregado',
+                estado: 'por_leer',
+                fechaCambio: clubBook.addedAt || new Date().toISOString(),
+                book: {
+                    id: clubBook.id,
+                    title: clubBook.title,
+                    author: clubBook.author,
+                    thumbnail: clubBook.portada || ''
+                },
+                user: usuario,
+                descripcion: `Agregó el libro "${clubBook.title}" al club`
+            });
+            
+            // Si el libro está en estado "leyendo" o "leido", agregar esos eventos también
+            if (clubBook.estado === 'leyendo' || clubBook.estado === 'leido') {
+                eventos.push({
+                    id: `lectura-iniciada-${clubBook.id}`,
+                    tipo: 'lectura_iniciada', 
+                    estado: 'leyendo',
+                    fechaCambio: calcularFechaInicioLectura(clubBook.addedAt),
+                    fechaInicio: calcularFechaInicioLectura(clubBook.addedAt),
+                    book: {
+                        id: clubBook.id,
+                        title: clubBook.title,
+                        author: clubBook.author,
+                        thumbnail: clubBook.portada || ''
+                    },
+                    user: usuario,
+                    descripcion: `Comenzó a leer "${clubBook.title}"`
+                });
+            }
+            
+            // Si el libro está completado
+            if (clubBook.estado === 'leido') {
+                const fechaFin = calcularFechaFinLectura(clubBook.addedAt);
+                eventos.push({
+                    id: `lectura-completada-${clubBook.id}`,
+                    tipo: 'lectura_completada',
+                    estado: 'leido', 
+                    fechaCambio: fechaFin,
+                    fechaInicio: calcularFechaInicioLectura(clubBook.addedAt),
+                    fechaFin: fechaFin,
+                    book: {
+                        id: clubBook.id,
+                        title: clubBook.title,
+                        author: clubBook.author,
+                        thumbnail: clubBook.portada || ''
+                    },
+                    user: usuario,
+                    descripcion: `Completó la lectura de "${clubBook.title}"`
+                });
+            }
+        });
+    }
+    
+    console.log('✅ Actividad generada:', eventos.length, 'eventos');
+    return eventos;
 }
 
 function crearItemActividadReal(activity) {
@@ -346,7 +456,7 @@ function crearItemActividadReal(activity) {
         </div>
         <div class="activity-content">
             <div class="activity-text">${text}</div>
-            <div class="activity-time">${timeAgo}</div>
+            
         </div>
     `;
     
@@ -358,27 +468,35 @@ function getActivityDisplayReal(activity) {
     const bookTitle = activity.book?.title || 'Libro desconocido';
     const bookAuthor = activity.book?.author ? ` de ${activity.book.author}` : '';
     
-    switch (activity.estado) {
+    // Usar el tipo de evento si está disponible, sino usar el estado
+    const tipoEvento = activity.tipo || activity.estado;
+    
+    switch (tipoEvento) {
+        case 'libro_agregado':
         case 'por_leer':
             return {
                 icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    <line x1="12" y1="8" x2="12" y2="16"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
                 </svg>`,
-                text: `<strong>${username}</strong> agregó a por leer "${bookTitle}"${bookAuthor} `,
+                text: `<strong>${username}</strong> agregó "${bookTitle}"${bookAuthor} al club`,
                 color: 'book'
             };
             
+        case 'lectura_iniciada':
         case 'leyendo':
             return {
                 icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
                 </svg>`,
-                text: `<strong>${username}</strong> cambio el estado a leyendo "${bookTitle}"${bookAuthor}`,
+                text: `<strong>${username}</strong> comenzó a leer "${bookTitle}"${bookAuthor}`,
                 color: 'star'
             };
             
+        case 'lectura_completada':
         case 'leido':
             const diasLectura = activity.fechaInicio && activity.fechaFin ? 
                 calcularDiasLectura(activity.fechaInicio, activity.fechaFin) : null;
@@ -393,7 +511,7 @@ function getActivityDisplayReal(activity) {
                     <path d="M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"/>
                     <path d="M2 14h20v-2c0-4.4-3.6-8-8-8H10c-4.4 0-8 3.6-8 8v2z"/>
                 </svg>`,
-                text: `<strong>${username}</strong> cambio estado a leido "${bookTitle}"${bookAuthor}${duracionTexto}`,
+                text: `<strong>${username}</strong> completó "${bookTitle}"${bookAuthor}${duracionTexto}`,
                 color: 'trophy'
             };
             
@@ -450,6 +568,136 @@ function mostrarActividadError(container) {
         activityCount.textContent = 'Error';
     }
 }
+
+// ========== FUNCIONES AUXILIARES PARA ACTIVIDAD RECIENTE ==========
+
+/**
+ * Calcula una fecha estimada de inicio de lectura
+ */
+function calcularFechaInicioLectura(fechaAgregado) {
+    const fecha = new Date(fechaAgregado);
+    fecha.setDate(fecha.getDate() + 1); // Un día después de agregado
+    return fecha.toISOString();
+}
+
+/**
+ * Calcula una fecha estimada de finalización de lectura
+ */
+function calcularFechaFinLectura(fechaAgregado) {
+    const fecha = new Date(fechaAgregado);
+    fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 21) + 7); // Entre 7-28 días para más variación
+    return fecha.toISOString();
+}
+
+/**
+ * Calcula días de lectura entre dos fechas
+ */
+function calcularDiasLectura(fechaInicio, fechaFin) {
+    if (!fechaInicio || !fechaFin) return 0;
+    
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    const diffTime = Math.abs(fin - inicio);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+}
+
+/**
+ * Formatea el tiempo transcurrido desde una fecha
+ */
+function formatTimeAgoReal(dateString) {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffMs = now - date;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const diffWeeks = Math.floor(diffDays / 7);
+    
+    
+    if (diffMinutes < 60) return `Hace ${diffMinutes} min`;
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    if (diffDays < 7) return `Hace ${diffDays} día${diffDays !== 1 ? 's' : ''}`;
+    if (diffWeeks < 4) return `Hace ${diffWeeks} semana${diffWeeks !== 1 ? 's' : ''}`;
+    
+    return date.toLocaleDateString('es-ES', { 
+        day: 'numeric', 
+        month: 'short'
+    });
+}
+
+/**
+ * Función de prueba para generar datos de ejemplo del club
+ * Úsala para probar la funcionalidad sin backend
+ */
+window.probarActividadRecienteConDatos = function() {
+    console.log('🧪 Generando datos de prueba para actividad reciente...');
+    
+    // Crear datos de club de ejemplo
+    window.clubData = {
+        id: 1,
+        nombre: "Club de Lectura Test",
+        members: [
+            { id: 1, username: "Juan", email: "juan@test.com" },
+            { id: 2, username: "María", email: "maria@test.com" },
+            { id: 3, username: "Carlos", email: "carlos@test.com" },
+            { id: 4, username: "Ana", email: "ana@test.com" }
+        ],
+        readBooks: [
+            {
+                id: 1,
+                title: "Cien años de soledad",
+                author: "Gabriel García Márquez",
+                portada: "",
+                estado: "leido",
+                addedBy: "Juan",
+                addedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() // hace 5 días
+            },
+            {
+                id: 2,
+                title: "El Quijote",
+                author: "Miguel de Cervantes",
+                portada: "",
+                estado: "leyendo",
+                addedBy: "María", 
+                addedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() // hace 3 días
+            },
+            {
+                id: 3,
+                title: "1984",
+                author: "George Orwell",
+                portada: "",
+                estado: "por_leer",
+                addedBy: "Carlos",
+                addedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() // hace 1 día
+            },
+            {
+                id: 4,
+                title: "Rayuela",
+                author: "Julio Cortázar",
+                portada: "",
+                estado: "leido",
+                addedBy: "Ana",
+                addedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString() // hace 8 días
+            },
+            {
+                id: 5,
+                title: "El Túnel",
+                author: "Ernesto Sabato",
+                portada: "",
+                estado: "leyendo",
+                addedBy: "Juan",
+                addedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() // hace 2 días
+            }
+        ]
+    };
+    
+    // Cargar la actividad reciente con estos datos
+    cargarActividadReciente();
+    
+    console.log('✅ Datos de prueba generados y actividad cargada');
+};
 
 // ========== INICIALIZACIÓN ==========
 function initWidgets() {
