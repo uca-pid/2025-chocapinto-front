@@ -81,6 +81,70 @@ function crearMensajeMisClubesVacio() {
     return emptyState;
 }
 
+// ========== LÓGICA DEL RANKING GLOBAL (NUEVO CÓDIGO) ==========
+
+/**
+ * Función auxiliar para generar el HTML de una tarjeta de ranking.
+ * @param {Object} user - Objeto con los datos del usuario (puesto, username, clubsCount, avatarURL).
+ */
+function createRankingItemHTML(user) {
+    return `
+        <div class="ranking-item">
+            <span class="ranking-puesto">${user.puesto}</span>
+            <img src="${user.avatarURL}" alt="Avatar de ${user.username}" class="ranking-avatar">
+            <div class="ranking-info">
+                <h4>${user.username}</h4>
+                <p>Clubes unidos:</p>
+            </div>
+            <span class="ranking-metrica">${user.clubsCount}</span>
+        </div>
+    `;
+}
+
+/**
+ * Función principal para cargar los datos del ranking global y renderizarlos.
+ */
+async function loadRanking() {
+    console.log("DEBUG: Iniciando carga de ranking...");
+    const rankingGrid = document.getElementById('rankingGrid');
+    // Asumimos que la ruta configurada es /api/global/ranking
+   
+    const endpoint = `${API_URL}/api/global/ranking`;
+
+    if (!rankingGrid) {
+        // console.warn("DEBUG: Elemento #rankingGrid no encontrado.");
+        return;
+    }
+
+    try {
+        const response = await fetch(endpoint);
+
+        if (!response.ok) {
+            console.error(`Fallo en la carga del ranking: Error ${response.status}`);
+            rankingGrid.innerHTML = `<p style="text-align:center; color:red; padding:15px;">Error al cargar el ranking.</p>`;
+            return;
+        }
+        
+        const data = await response.json();
+        const topReaders = data.ranking; 
+
+        if (!topReaders || topReaders.length === 0) {
+            rankingGrid.innerHTML = '<p style="text-align:center; color:#888; padding:15px;">Aún no hay usuarios suficientes para el Top 3.</p>';
+            return;
+        }
+
+        let rankingHTML = topReaders.map(createRankingItemHTML).join('');
+        rankingGrid.innerHTML = rankingHTML;
+        console.log("DEBUG: Ranking cargado con éxito.");
+
+    } catch (error) {
+        console.error('Fallo grave en la conexión o procesamiento del ranking:', error);
+        rankingGrid.innerHTML = '<p style="text-align:center; color:red; padding:15px;">No se pudo conectar con el servidor de ranking.</p>';
+    }
+}
+// ========== FIN LÓGICA DEL RANKING GLOBAL ==========
+
+
 // ========== FUNCIONES DE CARGA DE DATOS ==========
 
 /**
@@ -150,8 +214,6 @@ async function cargarClubes() {
             // Reutilizar la función de creación del mensaje
             misClubesGrid.appendChild(crearMensajeMisClubesVacio());
         } 
-        // Nota: Las propiedades display/overflowX se manejan mejor desde CSS puro con la pseudoclase :has(), 
-        // pero se mantiene la lógica JS si es necesaria.
         
     } catch (error) {
         console.error("Error al cargar clubes:", error);
@@ -298,7 +360,7 @@ function inicializarAplicacion() {
         }
     }
 
-    // 3) Solo cargamos los datos "de la home" si los contenedores existen
+    // 3) Cargar datos principales
     const misClubesGrid = document.querySelector(".mis-clubes-grid");
     const clubesGrid = document.getElementById("clubesGrid");
 
@@ -306,9 +368,11 @@ function inicializarAplicacion() {
         cargarClubes();
     }
 
-    // Libros recomendados (tu función ya chequea contenedor)
+    // 4) Cargar el ranking global (NUEVO)
+    loadRanking();
+    
+    // 5) Cargar libros y configurar UI
     cargarLibrosRecomendados();
-
     configurarDropdownPerfil();
     configurarBusquedaTiempoReal();
 }

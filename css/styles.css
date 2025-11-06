@@ -360,7 +360,8 @@ main {
 .clubes-grid > .club-card,
 .clubes-grid > .create-club-card{
   /* ANCHO AJUSTADO PARA QUE 2 TARJETAS ENCAJEN PERFECTAMENTE */
-  flex: 0 0 calc(50% - 0.5rem); 
+  /* MODIFICACIÓN APLICADA: flex: 0 1 permite que la tarjeta se encoja para caber sin cortarse */
+  flex: 0 1 calc(50% - 0.5rem); 
   min-width: 0;
   max-width: none;
   
