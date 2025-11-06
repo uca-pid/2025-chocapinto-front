@@ -801,11 +801,7 @@ function mostrarListaSolicitudes(solicitudes) {
     const lista = document.getElementById('requestsList');
     
     const html = solicitudes.map(solicitud => {
-        const fechaFormateada = new Date(solicitud.fecha_solicitud).toLocaleDateString('es-ES', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
+        const fechaFormateada = new Date(solicitud.fecha_solicitud);
         
         const inicial = solicitud.username ? solicitud.username.charAt(0).toUpperCase() : '?';
         
