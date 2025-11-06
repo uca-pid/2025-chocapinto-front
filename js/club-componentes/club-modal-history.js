@@ -90,57 +90,59 @@ async function mostrarHistorialCompleto() {
 
 async function cargarHistorialClub(filtros = {}) {
     try {
-        const clubId = getClubId();
-        const params = new URLSearchParams(filtros);
+        console.log('🚀 Cargando historial del club desde datos locales...');
+        showLoader("Generando historial del club...");
         
-        console.log('Cargando historial del club:', clubId);
-        showLoader("Cargando historial del club...");
+        // Generar historial desde los datos del club actual
+        const historialGenerado = await generarHistorialDesdeClubData();
         
-        // Llamada a la API real (cuando esté implementada)
-        const response = await fetch(`${API_URL}/club/${clubId}/reading-history?${params}`);
-        const data = await response.json();
+        // Guardar todos los datos en variable global
+        window.historialClubData = historialGenerado;
         
-        if (data.success) {
-            // Guardar todos los datos en variable global
-            window.historialClubData = data.historial || [];
-            
-            // Aplicar filtros localmente por ahora
-            historialClubData = aplicarFiltrosLocal(window.historialClubData, filtros);
-            
-            // Cargar estadísticas
-            await cargarEstadisticasClub(filtros);
-            
-            hideLoader();
-            
-            // Actualizar información del club si está disponible
-            if (window.clubData) {
-                actualizarInfoClubHistorial(window.clubData);
-            }
-            
-            actualizarEstadisticasHistorialClub();
-            actualizarVistaHistorialClub();
-            poblarFiltroUsuarios();
-            
-            
-        } else {
-            hideLoader();
-            historialClubData = [];
-            clubStats = {};
-            
-            // Actualizar información del club aunque no haya historial
-            if (window.clubData) {
-                actualizarInfoClubHistorial(window.clubData);
-            }
-            
-            actualizarVistaHistorialClub();
-            console.log('No hay historial disponible:', data.message);
+        // Aplicar filtros localmente
+        historialClubData = aplicarFiltrosLocal(window.historialClubData, filtros);
+        
+        // Generar estadísticas desde los datos locales
+        clubStats = generarEstadisticasDesdeHistorial(historialClubData);
+        
+        hideLoader();
+        
+        // Actualizar información del club si está disponible
+        if (window.clubData) {
+            actualizarInfoClubHistorial(window.clubData);
         }
+        
+        actualizarEstadisticasHistorialClub();
+        actualizarVistaHistorialClub();
+        poblarFiltroUsuarios();
+        
+        console.log('✅ Historial generado exitosamente:', historialClubData.length, 'eventos');
         
     } catch (error) {
         hideLoader();
-        console.error('Error al cargar historial del club:', error);
-        historialClubData = [];
-        clubStats = {};
+        console.error('❌ Error al generar historial del club:', error);
+        
+        // Fallback: intentar cargar desde API
+        try {
+            console.log('🔄 Intentando cargar desde API como fallback...');
+            const clubId = getClubId();
+            const params = new URLSearchParams(filtros);
+            
+            const response = await fetch(`${API_URL}/club/${clubId}/reading-history?${params}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                window.historialClubData = data.historial || [];
+                historialClubData = aplicarFiltrosLocal(window.historialClubData, filtros);
+                await cargarEstadisticasClub(filtros);
+            } else {
+                throw new Error('API no disponible');
+            }
+        } catch (apiError) {
+            console.log('⚠️ API no disponible, mostrando estado vacío');
+            historialClubData = [];
+            clubStats = {};
+        }
         
         // Actualizar información del club aunque haya error
         if (window.clubData) {
@@ -148,7 +150,7 @@ async function cargarHistorialClub(filtros = {}) {
         }
         
         actualizarVistaHistorialClub();
-        showNotification('error', 'Error al cargar el historial del club');
+        poblarFiltroUsuarios();
     }
 }
 
@@ -169,6 +171,272 @@ async function cargarEstadisticasClub(filtros = {}) {
         console.error('Error al cargar estadísticas del club:', error);
         clubStats = {};
     }
+}
+
+// ========== NUEVAS FUNCIONES PARA GENERAR HISTORIAL DESDE DATOS LOCALES ==========
+
+/**
+ * Genera el historial de cambios basado en los datos actuales del club
+ * @returns {Array} Array de eventos de historial
+ */
+async function generarHistorialDesdeClubData() {
+    console.log('📊 Generando historial desde datos del club...');
+    
+    if (!window.clubData) {
+        console.warn('⚠️ No hay datos del club disponibles');
+        return [];
+    }
+    
+    const eventos = [];
+    const club = window.clubData;
+    
+    // 1. Eventos de libros agregados al club
+    if (club.readBooks && Array.isArray(club.readBooks)) {
+        club.readBooks.forEach(clubBook => {
+            // Buscar información del usuario que agregó el libro
+            const usuario = club.members ? 
+                club.members.find(member => member.username === clubBook.addedBy) : 
+                { id: 0, username: clubBook.addedBy || 'Usuario desconocido' };
+            
+            eventos.push({
+                id: `libro-agregado-${clubBook.id}`,
+                tipo: 'libro_agregado',
+                estado: 'agregado',
+                fechaCambio: clubBook.addedAt || new Date().toISOString(),
+                book: {
+                    id: clubBook.id,
+                    title: clubBook.title,
+                    author: clubBook.author,
+                    thumbnail: clubBook.portada || '',
+                    categorias: clubBook.categorias || []
+                },
+                user: usuario,
+                descripcion: `Agregó el libro "${clubBook.title}" al club`
+            });
+            
+            // Si el libro está en estado "leyendo" o "leido", agregar esos eventos también
+            if (clubBook.estado === 'leyendo' || clubBook.estado === 'leido') {
+                // Evento de inicio de lectura
+                eventos.push({
+                    id: `lectura-iniciada-${clubBook.id}`,
+                    tipo: 'lectura_iniciada', 
+                    estado: 'leyendo',
+                    fechaCambio: calcularFechaInicioLectura(clubBook.addedAt),
+                    fechaInicio: calcularFechaInicioLectura(clubBook.addedAt),
+                    book: {
+                        id: clubBook.id,
+                        title: clubBook.title,
+                        author: clubBook.author,
+                        thumbnail: clubBook.portada || ''
+                    },
+                    user: usuario,
+                    descripcion: `Comenzó a leer "${clubBook.title}"`
+                });
+            }
+            
+            // Si el libro está completado
+            if (clubBook.estado === 'leido') {
+                const fechaFin = calcularFechaFinLectura(clubBook.addedAt);
+                eventos.push({
+                    id: `lectura-completada-${clubBook.id}`,
+                    tipo: 'lectura_completada',
+                    estado: 'leido', 
+                    fechaCambio: fechaFin,
+                    fechaInicio: calcularFechaInicioLectura(clubBook.addedAt),
+                    fechaFin: fechaFin,
+                    book: {
+                        id: clubBook.id,
+                        title: clubBook.title,
+                        author: clubBook.author,
+                        thumbnail: clubBook.portada || ''
+                    },
+                    user: usuario,
+                    descripcion: `Completó la lectura de "${clubBook.title}"`
+                });
+            }
+        });
+    }
+    
+    // 2. Intentar cargar eventos de períodos de lectura si están disponibles
+    try {
+        const eventosPeridos = await obtenerEventosPeriodosLectura();
+        eventos.push(...eventosPeridos);
+    } catch (error) {
+        console.warn('⚠️ No se pudieron cargar eventos de períodos:', error.message);
+    }
+    
+    // 3. Ordenar eventos por fecha (más recientes primero)
+    eventos.sort((a, b) => new Date(b.fechaCambio) - new Date(a.fechaCambio));
+    
+    console.log('✅ Historial generado:', eventos.length, 'eventos');
+    return eventos;
+}
+
+/**
+ * Obtiene eventos desde los períodos de lectura del club
+ */
+async function obtenerEventosPeriodosLectura() {
+    try {
+        const clubId = getClubId();
+        const response = await fetch(`${API_URL}/club/${clubId}/periodos/historial`);
+        const data = await response.json();
+        
+        if (data.success && data.historial) {
+            const eventosPeridos = [];
+            
+            data.historial.forEach(periodo => {
+                if (periodo.libroGanador && periodo.libroGanador.book) {
+                    const libro = periodo.libroGanador.book;
+                    
+                    // Evento de inicio de período
+                    eventosPeridos.push({
+                        id: `periodo-iniciado-${periodo.id}`,
+                        tipo: 'periodo_iniciado',
+                        estado: 'leyendo',
+                        fechaCambio: periodo.fechaInicioLectura || periodo.fechaInicio,
+                        fechaInicio: periodo.fechaInicioLectura || periodo.fechaInicio,
+                        book: {
+                            id: libro.id,
+                            title: libro.title,
+                            author: libro.author,
+                            thumbnail: libro.portada || ''
+                        },
+                        user: { username: 'Club', id: 0 },
+                        descripcion: `Inició el período de lectura de "${libro.title}"`,
+                        periodo: {
+                            id: periodo.id,
+                            fechaInicio: periodo.fechaInicio,
+                            fechaFinLectura: periodo.fechaFinLectura,
+                            totalVotos: periodo.opciones ? periodo.opciones.reduce((sum, op) => sum + (op._count?.votos || 0), 0) : 0
+                        }
+                    });
+                    
+                    // Evento de finalización si está cerrado
+                    if (periodo.estado === 'CERRADO' && periodo.fechaFinLectura) {
+                        eventosPeridos.push({
+                            id: `periodo-completado-${periodo.id}`,
+                            tipo: 'periodo_completado',
+                            estado: 'leido',
+                            fechaCambio: periodo.fechaFinLectura,
+                            fechaInicio: periodo.fechaInicioLectura || periodo.fechaInicio,
+                            fechaFin: periodo.fechaFinLectura,
+                            book: {
+                                id: libro.id,
+                                title: libro.title,
+                                author: libro.author,
+                                thumbnail: libro.portada || ''
+                            },
+                            user: { username: 'Club', id: 0 },
+                            descripcion: `Completó el período de lectura de "${libro.title}"`,
+                            periodo: {
+                                id: periodo.id,
+                                fechaInicio: periodo.fechaInicio,
+                                fechaFinLectura: periodo.fechaFinLectura,
+                                totalVotos: periodo.opciones ? periodo.opciones.reduce((sum, op) => sum + (op._count?.votos || 0), 0) : 0
+                            }
+                        });
+                    }
+                }
+            });
+            
+            return eventosPeridos;
+        }
+    } catch (error) {
+        console.log('📝 Períodos de lectura no disponibles, continuando...');
+    }
+    
+    return [];
+}
+
+/**
+ * Calcula una fecha estimada de inicio de lectura
+ */
+function calcularFechaInicioLectura(fechaAgregado) {
+    const fecha = new Date(fechaAgregado);
+    fecha.setDate(fecha.getDate() + 1); // Un día después de agregado
+    return fecha.toISOString();
+}
+
+/**
+ * Calcula una fecha estimada de finalización de lectura
+ */
+function calcularFechaFinLectura(fechaAgregado) {
+    const fecha = new Date(fechaAgregado);
+    fecha.setDate(fecha.getDate() + 14); // 2 semanas después por defecto
+    return fecha.toISOString();
+}
+
+/**
+ * Genera estadísticas desde el historial local
+ */
+function generarEstadisticasDesdeHistorial(historial) {
+    const stats = {
+        totalLeidos: 0,
+        totalCambios: historial.length,
+        usuarioMasActivo: '-',
+        promedioLectura: 0,
+        porGenero: {},
+        porUsuario: {},
+        porMes: {}
+    };
+    
+    if (!historial || historial.length === 0) {
+        return stats;
+    }
+    
+    const usuariosActividad = {};
+    const librosPorGenero = {};
+    const actividadPorMes = {};
+    let totalDiasLectura = 0;
+    let librosCompletados = 0;
+    
+    historial.forEach(evento => {
+        // Contar actividad por usuario
+        if (evento.user && evento.user.username !== 'Club') {
+            usuariosActividad[evento.user.username] = (usuariosActividad[evento.user.username] || 0) + 1;
+        }
+        
+        // Contar libros completados
+        if (evento.estado === 'leido') {
+            stats.totalLeidos++;
+            librosCompletados++;
+            
+            // Calcular días de lectura si hay fechas
+            if (evento.fechaInicio && evento.fechaFin) {
+                const dias = calcularDiasLectura(evento.fechaInicio, evento.fechaFin);
+                totalDiasLectura += dias;
+            }
+        }
+        
+        // Agrupar por mes
+        const fecha = new Date(evento.fechaCambio);
+        const mesKey = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+        actividadPorMes[mesKey] = (actividadPorMes[mesKey] || 0) + 1;
+        
+        // Categorías/géneros de libros
+        if (evento.book && evento.book.categorias && Array.isArray(evento.book.categorias)) {
+            evento.book.categorias.forEach(cat => {
+                librosPorGenero[cat.nombre || cat] = (librosPorGenero[cat.nombre || cat] || 0) + 1;
+            });
+        }
+    });
+    
+    // Usuario más activo
+    if (Object.keys(usuariosActividad).length > 0) {
+        stats.usuarioMasActivo = Object.entries(usuariosActividad)
+            .sort(([,a], [,b]) => b - a)[0][0];
+    }
+    
+    // Promedio de días de lectura
+    if (librosCompletados > 0) {
+        stats.promedioLectura = Math.round(totalDiasLectura / librosCompletados);
+    }
+    
+    stats.porGenero = librosPorGenero;
+    stats.porUsuario = usuariosActividad;
+    stats.porMes = actividadPorMes;
+    
+    return stats;
 }
 
 function actualizarEstadisticasHistorialClub() {
@@ -244,11 +512,11 @@ function generarVistaTimelineClub() {
             minute: '2-digit'
         });
         
-        const estadoInfo = getEstadoInfo(entry.estado);
-        const accionTexto = getAccionTexto(entry.estado);
+        const estadoInfo = getEstadoInfoMejorado(entry);
+        const accionTexto = getAccionTextoMejorado(entry);
         
         return `
-            <div class="timeline-item ${entry.estado}">
+            <div class="timeline-item ${entry.estado} ${entry.tipo || ''}">
                 <div class="timeline-marker" style="background: ${estadoInfo.color}">
                     ${estadoInfo.icon}
                 </div>
@@ -260,7 +528,9 @@ function generarVistaTimelineClub() {
                     <p class="timeline-author">Por ${entry.book.author}</p>
                     <div class="timeline-action">
                         <div class="timeline-user">
-                            <span class="user-avatar">${entry.user.username.charAt(0).toUpperCase()}</span>
+                            <span class="user-avatar" style="background: ${getUserAvatarColor(entry.user.username)}">
+                                ${entry.user.username.charAt(0).toUpperCase()}
+                            </span>
                             <span class="user-name">${entry.user.username}</span>
                         </div>
                         <span class="action-text">${accionTexto}</span>
@@ -268,9 +538,19 @@ function generarVistaTimelineClub() {
                             ${estadoInfo.icon} ${estadoInfo.label}
                         </span>
                     </div>
-                    ${entry.fechaInicio && entry.fechaFin && entry.estado === 'leido' ? 
+                    ${entry.fechaInicio && entry.fechaFin && (entry.estado === 'leido' || entry.tipo === 'lectura_completada') ? 
                         `<div class="reading-duration">
                             ⏱️ Tiempo de lectura: ${calcularDiasLectura(entry.fechaInicio, entry.fechaFin)} días
+                        </div>` : ''
+                    }
+                    ${entry.periodo ? 
+                        `<div class="timeline-extra-info">
+                            📊 Período de lectura • ${entry.periodo.totalVotos || 0} votos totales
+                        </div>` : ''
+                    }
+                    ${entry.book.categorias && entry.book.categorias.length > 0 ? 
+                        `<div class="timeline-categories">
+                            🏷️ ${entry.book.categorias.map(cat => cat.nombre || cat).join(', ')}
                         </div>` : ''
                     }
                 </div>
@@ -294,11 +574,18 @@ function generarVistaListaClub() {
     
     const listItems = historialClubData.map(entry => {
         const fecha = new Date(entry.fechaCambio).toLocaleDateString('es-ES');
-        const estadoInfo = getEstadoInfo(entry.estado);
-        const accionTexto = getAccionTexto(entry.estado);
+        const estadoInfo = getEstadoInfoMejorado(entry);
+        const accionTexto = getAccionTextoMejorado(entry);
         
         return `
-            <div class="list-item">
+            <div class="list-item ${entry.tipo || ''}">
+                <div class="list-book-cover">
+                    ${entry.book.thumbnail ? 
+                        `<img src="${entry.book.thumbnail}" alt="Portada" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                         <div class="list-cover-placeholder" style="display: none;">📖</div>` :
+                        `<div class="list-cover-placeholder">📖</div>`
+                    }
+                </div>
                 <div class="list-content">
                     <div class="list-header">
                         <h4>${entry.book.title}</h4>
@@ -306,12 +593,23 @@ function generarVistaListaClub() {
                     </div>
                     <p class="list-author">Por ${entry.book.author}</p>
                     <div class="list-action">
-                        <span class="user-name">${entry.user.username}</span>
+                        <div class="list-user">
+                            <span class="user-avatar-small" style="background: ${getUserAvatarColor(entry.user.username)}">
+                                ${entry.user.username.charAt(0).toUpperCase()}
+                            </span>
+                            <span class="user-name">${entry.user.username}</span>
+                        </div>
                         <span class="action-text">${accionTexto}</span>
                         <span class="estado-badge" style="background: ${estadoInfo.color}">
                             ${estadoInfo.icon} ${estadoInfo.label}
                         </span>
                     </div>
+                    ${entry.book.categorias && entry.book.categorias.length > 0 ? 
+                        `<div class="list-categories">
+                            ${entry.book.categorias.slice(0, 3).map(cat => `<span class="category-tag">${cat.nombre || cat}</span>`).join('')}
+                            ${entry.book.categorias.length > 3 ? `<span class="category-more">+${entry.book.categorias.length - 3}</span>` : ''}
+                        </div>` : ''
+                    }
                 </div>
             </div>
         `;
@@ -1140,7 +1438,205 @@ function actualizarInfoClubHistorial(club) {
         clubDescripcion.textContent = club.description || 'Sin descripción disponible';
     }
 }
+
+// ========== FUNCIONES DE UTILIDAD MEJORADAS ==========
+
+/**
+ * Obtiene información de estado mejorada para los nuevos tipos de eventos
+ */
+function getEstadoInfoMejorado(entry) {
+    // Si es un evento de tipo específico, usar esa información
+    if (entry.tipo) {
+        switch (entry.tipo) {
+            case 'libro_agregado':
+                return {
+                    color: '#28a745',
+                    icon: '➕',
+                    label: 'Agregado'
+                };
+            case 'lectura_iniciada':
+            case 'periodo_iniciado':
+                return {
+                    color: '#ffc107',
+                    icon: '📖',
+                    label: 'Leyendo'
+                };
+            case 'lectura_completada':
+            case 'periodo_completado':
+                return {
+                    color: '#17a2b8',
+                    icon: '✅',
+                    label: 'Completado'
+                };
+            default:
+                // Fallback al estado normal
+                break;
+        }
+    }
+    
+    // Usar la función original si está disponible, sino fallback
+    if (typeof getEstadoInfo === 'function') {
+        return getEstadoInfo(entry.estado);
+    }
+    
+    // Fallback manual
+    switch (entry.estado) {
+        case 'agregado':
+            return { color: '#28a745', icon: '➕', label: 'Agregado' };
+        case 'leyendo':
+            return { color: '#ffc107', icon: '📖', label: 'Leyendo' };
+        case 'leido':
+            return { color: '#17a2b8', icon: '✅', label: 'Completado' };
+        default:
+            return { color: '#6c757d', icon: '❓', label: 'Desconocido' };
+    }
+}
+
+/**
+ * Obtiene texto de acción mejorado para los nuevos tipos de eventos
+ */
+function getAccionTextoMejorado(entry) {
+    if (entry.descripcion) {
+        return entry.descripcion;
+    }
+    
+    // Si es un evento de tipo específico
+    if (entry.tipo) {
+        switch (entry.tipo) {
+            case 'libro_agregado':
+                return `agregó "${entry.book.title}" al club`;
+            case 'lectura_iniciada':
+                return `comenzó a leer "${entry.book.title}"`;
+            case 'periodo_iniciado':
+                return `inició el período de lectura de "${entry.book.title}"`;
+            case 'lectura_completada':
+                return `completó la lectura de "${entry.book.title}"`;
+            case 'periodo_completado':
+                return `finalizó el período de lectura de "${entry.book.title}"`;
+            default:
+                break;
+        }
+    }
+    
+    // Usar la función original si está disponible
+    if (typeof getAccionTexto === 'function') {
+        return getAccionTexto(entry.estado);
+    }
+    
+    // Fallback manual
+    switch (entry.estado) {
+        case 'agregado':
+            return `agregó "${entry.book.title}"`;
+        case 'leyendo':
+            return `comenzó a leer "${entry.book.title}"`;
+        case 'leido':
+            return `completó la lectura de "${entry.book.title}"`;
+        default:
+            return 'realizó una acción';
+    }
+}
+
+/**
+ * Genera color de avatar basado en el username
+ */
+function getUserAvatarColor(username) {
+    const colors = [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57',
+        '#FF9FF3', '#54A0FF', '#5F27CD', '#00D2D3', '#FF9F43',
+        '#10AC84', '#EE5A24', '#0652DD', '#9C88FF', '#FFC312'
+    ];
+    
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    return colors[Math.abs(hash) % colors.length];
+}
+
+/**
+ * Calcula días de lectura entre dos fechas (fallback local)
+ */
+function calcularDiasLecturaLocal(fechaInicio, fechaFin) {
+    if (!fechaInicio || !fechaFin) return 0;
+    
+    const inicio = new Date(fechaInicio);
+    const fin = new Date(fechaFin);
+    const diferencia = fin.getTime() - inicio.getTime();
+    const dias = Math.ceil(diferencia / (1000 * 60 * 60 * 24));
+    
+    return dias > 0 ? dias : 0;
+}
+
+/**
+ * Wrapper para calcularDiasLectura que usa la función global si existe
+ */
+function calcularDiasLectura(fechaInicio, fechaFin) {
+    if (typeof window.calcularDiasLectura === 'function') {
+        return window.calcularDiasLectura(fechaInicio, fechaFin);
+    }
+    return calcularDiasLecturaLocal(fechaInicio, fechaFin);
+}
 window.mostrarHistorialCompleto = mostrarHistorialCompleto;
+
+// ========== FUNCIÓN DE PRUEBA Y DEBUG ==========
+
+/**
+ * Función para probar el historial con datos simulados
+ */
+function probarHistorialConDatosDePrueba() {
+    console.log('🧪 Probando historial con datos de prueba...');
+    
+    // Datos de prueba simulados
+    window.clubData = {
+        id: 1,
+        name: "Club de Prueba",
+        description: "Club para probar el historial",
+        members: [
+            { id: 1, username: "usuario1" },
+            { id: 2, username: "usuario2" },
+            { id: 3, username: "usuario3" }
+        ],
+        readBooks: [
+            {
+                id: 1,
+                title: "El Quijote",
+                author: "Miguel de Cervantes",
+                portada: "",
+                estado: "leido",
+                addedAt: "2024-10-01T10:00:00Z",
+                addedBy: "usuario1",
+                categorias: [{ nombre: "Clásicos" }, { nombre: "Literatura" }]
+            },
+            {
+                id: 2,
+                title: "Cien años de soledad",
+                author: "Gabriel García Márquez",
+                portada: "",
+                estado: "leyendo",
+                addedAt: "2024-10-15T14:30:00Z",
+                addedBy: "usuario2",
+                categorias: [{ nombre: "Realismo Mágico" }]
+            },
+            {
+                id: 3,
+                title: "1984",
+                author: "George Orwell",
+                portada: "",
+                estado: "agregado",
+                addedAt: "2024-11-01T09:15:00Z",
+                addedBy: "usuario3",
+                categorias: [{ nombre: "Distopía" }, { nombre: "Ficción" }]
+            }
+        ]
+    };
+    
+    // Mostrar el modal
+    mostrarHistorialCompleto();
+}
+
+// Exponer función de prueba globalmente
+window.probarHistorialConDatosDePrueba = probarHistorialConDatosDePrueba;
 
 // Export for ES6 modules
 export { initHistoryModal };
