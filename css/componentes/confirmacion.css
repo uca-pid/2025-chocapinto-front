@@ -53,7 +53,7 @@
   margin-top: 1.5rem;
 }
 
-.red-btn, .green-btn {
+.red-btn, .green-btn, .orange-btn{
   border: none;
   border-radius: 12px;
   padding: 0.8rem 1.8rem;
@@ -72,6 +72,17 @@
 
 .red-btn:hover {
   background: #b71c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+}
+
+.orange-btn {
+  background: #fca103;
+  color: #fff;
+}
+
+.red-btn:hover {
+  background: #e39102;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
 }
