@@ -111,5 +111,53 @@
     </footer>
 
     <script type="module" src="../js/principal.js"></script>
+    // ...existing code...
+
+  <script>
+  (function(){
+    // Selecciona la caja del ranking; si no existe, usa el contenedor principal (#app)
+    const box = document.querySelector('.ranking-usuarios-section') || document.getElementById('app');
+    if(!box) return;
+
+    // Asegurar scroll interno y comportamiento de overscroll
+    box.style.overflowY = 'auto';
+    if (!box.style.maxHeight) box.style.maxHeight = 'calc(100vh - var(--header-offset) - 1.5rem)';
+    box.style.overscrollBehavior = 'contain';
+    box.style.webkitOverflowScrolling = 'touch';
+
+    // Wheel: evitar que el documento se desplace cuando el cursor está sobre el ranking
+    box.addEventListener('wheel', function(e){
+      if (box.scrollHeight <= box.clientHeight) return;
+      const delta = e.deltaY;
+      const atTop = box.scrollTop === 0 && delta < 0;
+      const atBottom = Math.abs(box.scrollHeight - box.clientHeight - box.scrollTop) <= 1 && delta > 0;
+      if (!atTop && !atBottom) {
+        e.stopPropagation(); // permitir scroll interno
+      } else {
+        e.stopPropagation();
+        e.preventDefault(); // bloquear overscroll hacia el body
+      }
+    }, { passive: false });
+
+    // Touch: similar lógica para pantallas táctiles
+    let touchStartY = 0;
+    box.addEventListener('touchstart', function(e){ touchStartY = e.touches[0].clientY; }, { passive: true });
+    box.addEventListener('touchmove', function(e){
+      if (box.scrollHeight <= box.clientHeight) return;
+      const touchY = e.touches[0].clientY;
+      const delta = touchStartY - touchY;
+      const atTop = box.scrollTop === 0 && delta < 0;
+      const atBottom = Math.abs(box.scrollHeight - box.clientHeight - box.scrollTop) <= 1 && delta > 0;
+      if (!atTop && !atBottom) {
+        e.stopPropagation();
+      } else {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, { passive: false });
+  })();
+  </script>
+
+
 </body>
 </html>

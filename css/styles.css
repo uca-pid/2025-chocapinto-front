@@ -276,7 +276,7 @@ main {
   padding-bottom: 1rem;
   padding-left: var(--page-padding-inline);
   padding-right: var(--page-padding-inline);
-  overflow-x: auto;
+  overflow-x: auto; /* IMPORTANTE: Permite el carrusel */
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -312,9 +312,10 @@ main {
     padding-left: 0; 
     padding-right: 0;
     
-    overflow-x: hidden; /* ¡Eliminar el scroll horizontal! */
+    /* MODIFICADO: Habilita el scroll para el carrusel de 2 tarjetas */
+    overflow-x: auto; 
     overflow-y: hidden;
-    scroll-snap-type: none;
+    scroll-snap-type: x mandatory; /* Habilita el snap de carrusel */
     -webkit-overflow-scrolling: auto;
 }
 
@@ -325,16 +326,16 @@ main {
 .clubes-grid::-webkit-scrollbar-thumb,
 .recomendaciones-row::-webkit-scrollbar-thumb{ background:#ccc; border-radius:4px; }
 
-/* Desktop: SOLO Mis Clubes puede pasar a mosaico. El resto se mantiene carrusel. */
-@media (min-width:768px){
-  .mis-clubes-grid{
-    display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:flex-start;
-    gap:1rem 1rem; overflow:visible; scroll-snap-type:none;
-    padding-left: var(--page-padding-inline);
-    padding-right: var(--page-padding-inline);
-  }
-  .mis-clubes-grid > *{ flex:0 1 300px; max-width:320px; }
-}
+/* Desktop: SE ELIMINA LA REGLA para que "Mis Clubes" siga siendo carrusel */
+/* @media (min-width:768px){ 
+    .mis-clubes-grid{ 
+        display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:flex-start;
+        gap:1rem 1rem; overflow:visible; scroll-snap-type:none;
+        padding-left: var(--page-padding-inline);
+        padding-right: var(--page-padding-inline);
+    }
+    .mis-clubes-grid > *{ flex:0 1 300px; max-width:320px; } 
+} */
 
 @media (min-width:1024px){
   .mis-clubes-grid, .clubes-grid, .recomendaciones-row{ gap:1.5rem; }
@@ -385,10 +386,29 @@ main {
 }
 .create-club-card .create-icon{ color:var(--brand-dark); }
 
+/* Responsive para forzar el carrusel de 2 tarjetas en tablet/desktop */
+@media (min-width: 601px) {
+    .clubes-grid {
+        overflow-x: auto; /* Habilitar el scroll horizontal */
+        scroll-snap-type: x mandatory; /* Para mejor experiencia de carrusel */
+        
+        /* ✅ FIX: Añadir padding al final del contenedor deslizable para evitar el corte */
+        padding-right: 2rem !important; 
+        padding-left: 1rem !important; 
+    }
+    .clubes-grid > .club-card,
+    .clubes-grid > .create-club-card {
+        /* Fuerza a que ocupen la mitad más el gap, garantizando el desborde horizontal para el carrusel */
+        flex: 0 0 calc(50% - 0.5rem); 
+        min-width: calc(50% - 0.5rem); 
+        max-width: none; 
+    }
+}
+
 /* Responsive para que la sección de 2 clubes se apile en móviles */
 @media (max-width: 600px) {
     .clubes-grid {
-        justify-content: center;
+        justify-content: flex-start; /* Centrado ya no es ideal con carrusel en móviles */
         overflow-x: auto; /* Reestablecer carrusel en móviles */
     }
     .clubes-grid > .club-card,
@@ -534,24 +554,38 @@ main {
     gap: 30px; /* Espacio entre columnas */
     padding-top: 1rem;
     align-items: flex-start; /* Asegura que las columnas comiencen arriba */
+    overflow: visible; /* Permitir que sticky funcione (no crear contenedor de scroll) */
+    transform: none; /* Evitar que un transform anidado bloquee position:sticky */
 }
 
 .columna-clubes {
-    flex: 1.5; /* Reducido para ser más angosto */
+    flex: 1 1 0%; /* Más estable para layout flexible */
     min-width: 0;
     padding-inline: 0 !important;
 }
 
 
 .columna-ranking {
-    flex: 1; /* Ocupa más proporción del espacio libre */
-    min-width: 250px;
-    position: sticky; 
-    top: 70px; 
-    padding-inline: 0 !important;
+    /* Columna de ranking: ancho fijo y comportamiento sticky estable */
+    flex: 0 0 var(--ranking-width);
+    max-width: var(--ranking-width);
+    min-width: 240px;
+    box-sizing: border-box;
+
+    position: -webkit-sticky;
+    position: sticky;
+    top: var(--header-offset);
     
-    /* AJUSTE DE ALTURA: Para alinear con la tarjeta de Mis Clubes */
-    margin-top: 5.5rem; 
+    z-index: 40;
+    margin-top: 0 !important; /* Quitar el margin que rompía el sticky */
+    align-self: flex-start;
+
+    /* Evitar que el elemento se encoja y asegurar estabilidad del sticky */
+    isolation: isolate;
+    flex-shrink: 0;
+    flex-basis: var(--ranking-width);
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Nota: Para asegurarnos de que la columna de la izquierda mantenga un buen espaciado */
@@ -563,14 +597,18 @@ main {
     .contenedor-principal-columnas {
         flex-direction: column; /* Apila las columnas */
         gap: 0;
+        overflow: visible; /* mantener visible para mobile */
     }
     .columna-clubes, .columna-ranking {
         flex: 1;
         width: 100%;
         position: static; /* Desactiva sticky en móviles */
+        max-width: none;
     }
     .ranking-usuarios-section {
-        margin: 2rem auto; /* Añade margen cuando está apilado */
+        overflow-y: auto !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 }
 
@@ -704,5 +742,77 @@ main {
     .clubes-grid.exploracion-grid > .club-card,
     .clubes-grid.exploracion-grid > .create-club-card {
         flex: 0 1 95%; 
+    }
+}
+
+/* ===== Ajuste definitivo: columna ranking angosta y sticky ===== */
+:root{
+  --header-offset: 70px;   /* ajustalo si tu header mide distinto */
+  --ranking-width: 320px;  /* cambiá a 280px o 240px si querés aún más angosto */
+}
+
+/* contenedor padre: asegurar alineación al tope */
+.contenedor-principal-columnas {
+  display: flex;
+  gap: 30px;
+  padding-top: 1rem;
+  align-items: flex-start; /* importante */
+}
+
+/* columna izquierda: flexible */
+.columna-clubes {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding-inline: 0 !important;
+}
+
+/* columna ranking: ancho fijo, sticky y sin margin-top */
+.columna-ranking {
+  /* Propiedades de Flex iniciales (mantener) */
+  flex: 0 0 var(--ranking-width); 
+  max-width: var(--ranking-width);
+  min-width: 240px;
+  box-sizing: border-box;
+
+  /* Propiedades Sticky (mantener) */
+  position: -webkit-sticky;
+  position: sticky;
+  top: var(--header-offset);
+  z-index: 40;
+  margin-top: 0 !important; /* Corregido a 0 para el sticky */
+  align-self: flex-start;
+  isolation: isolate; /* Mantenemos este fix anterior */
+
+  /* ✅ PROPIEDADES CLAVE PARA ELIMINAR EL SALTO (JUMP) */
+  /* Forzar la base y evitar el encogimiento para la estabilidad de sticky */
+  flex-shrink: 0; 
+  flex-basis: var(--ranking-width); 
+}
+/* tarjeta interna del ranking: scroll si excede la vista */
+.ranking-usuarios-section {
+  width: 100%;
+  max-height: calc(100vh - var(--header-offset) - 1.5rem);
+  padding-right: 6px;
+}
+
+.contenedor-principal-columnas {
+    display: flex;
+    gap: 30px; /* Espacio entre columnas */
+    padding-top: 1rem;
+    align-items: flex-start; 
+
+    /* 🌟 CAMBIO CLAVE: Asegurar la altura mínima para el sticky */
+   
+}
+
+/* ========================= */
+/* FIX ADICIONAL: Evitar que las cards se corten antes del scroll en desktop */
+/* ========================= */
+
+@media (min-width: 901px) {
+    /* Aplicar un ancho mínimo más seguro para la columna principal de clubes.
+       Aumentamos el ancho mínimo a 640px para dar un buffer adicional. */
+    .columna-clubes {
+        min-width: 640px; /* ✅ ANCHO MÍNIMO MÁS SEGURO (AUMENTADO) */
     }
 }
