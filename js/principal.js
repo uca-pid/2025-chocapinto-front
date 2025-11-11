@@ -214,7 +214,7 @@ function inicializarAplicacion() {
 
     // Configurar funcionalidades
     configurarDropdownPerfil();
-    configurarBusquedaTiempoReal();
+    // configurarBusquedaTiempoReal();
     
     // El loader se ocultará automáticamente cuando cargarClubes termine
 }

@@ -89,14 +89,7 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
                         
 
                         <div class="book-meta">
-                            ${isOwner 
-                                ? `<select class="book-status-badge estado-selector ${estadoClass}" data-bookid="${libro.id}">
-                                    <option value="por_leer" ${libro.estado === 'por_leer' ? 'selected' : ''}>Por leer</option>
-                                    <option value="leyendo" ${libro.estado === 'leyendo' ? 'selected' : ''}>Leyendo</option>
-                                    <option value="leido" ${libro.estado === 'leido' ? 'selected' : ''}>Completado</option>
-                                   </select>`
-                                : `<span class="book-status-badge ${estadoClass}">${estadoInfo.label}</span>`
-                            }
+                            <span class="book-status-badge ${estadoClass}" title="Estado automático - No editable">${estadoInfo.label}</span>
                             <span class="book-category-tag">${primeraCategoria}</span>
                         </div>
                     </div>
@@ -146,6 +139,7 @@ function aplicarFiltros(club, categoriasSeleccionadas = []) {
     }
 }
 
+
 async function cambiarEstadoLibro(bookId, nuevoEstado) {
     const clubId = getClubId();
     const username = localStorage.getItem("username");
@@ -155,7 +149,7 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
         return;
     }
 
-    showLoader("Cambiando estado del libro...");
+    showLoader("Actualizando estado del libro...");
     
     try {
         const res = await fetch(`${API_URL}/club/${clubId}/book/${bookId}/estado`, {
@@ -171,7 +165,7 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
         
         if (data.success) {
             hideLoader();
-            showNotification("success", `Estado cambiado a: ${getEstadoLabel(nuevoEstado)}`);
+            
             // Recargar los datos del club para actualizar las estadísticas
             renderClub();
             // Actualizar la sección de progreso de lectura
@@ -182,12 +176,11 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
             cargarActividadReciente();
         } else {
             hideLoader();
-            showNotification("error", data.message || "Error al cambiar el estado");
+            console.error("Error al cambiar estado automáticamente:", data.message);
         }
     } catch (error) {
         hideLoader();
-        console.error("Error al cambiar estado:", error);
-        showNotification("error", "Error de conexión al cambiar estado");
+        console.error("Error al cambiar estado automáticamente:", error);
     }
 }
 
@@ -223,12 +216,6 @@ document.addEventListener('input', (e) => {
 });
 
 document.addEventListener('change', async (e) => {
-  if (e.target.classList.contains('estado-selector')) {
-    const bookId = e.target.getAttribute('data-bookid');
-    const nuevoEstado = e.target.value;
-    await cambiarEstadoLibro(bookId, nuevoEstado);
-  }
-  
   // Event listener para el filtro de estado
   if (e.target.id === 'estado-filter') {
     filtroEstado = e.target.value;
@@ -267,7 +254,7 @@ document.addEventListener("click", async (e) => {
 
 // ========== INICIALIZACIÓN ==========
 function initLibrary() {
-    console.log('📚 Inicializando library...');
+    
     
     // Configurar event listeners para filtros
     setupLibraryEventListeners();
@@ -276,7 +263,7 @@ function initLibrary() {
     window.aplicarFiltros = aplicarFiltros;
     window.eliminarLibro = eliminarLibro;
     
-    console.log('✅ Library inicializado correctamente');
+    
 }
 
 function setupLibraryEventListeners() {

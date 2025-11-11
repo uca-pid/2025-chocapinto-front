@@ -1,6 +1,6 @@
 // Modal Comments Initialization
 function initCommentsModal() {
-    console.log("Initializing Comments Modal");
+    
     
     // Use global modal reference
     const modalComentarios = window.modalComentarios;
@@ -29,7 +29,7 @@ document.addEventListener("click", async (e) => {
     window.currentBookId = button.dataset.bookid;
     const clubId = getClubId();
     window.modalComentarios.style.display = "flex";
-    console.log("Cargando comentarios para libro ID:", window.currentBookId);
+    
     await cargarComentarios(window.currentBookId, clubId);
   }
   
@@ -79,7 +79,12 @@ async function cargarComentarios(bookId, clubId) {
         const userId = Number(localStorage.getItem("userId"));
         const clubRes = await fetch(`${API_URL}/club/${clubId}`);
         const clubData = await clubRes.json();
-        const isOwner = clubData.club && clubData.club.id_owner == userId;
+        
+        // Usar el nuevo sistema de permisos basado en ClubMember
+        const userRole = getUserRoleInClub(clubData.club, userId);
+        const canManageComments = canUserManageClub(clubData.club, userId); // Owner y Moderador pueden gestionar
+        
+        
 
         data.comentarios.forEach(c => {
           const commentItem = document.createElement("div");
@@ -101,17 +106,41 @@ async function cargarComentarios(bookId, clubId) {
             <p class="comment-content">${c.content}</p>
           `;
 
-          // Mostrar botón de eliminar si sos dueño del comentario o moderador
-          if (isOwner || c.userId === userId) {
+          // Mostrar botón de eliminar si:
+          // - Es owner o moderador del club (canManageComments)
+          // - O es el dueño del comentario
+          const isCommentOwner = c.userId === userId;
+          const canDeleteComment = canManageComments || isCommentOwner;
+          
+          if (canDeleteComment) {
             const deleteBtn = document.createElement("button");
             deleteBtn.className = "delete-comment";
             deleteBtn.innerHTML = "❌";
-            deleteBtn.title = "Eliminar comentario";
+            
+            // Tooltip más específico según el tipo de permiso
+            if (canManageComments && !isCommentOwner) {
+              deleteBtn.title = `Eliminar comentario (${userRole.role})`;
+            } else if (isCommentOwner) {
+              deleteBtn.title = "Eliminar mi comentario";
+            } else {
+              deleteBtn.title = "Eliminar comentario";
+            }
+            
             deleteBtn.onclick = async () => {
+              // Mensaje de confirmación más específico
+              const confirmMessage = isCommentOwner 
+                ? "¿Eliminar tu comentario?"
+                : `¿Eliminar este comentario como ${userRole.role}?`;
+              
+              const confirmSubtext = isCommentOwner
+                ? "Tu comentario será eliminado permanentemente."
+                : "El comentario será eliminado permanentemente y no se podrá recuperar.";
+              
               mostrarConfirmacion(
-                "¿Eliminar este comentario?",
-                "El comentario será eliminado permanentemente y no se podrá recuperar.",
+                confirmMessage,
+                confirmSubtext,
                 async () => {
+                  
                   await eliminarComentario(c.id, bookId, clubId);
                 },
                 null,

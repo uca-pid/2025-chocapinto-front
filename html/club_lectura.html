@@ -1,3 +1,54 @@
+<div id="modalCrearVotacion" class="modal-backdrop" style="display:none;">
+  <div class="modal-content">
+    
+    <div class="modal-header">
+      <h3>Crear Nueva Votación</h3>
+      <button id="modal-crear-votacion-close" class="modal-close-btn" title="Cerrar">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <form id="form-crear-votacion">
+        
+        <div class="form-group-votacion">
+          <label for="votacion-nombre">Nombre del Período</label>
+          <input type="text" id="votacion-nombre" name="votacion-nombre" placeholder="Ej: Lectura de Enero 2026" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group-votacion">
+            <label for="votacion-fin-votacion">Fecha Límite (Votación)</label>
+            <input type="datetime-local" id="votacion-fin-votacion" name="votacion-fin-votacion" required>
+          </div>
+          <div class="form-group-votacion">
+            <label for="votacion-fin-lectura">Fecha Límite (Lectura)</label>
+            <input type="datetime-local" id="votacion-fin-lectura" name="votacion-fin-lectura" required>
+          </div>
+        </div>
+
+        <div class="libros-section">
+          <h4>Selecciona los libros para la votación</h4>
+          <div id="votacion-lista-libros">
+            <div class="loader-simple">Cargando libros...</div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn-crear-votacion-cancel" onclick="cerrarModalCrearVotacion()">Cancelar</button>
+          <button type="submit" class="btn-crear-votacion-submit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
+              <polyline points="9,11 12,8 15,11"/>
+              <line x1="12" y1="8" x2="12" y2="21"/>
+            </svg>
+            Iniciar Votación
+          </button>
+        </div>
+        
+      </form>
+    </div>
+
+  </div>
+</div>
 
 <div id="modalComentarios" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
   <div class="comments-card">
@@ -67,31 +118,154 @@
   </div>
 </div>
     <!-- Modal para agregar libro -->
-  <div id="modalLibro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(44,90,145,0.18); z-index:100; backdrop-filter: blur(3px); justify-content:center; align-items:center; animation:fadeInBg 0.4s;">
-  <div id="modalLibroBox" style=" width: 50%;background:#fff; max-width:500px; margin:8vh auto; padding:2.5rem; border-radius:20px; box-shadow:0 8px 32px #2c5a9140; position:relative; display:flex; flex-direction:column;">
-    <h3 style="margin-bottom:1.5rem; color:#2c5a91; font-size:1.6rem; font-weight:700; text-align:center;">Agregar libro</h3>
-    <form id="formLibro" style="width:100%; display:flex; flex-direction:column; gap:1.5rem;">
-      <div>
-        <label for="buscadorLibro" style="font-weight:600; color:#2c5a91;">Buscar libro</label>
-        <input type="text" id="buscadorLibro" autocomplete="off" placeholder="Título, autor..." style="width:100%; border-radius:8px; border:1px solid #eaf6ff; padding:0.7rem;">
-        <div id="resultadosBusquedaLibro" style="width:100%; max-height:180px; overflow-y:auto; margin-top:0.5rem; border:1px solid #eaf6ff; border-radius:8px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:0.5rem;"></div>
+<div id="modalLibro" class="modal-backdrop modal-agregar-libro" style="display:none;">
+  <div class="modal-content modal-libro-content">
+    
+    <!-- Header del Modal -->
+    <div class="modal-header-libro">
+      <div class="header-icon-libro">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
       </div>
-      <div>
-        <label style="font-weight:600; color:#2c5a91;">Categorías</label>
-        <div id="categoriasContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.5rem; max-height:150px; overflow-y:auto; border:1px solid #eaf6ff; border-radius:8px; padding:0.5rem; background:#f9f9f9;"></div>
-        <div id="crearCategoriaBox" style="margin-top:0.5rem; display:flex; gap:0.5rem;">
-          <input type="text" id="nuevaCategoriaInput" placeholder="Nueva categoría..." style="flex:1; border-radius:8px; border:1px solid #eaf6ff; padding:0.5rem;">
-           <input type="hidden" id="tituloLibro">
-            <input type="hidden" id="autorLibro">
-            <input type="hidden" id="portadaLibro">
-            <input type="hidden" id="idApiLibro">
-          <button type="button" id="agregarCategoriaBtn" style="background:#5fa8e9; color:#fff; border:none; border-radius:8px; padding:0.5rem 1rem; font-weight:600; cursor:pointer;">Agregar</button>
+      <div class="header-content-libro">
+        <h2>Agregar Nuevo Libro</h2>
+        <p>Busca y agrega un libro increíble al club</p>
+      </div>
+      <button class="modal-close-btn-libro" onclick="document.getElementById('modalLibro').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body del Modal -->
+    <div class="modal-body-libro">
+      
+      <!-- Sección de Búsqueda -->
+      <div class="search-section-libro">
+        <div class="form-group-libro">
+          <label for="buscadorLibro" class="form-label-libro">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            Buscar libro
+          </label>
+          <div class="search-input-container">
+            <input type="text" id="buscadorLibro" class="form-input-libro" autocomplete="off" placeholder="Escribe el título, autor o ISBN...">
+            <div class="search-loader" id="searchLoader" style="display: none;">
+              <div class="loader-spinner-small"></div>
+            </div>
+          </div>
+          <div class="search-hint">Usa palabras clave específicas para mejores resultados</div>
+        </div>
+
+        <!-- Resultados de Búsqueda -->
+        <div class="search-results-section" id="searchResultsSection" style="display: none;">
+          <h4 class="results-title">Resultados de búsqueda</h4>
+          <div id="resultadosBusquedaLibro" class="search-results-container"></div>
         </div>
       </div>
-      <button type="submit"  style="background:#0984e3; color:#fff; border:none; border-radius:8px; padding:0.8rem 1.2rem; font-weight:700; cursor:pointer; width:100%; box-shadow:0 2px 12px #0984e340; transition:background 0.2s;">Subir libro</button>
-    </form>
-    <button onclick="document.getElementById('modalLibro').style.display='none'" style="position:absolute; top:10px; right:10px; background:none; border:none; font-size:2rem; color:#d63031; cursor:pointer;">&times;</button>
-    <div id="msgLibro" style="margin-top:1rem; text-align:center; color:#d63031;"></div>
+
+      <!-- Libro Seleccionado -->
+      <div class="selected-book-section" id="selectedBookSection" style="display: none;">
+        <div class="selected-book-card">
+          <div class="book-cover-preview">
+            <img id="selectedBookCover" src="" alt="Portada del libro" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="book-cover-placeholder" style="display: none;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="book-info-preview">
+            <h3 id="selectedBookTitle">Título del libro</h3>
+            <p id="selectedBookAuthor">Autor</p>
+            <button type="button" class="change-book-btn" onclick="cambiarLibroSeleccionado()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                <path d="M15 3l6 0 0 6"/>
+              </svg>
+              Cambiar libro
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario Principal -->
+      <form id="formLibro" class="form-libro">
+        
+        <!-- Campos ocultos -->
+        <input type="hidden" id="tituloLibro">
+        <input type="hidden" id="autorLibro">
+        <input type="hidden" id="portadaLibro">
+        <input type="hidden" id="idApiLibro">
+
+        <!-- Sección de Categorías -->
+        <div class="categories-section-libro">
+          <div class="form-group-libro">
+            <label class="form-label-libro">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              Categorías del libro
+            </label>
+            <div class="categories-hint">Selecciona las categorías que mejor describan este libro</div>
+            
+            <!-- Contenedor de categorías existentes -->
+            <div class="categories-grid" id="categoriasContainer"></div>
+            
+            <!-- Crear nueva categoría -->
+            <div class="create-category-section">
+              <h5 class="create-category-title">¿No encuentras la categoría perfecta?</h5>
+              <div class="create-category-form">
+                <input type="text" id="nuevaCategoriaInput" class="form-input-libro" placeholder="Nueva categoría (ej: Ciencia Ficción)">
+                <button type="button" id="agregarCategoriaBtn" class="btn-add-category">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Crear categoría
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acciones del Modal -->
+        <div class="modal-actions-libro">
+          <button type="button" class="btn-cancel-libro" onclick="document.getElementById('modalLibro').style.display='none'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Cancelar
+          </button>
+          <button type="submit" class="btn-submit-libro" id="submitLibroBtn" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              <line x1="12" y1="8" x2="12" y2="16"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+            </svg>
+            Agregar al Club
+          </button>
+        </div>
+      </form>
+
+      <!-- Mensaje de error/éxito -->
+      <div id="msgLibro" class="message-libro" style="display: none;"></div>
+    </div>
+
   </div>
 </div>
 <!-- Modal de Ranking -->
@@ -349,6 +523,50 @@
       </div>
     </div>
 
+<!-- Modal de Períodos de Lectura -->
+<div id="modalPeriodosLectura" class="modal-backdrop" style="display:none;">
+  <div class="modal-content modal-periodos-lectura">
+    <div class="modal-header-periodos">
+      <div class="header-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+      </div>
+      <div class="header-content">
+        <h2>Historial de Períodos de Lectura</h2>
+        <span class="period-subtitle">Todos los períodos anteriores del club</span>
+      </div>
+      <button class="modal-close-btn-periodos" onclick="document.getElementById('modalPeriodosLectura').style.display='none'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="modal-body-periodos">
+      <div id="periodosLoader" class="periodos-loader">
+        <div class="spinner"></div>
+        <p>Cargando períodos de lectura...</p>
+      </div>
+      
+      <div id="periodosList" class="periodos-list" style="display:none;">
+        <!-- Los períodos se cargarán aquí dinámicamente -->
+      </div>
+      
+      <div id="periodosEmpty" class="periodos-empty" style="display:none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12,6 12,12 16,14"/>
+        </svg>
+        <h3>No hay períodos anteriores</h3>
+        <p>Aún no se han completado períodos de lectura en este club.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 
@@ -440,7 +658,7 @@
                 </div>
                 <div class="user-info">
                     <span class="username" id="usernameDisplay">Cargando...</span>
-                    <span class="user-status">Miembro activo</span>
+                    <span class="user-status" id="userRoleStatus">Miembro activo</span>
                 </div>
             </div>
         </nav>
@@ -544,7 +762,15 @@
           <div class="reading-progress-card">
             <div class="progress-header">
               <h3 class="section-title">Progreso de Lectura</h3>
-              <span class="active-books-count" id="active-books-count">3 libros activos</span>
+              <div class="progress-header-actions">
+                <span class="active-books-count" id="active-books-count">3 libros activos</span>
+                <button class="progress-history-btn" id="btn-historial-periodos" title="Ver períodos anteriores">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12,6 12,12 16,14"/>
+                  </svg>
+                </button>
+              </div>
             </div>
             <div class="progress-list" id="progress-list">
               <!-- Los libros en progreso se cargarán aquí dinámicamente -->
@@ -580,17 +806,19 @@
                 </div>
                 <span>Agregar Libro</span>
               </button>
+
+              <button class="quick-action-btn primary" id="btn-crear-votacion">
+  <div class="action-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
+      <polyline points="9,11 12,8 15,11"/>
+      <line x1="12" y1="8" x2="12" y2="21"/>
+    </svg>
+  </div>
+  <span>Crear Votación</span>
+</button>
+             
               
-              <button class="quick-action-btn secondary" onclick="alert('Funcion de votacion en desarrollo')">
-                <div class="action-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 11H7a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"/>
-                    <polyline points="9,11 12,8 15,11"/>
-                    <line x1="12" y1="8" x2="12" y2="21"/>
-                  </svg>
-                </div>
-                <span>Votaciones</span>
-              </button>
               
               <button class="quick-action-btn secondary" onclick="mostrarRanking()">
                 <div class="action-icon">
@@ -653,38 +881,6 @@
             <div class="activity-list" id="recent-activity-list">
               <!-- Las actividades se cargarán aquí dinámicamente -->
               <div class="activity-item">
-                <div class="activity-icon trophy">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-                    <path d="M4 22h16"/>
-                    <path d="M10 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34"/>
-                    <path d="M2 14h20v-2c0-4.4-3.6-8-8-8H10c-4.4 0-8 3.6-8 8v2z"/>
-                  </svg>
-                </div>
-                <div class="activity-content">
-                  <div class="activity-text">
-                    <strong>Completaste</strong> 'Messi: El genio'
-                  </div>
-                  <div class="activity-time">Hace 2 horas</div>
-                </div>
-              </div>
-
-              <div class="activity-item">
-                <div class="activity-icon star">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                  </svg>
-                </div>
-                <div class="activity-content">
-                  <div class="activity-text">
-                    <strong>Calificaste</strong> un libro con 5★
-                  </div>
-                  <div class="activity-time">Hace 5 horas</div>
-                </div>
-              </div>
-
-              <div class="activity-item">
                 <div class="activity-icon book">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -692,27 +888,10 @@
                   </svg>
                 </div>
                 <div class="activity-content">
-                  <div class="activity-text">
-                    <strong>Comenzaste</strong> 'Todo Messi'
+                  <div class="activity-text">Cargando actividad reciente...</div>
+                  <div class="activity-time">
+                    <small>💡 Para probar con datos de ejemplo, abre la consola y ejecuta: <code>probarActividadRecienteConDatos()</code></small>
                   </div>
-                  <div class="activity-time">Hace 1 día</div>
-                </div>
-              </div>
-
-              <div class="activity-item">
-                <div class="activity-icon user">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                </div>
-                <div class="activity-content">
-                  <div class="activity-text">
-                    <strong>Nuevo miembro</strong> en el club
-                  </div>
-                  <div class="activity-time">Hace 2 días</div>
                 </div>
               </div>
             </div>
@@ -779,7 +958,18 @@
 
   
 </main>
+
+<!-- Loader global -->
+<div id="app-loader" class="loader-overlay" style="display: none;">
+    <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <p id="loader-message">Cargando...</p>
+    </div>
+</div>
+
 <div id="notifications" class="notification-container"></div>
+   <script type="module"src="../componentes/loader.js"></script>
+   <script type="module" src="../componentes/notificacion.js"></script>
    <script type="module" src="../js/clubnew.js"></script>
 
 </body>

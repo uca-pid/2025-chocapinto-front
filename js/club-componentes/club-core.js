@@ -2,18 +2,18 @@ window.clubData = null;
 
 async function renderClub() {
     const clubId = getClubId();
-    console.log("Club ID obtenido:", clubId);
+    
     if (!clubId) {
         mostrarClubNoEncontrado("No se especificó el club.");
         return;
     }
     try {
-        console.log("Haciendo fetch al club...");
+        
         const res = await fetch(`${API_URL}/club/${clubId}`);
         const data = await res.json();
-        console.log("Datos del club recibidos:", data);
+        
         if (!res.ok || !data.success) {
-            console.log("Error en la respuesta:", data.message);
+            
             mostrarClubNoEncontrado(data.message || "No existe el club.");
             return;
         }
@@ -22,6 +22,7 @@ async function renderClub() {
         
         mostrarDatosClub(data.club);
         actualizarContadorMiembros(data.club);
+        
         
 
         // --- FILTRO MÚLTIPLE POR CATEGORÍAS ---
@@ -180,6 +181,12 @@ async function renderClub() {
         // Ocultar loader una vez que todo esté cargado
         hideLoader();
 
+        // Inicializar el sistema de botón dinámico de votación ahora que los datos están listos
+        if (typeof window.initBotonDinamico === 'function') {
+            
+            window.initBotonDinamico();
+        }
+
         // Actualizar las secciones adicionales
         setTimeout(() => {
             if (typeof cargarProgresoLectura === 'function') {
@@ -221,7 +228,7 @@ async function gestionarSolicitud(solicitudId, aceptar) {
 }
 
 function mostrarClubNoEncontrado(msg) {
-    console.log("Mostrando club no encontrado:", msg);
+    
     hideLoader(); // Asegurar que el loader se oculte
     const nameElement = document.getElementById('club-name');
     const descElement = document.getElementById('club-description');
@@ -231,7 +238,7 @@ function mostrarClubNoEncontrado(msg) {
 }
 
 function mostrarDatosClub(club) {
-    console.log("Mostrando datos del club:", club);
+    
     const nameElement = document.getElementById('club-name');
     const imageElement = document.getElementById('club-imagen');
     const descElement = document.getElementById('club-description');
@@ -244,27 +251,27 @@ function mostrarDatosClub(club) {
     const sidebarImageElement2 = document.getElementById('sidebar-club-imagen-2');
     const sidebarDescElement2 = document.getElementById('sidebar-club-description-2');
     
-    console.log("Elementos encontrados:", { nameElement, imageElement, descElement });
+    
     
     const imageSrc = club.imagen || '../images/BooksyLogo.png';
     
     // Actualizar elementos principales (sección Club)
     if (nameElement) {
         nameElement.textContent = club.name;
-        console.log("Nombre del club establecido:", club.name);
+        
     }
     if (imageElement) {
         imageElement.src = imageSrc;
-        console.log("Imagen del club establecida:", imageSrc);
+        
         // Agregar un handler para errores de carga de imagen
         imageElement.onerror = function() {
-            console.log("Error cargando imagen, usando fallback");
+            
             this.src = '../images/BooksyLogo.png';
         };
     }
     if (descElement) {
         descElement.textContent = club.description;
-        console.log("Descripción del club establecida:", club.description);
+        
     }
     
     // Actualizar elementos del sidebar (sección Principal)
@@ -305,99 +312,116 @@ function mostrarDatosClub(club) {
     
     // obtenerDatosOwner(club.id_owner); // Comentado: elemento club-owner no existe en HTML
     mostrarBotonesAccion(club);
+    
+    // Actualizar rol en header basándose en ClubMember
+    if (typeof actualizarRolEnHeader === 'function') {
+        actualizarRolEnHeader(club);
+    } else {
+        console.warn('⚠️ Función actualizarRolEnHeader no disponible');
+    }
 }
 
 function mostrarBotonesAccion(club) {
     const userId = localStorage.getItem("userId");
-    console.log('🔧 mostrarBotonesAccion - userId:', userId, 'club.id_owner:', club.id_owner);
     
+    // Usar el nuevo sistema basado en ClubMember
+    const userRole = getUserRoleInClub(club, userId);
+    const canManage = canUserManageClub(club, userId);
+    const canDelete = canUserDeleteClub(club, userId);
+    const canManageRequests = canUserManageRequests(club, userId);
+    
+  
     // Botones del header
     const eliminarBtnHeader = document.getElementById("eliminarClubBtnHeader");
     const salirBtnHeader = document.getElementById("salirClubBtnHeader");
     const requestsBtn = document.getElementById("requestsBtn");
     
-    console.log('🔍 Elementos encontrados:', {
-        eliminarBtnHeader: !!eliminarBtnHeader,
-        salirBtnHeader: !!salirBtnHeader,
-        requestsBtn: !!requestsBtn
-    });
-    
-    // Botones del cuerpo (mantener para compatibilidad)
     
     
-    if (club.id_owner == userId) {
-        console.log('✅ Usuario es OWNER del club');
+    // Mostrar/ocultar botón de eliminar club (solo owner)
+    if (eliminarBtnHeader) {
+        eliminarBtnHeader.style.display = canDelete ? "inline-flex" : "none";
         
-        // Mostrar botón de eliminar en header
-        if (eliminarBtnHeader) {
-            eliminarBtnHeader.style.display = "inline-flex";
-        }
-        // Ocultar botón de salir en header
-        if (salirBtnHeader) {
-            salirBtnHeader.style.display = "none";
-        }
-        
-        // Mostrar botón de solicitudes para owners
-        if (requestsBtn) {
-            requestsBtn.style.display = "inline-flex";
-            console.log('✅ Botón de solicitudes mostrado');
-        } else {
-            console.error('❌ No se encontró el botón requestsBtn');
-        }
-        
-        // Mantener compatibilidad con botones del cuerpo
-       
-        // Actualizar badge de solicitudes para owners
-        actualizarBadgeSolicitudes(club);
-    } else {
-        console.log('❌ Usuario NO es owner del club');
-        
-        // Mostrar botón de salir en header
-        if (salirBtnHeader) {
-            salirBtnHeader.style.display = "inline-flex";
-        }
-        // Ocultar botón de eliminar en header
-        if (eliminarBtnHeader) {
-            eliminarBtnHeader.style.display = "none";
-        }
-        // Mantener compatibilidad con botones del cuerpo
-        if (salirBtn) {
-            salirBtn.style.display = "inline-block";
-        }
-        if (eliminarBtn) {
-            eliminarBtn.style.display = "none";
-        }
-        // Ocultar botón de solicitudes si no es owner
-        if (requestsBtn) {
-            requestsBtn.style.display = "none";
-            console.log('🚫 Botón de solicitudes ocultado (no es owner)');
-        }
-        // Ocultar badge para no-owners
-        const requestsBadge = document.getElementById('requestsBadge');
-        if (requestsBadge) {
-            requestsBadge.style.display = 'none';
-        }
     }
+    
+    // Mostrar/ocultar botón de salir del club (moderadores y lectores pueden salir)
+    if (salirBtnHeader) {
+        // Solo el OWNER no puede salir del club, moderadores y lectores sí pueden
+        const canLeave = !canDelete; // Si no puede eliminar (no es owner), puede salir
+        salirBtnHeader.style.display = canLeave ? "inline-flex" : "none";
+        
+    }
+    
+    // Mostrar/ocultar botón de solicitudes (owner y moderadores)
+    if (requestsBtn) {
+        if (canManageRequests) {
+            requestsBtn.style.display = "inline-flex";
+            
+        } else {
+            requestsBtn.style.display = "none";
+            
+        }
+    } else {
+        console.error('❌ No se encontró el botón requestsBtn');
+    }
+    
+    // Actualizar badge de solicitudes
+    actualizarBadgeSolicitudes(club);
+    
+    // Configurar permisos adicionales de la UI
+    configurarPermisos(club);
 }
 
 function actualizarBadgeSolicitudes(club) {
     const requestsBadge = document.getElementById('requestsBadge');
     const userId = localStorage.getItem("userId");
-    const isOwner = club.id_owner == userId;
+    const canManageRequests = canUserManageRequests(club, userId);
     
     if (!requestsBadge) return;
     
-    if (isOwner && club.solicitudes && club.solicitudes.length > 0) {
+    if (canManageRequests && club.solicitudes && club.solicitudes.length > 0) {
         const pendientes = club.solicitudes.filter(s => s.estado === "pendiente");
         
         if (pendientes.length > 0) {
             requestsBadge.textContent = pendientes.length;
             requestsBadge.style.display = 'flex';
+            
         } else {
             requestsBadge.style.display = 'none';
+            
         }
     } else {
         requestsBadge.style.display = 'none';
+        
+    }
+}
+
+function configurarPermisos(club) {
+    const userId = localStorage.getItem("userId");
+    const userRole = getUserRoleInClub(club, userId);
+    
+    
+    
+    // Botones de acciones rápidas
+    const agregarLibroBtn = document.querySelector('.quick-action-btn.primary'); // Botón "Agregar Libro"
+    const votacionesBtn = document.querySelector('.quick-action-btn.secondary'); // Botón "Votaciones"
+    
+    // Otros elementos que requieren permisos
+    const quickActionsCard = document.querySelector('.quick-actions-card');
+    
+   
+    
+    // Si el usuario no puede gestionar nada, ocultar toda la card de acciones rápidas para lectores
+    const canDoAnyAction = canUserManageClub(club, userId) || canUserManageBooks(club, userId);
+    if (quickActionsCard) {
+        if (canDoAnyAction) {
+            quickActionsCard.style.display = 'block';
+            
+        } else {
+            // Para lectores, mostrar solo algunas acciones
+            quickActionsCard.style.display = 'block'; // Mantener visible pero con botones limitados
+            
+        }
     }
 }
 
@@ -483,7 +507,7 @@ async function salirDelClub(){
 }
 
 function setupButtonEventListeners() {
-    console.log("Configurando event listeners de botones...");
+    
     
     
     
@@ -493,12 +517,12 @@ function setupButtonEventListeners() {
     
     if (eliminarBtnHeader) {
         eliminarBtnHeader.addEventListener('click', eliminarClub);
-        console.log("Event listener agregado a eliminarClubBtnHeader");
+        
     }
     
     if (salirBtnHeader) {
         salirBtnHeader.addEventListener('click', salirDelClub);
-        console.log("Event listener agregado a salirClubBtnHeader");
+        
     }
     
     // Configurar event listeners para iconos del header
@@ -507,29 +531,29 @@ function setupButtonEventListeners() {
     
     if (notificationBtn) {
         notificationBtn.addEventListener('click', function() {
-            console.log("Botón de notificaciones clickeado");
+            
             // Aquí se puede agregar la funcionalidad de notificaciones
             alert("Funcionalidad de notificaciones en desarrollo");
         });
-        console.log("Event listener agregado a notificationBtn");
+        
     }
     
     if (settingsBtn) {
         settingsBtn.addEventListener('click', function() {
-            console.log("Botón de configuración clickeado");
+            
             // Aquí se puede agregar la funcionalidad de configuración
             alert("Funcionalidad de configuración en desarrollo");
         });
-        console.log("Event listener agregado a settingsBtn");
+        
     }
     
     const requestsBtn = document.getElementById('requestsBtn');
     if (requestsBtn) {
         requestsBtn.addEventListener('click', function() {
-            console.log("Botón de solicitudes clickeado");
+            
             mostrarSolicitudesModal();
         });
-        console.log("Event listener agregado a requestsBtn");
+        
     }
     
     // Note: configurarModalGrafico() and setupHistorialClubEventListeners() 
@@ -584,7 +608,7 @@ function actualizarEstadisticas(club) {
 
 // ========== INICIALIZACIÓN ==========
 function initCore() {
-    console.log('🎯 Inicializando core...');
+    
     
     // Configurar event listeners
     setupButtonEventListeners();
@@ -598,7 +622,7 @@ function initCore() {
     window.salirDelClub = salirDelClub;
     window.actualizarEstadisticas = actualizarEstadisticas;
     
-    console.log('✅ Core inicializado correctamente');
+    
 }
 
 // Función para actualizar el contador de miembros en el botón
@@ -610,11 +634,12 @@ function actualizarContadorMiembros(clubData) {
             cantidadMiembros = clubData.members.length;
         }
         miembrosCountElement.textContent = cantidadMiembros;
-        console.log(`Contador de miembros actualizado: ${cantidadMiembros}`);
+        
     } else {
         console.warn('Elemento miembros-count no encontrado en el DOM');
     }
 }
+
 
 // Exportar funciones de inicialización
 window.initCore = initCore;
