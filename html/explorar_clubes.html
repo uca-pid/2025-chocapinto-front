@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorar Clubes - Booksy</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/componentes/loader.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
+</head>
+<body class="main-body">
+    <div id="notifications"></div>
+    
+    <header class="main-header">
+        <img src="../images/BooksyLogo.png" class="BooksyLogo" alt="Booksy Logo" style="width: 180px; max-width: 30vw; filter: drop-shadow(0 2px 8px #2c5a9140);">
+        
+        <nav class="main-nav">
+             <a href="main.html" class="button profile-btn" data-text="Inicio">
+                <span class="actual-text">&nbsp;Inicio&nbsp;</span>
+                <span aria-hidden="true" class="hover-text">&nbsp;Inicio&nbsp;</span>
+            </a>
+        </nav>
+    </header>
+
+    <main class="exploration-main">
+        <section class="main-sections" style="padding-inline: var(--page-padding-inline);">
+            <div class="exploration-header">
+                <h1 style="text-align: center;">Explorá todos los Clubes de Lectura</h1>
+                <p style="color:#636e72; margin-bottom: 2rem; text-align: center;">Unite a nuevas comunidades y descubrí tu próxima lectura.</p>
+            </div>
+            
+            <div id="clubesGridExploracion" class="clubes-grid exploracion-grid">
+                </div>
+        </section>
+    </main>
+    
+    <footer class="main-footer">
+        <p>Booksy &copy; 2025</p>
+    </footer>
+
+    <script type="module" src="../js/exploracion.js"></script>
+</body>
+</html>
