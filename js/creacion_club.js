@@ -2,12 +2,75 @@ import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
 
+// ========== FUNCIONES DEL HEADER ==========
+
+/**
+ * Cierra sesión del usuario
+ */
+function logout() {
+    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("role");
+    window.location.href = "index.html";
+}
+
+/**
+ * Configura el dropdown del perfil
+ */
+function configurarDropdownPerfil() {
+    const dropdownBtn = document.getElementById("profileDropdownBtn");
+    const dropdownContent = document.getElementById("profileDropdownContent");
+    
+    if (dropdownBtn && dropdownContent) {
+        dropdownBtn.addEventListener("mouseenter", () => {
+            dropdownContent.style.display = "block";
+        });
+        
+        dropdownBtn.addEventListener("mouseleave", () => {
+            setTimeout(() => {
+                if (!dropdownContent.matches(':hover')) {
+                    dropdownContent.style.display = "none";
+                }
+            }, 100);
+        });
+        
+        dropdownContent.addEventListener("mouseleave", () => {
+            dropdownContent.style.display = "none";
+        });
+        
+        dropdownContent.addEventListener("mouseenter", () => {
+            dropdownContent.style.display = "block";
+        });
+    }
+}
+
+/**
+ * Actualiza el display del username en el header
+ */
+function updateUsernameDisplay() {
+    const username = localStorage.getItem("username");
+    const usernameDisplay = document.getElementById("usernameDisplay");
+    const usernameDisplayHover = document.getElementById("usernameDisplayHover");
+    
+    if (username && usernameDisplay && usernameDisplayHover) {
+        usernameDisplay.textContent = username;
+        usernameDisplayHover.textContent = username;
+    }
+}
+
+// Exponer funciones al ámbito global
+window.logout = logout;
+
 // ========== INICIALIZACIÓN ==========
 // Mostrar loader al cargar la página
 showLoader("Cargando formulario...");
 
 // Ocultar loader cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", () => {
+    // Configurar header
+    updateUsernameDisplay();
+    configurarDropdownPerfil();
+    
     // Simular un pequeño delay para mostrar el loader
     setTimeout(() => {
         hideLoader();

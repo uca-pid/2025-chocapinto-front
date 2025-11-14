@@ -1,31 +1,157 @@
-/* Header principal Booksy */
+/* === Header === */
 .main-header {
-  background: #fff;
-  color: #c3cbd4;
-  padding: 1.2rem 0 1rem 0;
   display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px #2c5a9140;
-  position: relative;
-  z-index: 10;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1.5px solid #e0e6f6;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
-.main-header img.BooksyLogo {
-  width: 160px;
-  max-width: 28vw;
+
+.BooksyLogo {
+  width: 180px;
+  max-width: 30vw;
   filter: drop-shadow(0 2px 8px #2c5a9140);
-  margin-bottom: 0;
-  margin-left: 2vw;
-  margin-right: 2vw;
 }
+
 .main-nav {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 1.2rem;
-  margin-right: 2vw;
-  flex: 1;
+  gap: 1rem;
 }
+
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* === Animated Profile Button Styles === */
+/* From Uiverse.io by satyamchaudharydev */
+/* === removing default button style ===*/
+.button {
+  margin: 0;
+  height: auto;
+  background: transparent;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+/* button styling */
+.profile-btn.button {
+  --border-right: 4px;
+  --text-stroke-color: rgba(44, 90, 145, 0.6);
+  --animation-color: #4c4ac4;
+  --fs-size: 1.2em;
+  letter-spacing: 2px;
+  text-decoration: none;
+  font-size: var(--fs-size);
+  font-family: "Arial", sans-serif;
+  position: relative;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--text-stroke-color);
+  font-weight: 700;
+}
+
+/* this is the text, when you hover on button */
+.hover-text {
+  position: absolute;
+  box-sizing: border-box;
+  content: attr(data-text);
+  color: var(--animation-color);
+  width: 0%;
+  inset: 0;
+  border-right: var(--border-right) solid var(--animation-color);
+  overflow: hidden;
+  transition: 0.5s;
+  -webkit-text-stroke: 1px var(--animation-color);
+}
+
+/* hover */
+.button:hover .hover-text {
+  width: 100%;
+  filter: drop-shadow(0 0 23px var(--animation-color));
+}
+
+/* Dropdown Content Styles */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: #fff;
+  min-width: 180px;
+  box-shadow: 0 8px 32px rgba(44, 90, 145, 0.25);
+  border-radius: 12px;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid #eaf6ff;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-content a {
+  color: #2c5a91;
+  padding: 0.8rem 1.2rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f0f4fa;
+}
+
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content a:hover {
+  background: #eaf6ff;
+  color: #0984e3;
+  transform: translateX(4px);
+}
+
+.profile-dropdown:hover .dropdown-content,
+.dropdown-content.show {
+  display: block;
+}
+
+/* === Hero === */
+.hero-section {
+  background: linear-gradient(120deg, #e6eafc 0%, #f7f7f3 100%);
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-family: "Dancing Script", cursive;
+  color: #2c5a91;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero-desc {
+  color: #444;
+  font-size: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+
 /* Estilo para textarea en crear club */
 .crear-club-container textarea {
   width: 100%;

@@ -21,31 +21,169 @@ function logout() {
 // Exponer funciones al ámbito global
 window.logout = logout;
 
+/**
+ * Maneja el evento click de "Ver más" o "Explorar clubes"
+ */
+function mostrarTodosClubes(event) {
+    event.preventDefault(); 
+    // Redirigimos a la página de exploración donde se ven todos los clubes
+    window.location.href = 'explorar_clubes.html'; 
+}
+
+// Exponer la función al ámbito global
+window.mostrarTodosClubes = mostrarTodosClubes;
+
+
+/**
+ * Crea la tarjeta estática de "Crear nuevo club"
+ */
+function crearTarjetaCrearClub() {
+    const card = document.createElement("div");
+    card.className = "section-card club-card create-club-card";
+    
+    // El club-card ya tiene estilos base, solo agregamos el contenido del CTA
+    card.innerHTML = `
+        <div class="create-icon-container">
+            <svg class="create-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+        </div>
+        <h3 style="margin-top:10px;">Crear nuevo club</h3>
+        <p style="font-size:0.9em; color: #636e72;">Empezá tu propia comunidad de lectura</p>
+    `;
+    
+    // Añadir el evento de navegación
+    card.addEventListener("click", () => {
+        window.location.href = 'crear_club.html';
+    });
+    
+    return card;
+}
+
+/**
+ * Crea un mensaje CTA cuando la sección "Mis Clubes" está vacía.
+ */
+function crearMensajeMisClubesVacio() {
+    const emptyState = document.createElement("div");
+    emptyState.className = "empty-mis-clubes-state";
+    emptyState.innerHTML = `
+        <div class="empty-state-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16" class="book-icon">
+                <path d="M1 2.822v10.923c.962-.317 2.115-.86 3.036-.924 1.144-.078 2.502.508 3.52 1.054V3.033C7.037 2.487 5.7.078 4.636 2.822 3.864 2.146 3.09 1.838 1 2.822zm6.526 10.158c.84-.45 1.958-1.042 3.1-.923 1.139.119 2.186.744 2.88 1.157V2.822c-.962-.317-2.115-.86-3.036-.924-1.096-.073-2.392.518-3.324 1.054v10.021z"/>
+            </svg>
+            <p>¡Aún no sos miembro de ningún club!</p>
+            <p class="subtext">Explorá la sección de "Clubes de Lectura" y unite a tu primera comunidad.</p>
+            <a href="#" class="btn-explore-clubs" onclick="mostrarTodosClubes(event)">
+                Ver todos los clubes
+            </a>
+        </div>
+    `;
+    return emptyState;
+}
+
+// ========== LÓGICA DEL RANKING GLOBAL (NUEVO CÓDIGO) ==========
+
+/**
+ * Función auxiliar para generar el HTML de una tarjeta de ranking.
+ * @param {Object} user - Objeto con los datos del usuario (puesto, username, clubsCount, avatarURL).
+ */
+function createRankingItemHTML(user) {
+    return `
+        <div class="ranking-item">
+            <span class="ranking-puesto">${user.puesto}</span>
+            <img src="${user.avatarURL}" alt="Avatar de ${user.username}" class="ranking-avatar">
+            <div class="ranking-info">
+                <h4>${user.username}</h4>
+                <p>Clubes unidos:</p>
+            </div>
+            <span class="ranking-metrica">${user.clubsCount}</span>
+        </div>
+    `;
+}
+
+/**
+ * Función principal para cargar los datos del ranking global y renderizarlos.
+ */
+async function loadRanking() {
+    console.log("DEBUG: Iniciando carga de ranking...");
+    const rankingGrid = document.getElementById('rankingGrid');
+    // Asumimos que la ruta configurada es /api/global/ranking
+   
+    const endpoint = `${API_URL}/api/global/ranking`;
+
+    if (!rankingGrid) {
+        // console.warn("DEBUG: Elemento #rankingGrid no encontrado.");
+        return;
+    }
+
+    try {
+        const response = await fetch(endpoint);
+
+        if (!response.ok) {
+            console.error(`Fallo en la carga del ranking: Error ${response.status}`);
+            rankingGrid.innerHTML = `<p style="text-align:center; color:red; padding:15px;">Error al cargar el ranking.</p>`;
+            return;
+        }
+        
+        const data = await response.json();
+        const topReaders = data.ranking; 
+
+        if (!topReaders || topReaders.length === 0) {
+            rankingGrid.innerHTML = '<p style="text-align:center; color:#888; padding:15px;">Aún no hay usuarios suficientes para el Top 3.</p>';
+            return;
+        }
+
+        let rankingHTML = topReaders.map(createRankingItemHTML).join('');
+        rankingGrid.innerHTML = rankingHTML;
+        console.log("DEBUG: Ranking cargado con éxito.");
+
+    } catch (error) {
+        console.error('Fallo grave en la conexión o procesamiento del ranking:', error);
+        rankingGrid.innerHTML = '<p style="text-align:center; color:red; padding:15px;">No se pudo conectar con el servidor de ranking.</p>';
+    }
+}
+// ========== FIN LÓGICA DEL RANKING GLOBAL ==========
+
+
 // ========== FUNCIONES DE CARGA DE DATOS ==========
 
 /**
- * Carga y muestra todos los clubes disponibles
+ * Carga y muestra todos los clubes disponibles (Ajustado para limitación)
  */
 async function cargarClubes() {
     const username = localStorage.getItem("username");
     const misClubesGrid = document.querySelector(".mis-clubes-grid");
     const clubesGrid = document.getElementById("clubesGrid");
+    
+    // CORRECCIÓN: Evitar el error "Cannot set properties of null" (línea 83)
+    if (!misClubesGrid || !clubesGrid) {
+        console.error("Contenedores de clubes no encontrados. No se puede cargar la sección.");
+        hideLoader();
+        return; 
+    }
 
     // Limpiar contenido previo
     misClubesGrid.innerHTML = "";
     clubesGrid.innerHTML = "";
 
+    // === INSERCIÓN DE LA TARJETA DE CREAR CLUB ===
+    const crearClubCard = crearTarjetaCrearClub();
+    clubesGrid.appendChild(crearClubCard);
+    
     try {
         showLoader();
         const res = await fetch(`${API_URL}/clubs`);
         const data = await res.json();
         
+        // El loader se oculta aquí o en el finally, pero por simplicidad lo mantenemos aquí
         setTimeout(() => {
             hideLoader();
         }, 1000);
 
         if (!data.success) return;
 
+        let clubesAgregados = 0; // Contador para limitar los clubes en la visualización principal
+        
         data.clubs.forEach(club => {
             const esMiembro = club.members.some(m => m.username === username);
             const esCreador = club.ownerUsername === username;
@@ -62,13 +200,21 @@ async function cargarClubes() {
                         window.location.href = `club_lectura.html?clubId=${club.id}`;
                     }
                 });
-            } else {
+            } else if (clubesAgregados < 1) { // LÍMITE: Solo agregamos el primer club disponible
                 clubesGrid.appendChild(clubCard);
+                clubesAgregados++; // Incrementamos el contador
             }
 
             // Configurar eventos de botones
             configurarEventosClub(clubCard, club, esMiembro, esCreador, username);
         });
+        
+        // === COMPROBACIÓN: Si Mis Clubes está vacío, mostrar mensaje ===
+        if (misClubesGrid.children.length === 0) {
+            // Reutilizar la función de creación del mensaje
+            misClubesGrid.appendChild(crearMensajeMisClubesVacio());
+        } 
+        
     } catch (error) {
         console.error("Error al cargar clubes:", error);
         hideLoader();
@@ -83,13 +229,15 @@ function crearTarjetaClub(club, esMiembro, esCreador, img) {
     clubCard.className = "section-card club-card";
     
     clubCard.innerHTML = `
-        <div class="club-logo club-logo-default" style="width:70px;height:70px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f5f6fa;border-radius:50%;margin:0 auto 10px auto;">
-            <img src="${img}" alt="Logo del club" style="width:100%;height:100%;object-fit:contain;object-position:center;display:block;">
+        <div class="club-logo" style="width:70px;height:70px;overflow:hidden;display:flex;align-items:center;justify-content:center;border-radius:50%;margin:0 auto 10px auto;border: 3px solid #eaf6ff;">
+            <img src="${img}" alt="Logo del club" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
         </div>
-        <h3>${club.name}</h3>
+        <h3 title="${club.name}">${club.name}</h3>
         <p>${club.description}</p>
-        ${esMiembro ? '<span style="color:#0984e3;font-weight:700;">Ya eres miembro</span>' : '<button class="unirme-btn">Unirme</button>'}
-        ${esCreador ? '<button class="editar-btn">Editar</button>' : ''}
+        
+        ${esMiembro ? '<span class="miembro-tag">Miembro Activo</span>' : '<button class="unirme-btn">Unirme</button>'}
+        
+        ${esCreador ? '<button class="editar-btn unirme-btn" style="background:#f39c12; margin-left: 10px;">Editar</button>' : ''}
     `;
     
     return clubCard;
@@ -191,33 +339,44 @@ function configurarDropdownPerfil() {
 function inicializarAplicacion() {
     // Mostrar loader inmediatamente al inicializar
     showLoader("Cargando aplicación...");
-    
+
     const username = localStorage.getItem("username");
     const usernameDisplay = document.getElementById("usernameDisplay");
     const usernameDisplayHover = document.getElementById("usernameDisplayHover");
 
-    // Verificar autenticación
-    if (username && usernameDisplay) {
-        usernameDisplay.textContent = username;
-        if (usernameDisplayHover) {
-            usernameDisplayHover.textContent = username;
-        }
-    } else {
-        hideLoader(); // Ocultar loader antes de redirigir
+    // 1) Si NO hay usuario logueado → redirigimos a login
+    if (!username) {
+        hideLoader();
         window.location.href = "index.html";
         return;
     }
 
-    // Cargar datos iniciales
-    cargarClubes();
-    cargarLibrosRecomendados();
+    // 2) Si hay username pero esta página NO tiene header con el nombre,
+    //    no pasa nada, simplemente no lo mostramos.
+    if (usernameDisplay) {
+        usernameDisplay.textContent = username;
+        if (usernameDisplayHover) {
+            usernameDisplayHover.textContent = username;
+        }
+    }
 
-    // Configurar funcionalidades
+    // 3) Cargar datos principales
+    const misClubesGrid = document.querySelector(".mis-clubes-grid");
+    const clubesGrid = document.getElementById("clubesGrid");
+
+    if (misClubesGrid && clubesGrid) {
+        cargarClubes();
+    }
+
+    // 4) Cargar el ranking global (NUEVO)
+    loadRanking();
+    
+    // 5) Cargar libros y configurar UI
+    cargarLibrosRecomendados();
     configurarDropdownPerfil();
     configurarBusquedaTiempoReal();
-    
-    // El loader se ocultará automáticamente cuando cargarClubes termine
 }
+
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener("DOMContentLoaded", inicializarAplicacion);
@@ -232,6 +391,9 @@ window.buscarLibrosGoogleBooks = buscarLibrosGoogleBooks;
  */
 async function cargarLibrosRecomendados() {
     const grid = document.getElementById("recomendacionesGrid");
+    // CORRECCIÓN: Si el grid no existe (por ejemplo, en otra página), salimos.
+    if (!grid) return;
+    
     grid.innerHTML = "";
     
     try {
@@ -300,6 +462,9 @@ async function buscarLibrosGoogleBooks(event) {
     event.preventDefault();
     const query = document.getElementById("busquedaLibro").value.trim();
     const resultadosDiv = document.getElementById("resultadosBusquedaLibros");
+    
+    // CORRECCIÓN: Evitar errores de null si el div no existe
+    if (!resultadosDiv) return;
     
     // Limpiar resultados previos
     resultadosDiv.innerHTML = "";
@@ -371,6 +536,12 @@ function configurarBusquedaTiempoReal() {
     const input = document.getElementById("busquedaLibro");
     const resultados = document.getElementById("resultadosBusquedaLibros");
     let lastQuery = "";
+    
+    // CORRECCIÓN: Evitar el error "Cannot read properties of null" (línea 439)
+    if (!input || !resultados) {
+        // console.warn("Elementos de búsqueda no encontrados. Omitiendo configuración.");
+        return;
+    }
 
     input.addEventListener("input", async function () {
         const query = input.value.trim();
@@ -462,3 +633,9 @@ function crearTarjetaLibroLegacy(libro) {
 
     return card;
 }
+
+
+// =======================================================
+// EXPORTACIONES AGRUPADAS (Para que exploracion.js pueda importar)
+// =======================================================
+export { crearTarjetaCrearClub, crearTarjetaClub, configurarEventosClub };

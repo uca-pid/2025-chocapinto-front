@@ -38,5 +38,9 @@ function showNotification(type, message) {
 
     container.appendChild(notif);
 }
+
 // Exponer la función al ámbito global
+window.showNotification = showNotification;
+
+// También para ES6 modules
 export { showNotification };

@@ -1,4 +1,6 @@
+
 /* Base y Tipografía */
+
 body {
     background: #f5f6fa;
     font-family: 'Roboto', Arial, sans-serif;
@@ -276,3 +278,105 @@ h2 {
 }
 #modalPerfilSuccessMsg { color: #0984e3; }
 #modalPerfilErrorMsg { color: #d63031; }
+
+/* --- Ajustes base para fluidez --- */
+.perfil-wrapper{
+  max-width: 1100px;        /* un poco más cómodo en desktop */
+  padding: 0 16px;          /* respiración lateral en pantallas chicas */
+}
+
+/* Sidebar más flexible en anchos intermedios */
+.perfil-layout{
+  grid-template-columns: minmax(240px, 28%) 1fr; /* columna 1 fluida */
+}
+
+/* Botones del sidebar: que repartan y no se corten */
+.sidebar-actions{
+  flex-wrap: wrap;
+}
+.sidebar-actions button{
+  flex: 1 1 180px;          /* se acomodan en 1 o 2 columnas según ancho */
+}
+
+/* Inputs y tipografías que escalen suave */
+h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
+.form-group input{ font-size: 1rem; }
+
+/* ----- Tablet (≤ 1024px): pasamos a 1 columna si el viewport es angosto ----- */
+@media (max-width: 1024px){
+  .perfil-layout{
+    grid-template-columns: 1fr;
+    gap: 0;
+    box-shadow: none;
+  }
+  .perfil-sidebar{
+    padding: 20px;
+    border-right: 0;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+  }
+  .perfil-main-content{ padding: 20px; }
+  .form-row{ grid-template-columns: 1fr; }
+}
+
+/* ----- Mobile (≤ 768px): retoques finos ----- */
+@media (max-width: 768px){
+  .profile-photo{ margin: 0 0 10px 0; }
+  .sidebar-actions{
+    gap: 10px;
+    justify-content: flex-start;
+  }
+  .form-actions{
+    flex-direction: column;
+    gap: 10px;
+  }
+  .form-actions button{ width: 100%; }
+  .global-actions{ display: none; } /* simplifica el móvil; si querés, dejalo */
+}
+
+/* ----- Mobile chico (≤ 480px): tipografía y espacios compactos ----- */
+@media (max-width: 480px){
+  h2{ font-size: 1.25rem; }
+  .perfil-sidebar{ padding: 16px; }
+  .perfil-main-content{ padding: 16px; }
+}
+/* === Botones compactos en el sidebar === */
+.perfil-sidebar .sidebar-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Quitar el estilo tipo “tarjeta alta” */
+.perfil-sidebar .sidebar-actions button,
+.perfil-sidebar .sidebar-actions a {
+  flex: 1 1 auto;          /* antes: 1 1 180px (los hacía enormes) */
+  height: auto !important; 
+  min-height: 44px;         /* tamaño táctil cómodo */
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+/* Tablet: si querés que se ubiquen en 2 columnas */
+@media (min-width: 768px) and (max-width: 1024px){
+  .perfil-sidebar .sidebar-actions{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+/* Mobile chico: un poquito más compacto aún */
+@media (max-width: 480px){
+  .perfil-sidebar .sidebar-actions{
+    gap: 10px;
+  }
+  .perfil-sidebar .sidebar-actions button,
+  .perfil-sidebar .sidebar-actions a {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+    min-height: 40px;
+  }
+}

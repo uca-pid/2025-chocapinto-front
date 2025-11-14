@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booksy - Club de Lectura</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/componentes/notificaciones.css">
@@ -11,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
 <body class="main-body">
-    <!-- Contenedor de notificaciones -->
     <div id="notifications"></div>
     
     <header class="main-header">
@@ -44,42 +44,66 @@
         </nav>
     </header>
 
-    <section class="hero-section hero-banner">
-        <div class="hero-banner__content">
-            <h1>Tu Club de Lectura</h1>
-            <p class="hero-desc">
-            Descubrí libros, unite a clubes y compartí lecturas con otras personas.
-            </p>
+    <section class="hero-card-section">
+        <div class="hero-card">
+            <div class="hero-text-content">
+                <h1>Tu Club de Lectura</h1>
+                <p>Descubrí libros, unite a clubes y compartí lecturas con otras personas.</p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="mostrarTodosClubes(event)">
+                        Explorar clubes
+                    </button>
+                    <button class="btn-secondary" onclick="window.location.href='#misClubesSection'">
+                        Mis clubes
+                    </button>
+                </div>
+            </div>
+            <div class="hero-decoration">
+                <div class="deco-card card-top">
+                    <span class="card-hp-badge">HP</span>
+                    <span class="card-title">Harry Potter</span>
+                </div>
+                <div class="deco-card card-bottom">
+                    <span class="card-romance-badge">♥</span>
+                    <span class="card-title">Romance</span>
+                </div>
+            </div>
         </div>
     </section>
 
-    <main>
-        <!-- Sección Mis Clubes -->
-        <section class="mis-clubes-section">
-            <h2>Mis Clubes</h2>
-            <div class="mis-clubes-grid"></div>
-        </section>
-
-        <!-- Sección Todos los Clubes -->
-        <section class="main-sections">
-            <h2>Clubes de Lectura</h2>
-            <div style="text-align:center; margin-bottom:1.5rem;">
-                <button onclick="window.location.href='crear_club.html'" 
-                        style="padding:0.8rem 1.5rem; background:#0984e3; color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:700;">
-                    Crear nuevo club
-                </button>
+    <main class="contenedor-principal-columnas">
+        <section class="columna-clubes">
+            
+            <div class="mis-clubes-section">
+                <h2 style="padding: 0 1rem;">Mis Clubes</h2>
+                <div class="mis-clubes-grid"></div>
             </div>
-            <div id="clubesGrid" class="clubes-grid"></div>
+
+            <div class="main-sections">
+                <div class="clubes-header">
+                    <h2>Clubes de Lectura</h2>
+                    <a href="explorar_clubes.html" class="ver-mas-link">Ver más ></a>
+                </div>
+                <div id="clubesGrid" class="clubes-grid"></div>
+            </div>
+            
         </section>
 
-        <!-- Sección Recomendaciones de libros -->
-        <section>
-            <div class="recomendaciones-section">
-                <h2>Recomendaciones de Libros</h2>
-                <div class="recomendaciones-row" id="recomendacionesGrid"></div>
+        <section class="columna-ranking">
+            <div class="ranking-usuarios-section">
+                <h2>🏆 Ranking de Lectores</h2>
+                <div id="rankingGrid" class="ranking-grid">
+                    </div>
             </div>
         </section>
     </main>
+
+    <section>
+        <div class="recomendaciones-section">
+            <h2>Recomendaciones de Libros</h2>
+            <div class="recomendaciones-row" id="recomendacionesGrid"></div>
+        </div>
+    </section>
 
     <footer class="main-footer">
         <p>¿Deseás más información de los clubes? Escribinos a <a href="mailto:mail@booksy.com">mail@booksy.com</a></p>
@@ -87,8 +111,53 @@
     </footer>
 
     <script type="module" src="../js/principal.js"></script>
-</body>
-</html>
-  
+    // ...existing code...
+
+  <script>
+  (function(){
+    // Selecciona la caja del ranking; si no existe, usa el contenedor principal (#app)
+    const box = document.querySelector('.ranking-usuarios-section') || document.getElementById('app');
+    if(!box) return;
+
+    // Asegurar scroll interno y comportamiento de overscroll
+    box.style.overflowY = 'auto';
+    if (!box.style.maxHeight) box.style.maxHeight = 'calc(100vh - var(--header-offset) - 1.5rem)';
+    box.style.overscrollBehavior = 'contain';
+    box.style.webkitOverflowScrolling = 'touch';
+
+    // Wheel: evitar que el documento se desplace cuando el cursor está sobre el ranking
+    box.addEventListener('wheel', function(e){
+      if (box.scrollHeight <= box.clientHeight) return;
+      const delta = e.deltaY;
+      const atTop = box.scrollTop === 0 && delta < 0;
+      const atBottom = Math.abs(box.scrollHeight - box.clientHeight - box.scrollTop) <= 1 && delta > 0;
+      if (!atTop && !atBottom) {
+        e.stopPropagation(); // permitir scroll interno
+      } else {
+        e.stopPropagation();
+        e.preventDefault(); // bloquear overscroll hacia el body
+      }
+    }, { passive: false });
+
+    // Touch: similar lógica para pantallas táctiles
+    let touchStartY = 0;
+    box.addEventListener('touchstart', function(e){ touchStartY = e.touches[0].clientY; }, { passive: true });
+    box.addEventListener('touchmove', function(e){
+      if (box.scrollHeight <= box.clientHeight) return;
+      const touchY = e.touches[0].clientY;
+      const delta = touchStartY - touchY;
+      const atTop = box.scrollTop === 0 && delta < 0;
+      const atBottom = Math.abs(box.scrollHeight - box.clientHeight - box.scrollTop) <= 1 && delta > 0;
+      if (!atTop && !atBottom) {
+        e.stopPropagation();
+      } else {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    }, { passive: false });
+  })();
+  </script>
+
+
 </body>
 </html>
