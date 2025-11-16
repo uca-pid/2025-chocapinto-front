@@ -7692,3 +7692,143 @@ main {
   font-size: var(--text-sm);
   color: var(--gray-500);
 }
+
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--header-bg, #ffffff);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon-btn {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.header-context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-context-icon {
+  font-size: 20px;
+}
+
+.header-context-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-context-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header-context-subtitle {
+  font-size: 12px;
+  color: #777;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.header-action-icon {
+  font-size: 14px;
+}
+
+/* Variantes de botones */
+.header-action-primary {
+  background: #e53935;
+  color: white;
+}
+
+.header-action-secondary {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.header-action-ghost {
+  background: transparent;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+/* Bloque de XP */
+.user-xp {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-level {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.xp-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xp-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.xp-progress-bar-fill {
+  height: 100%;
+  width: 0; /* Se actualiza por JS */
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  transition: width 0.3s ease-out;
+}
+
+.xp-progress-text {
+  font-size: 10px;
+  color: #6b7280;
+  line-height: 1.2;
+}

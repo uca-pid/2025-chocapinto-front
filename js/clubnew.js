@@ -1,4 +1,7 @@
-import { initHeader } from './club-componentes/club-header.js';
+// Nuevo header reutilizable
+import { initAppHeader, setHeaderContext, addHeaderAction } from './club-componentes/app-header.js';
+
+// Resto de módulos
 import { initNavigation } from './club-componentes/club-navegacion.js';
 import { initCore, renderClub } from './club-componentes/club-core.js';
 import { initLibrary } from './club-componentes/club-library.js';
@@ -7,51 +10,133 @@ import { initBookModal } from './club-componentes/club-book.js';
 import { initCommentsModal } from './club-componentes/club-modal-comments.js';
 import { initHistoryModal } from './club-componentes/club-modal-history.js';
 import { initInfoModals } from './club-componentes/club-modal-info.js';
-import { initUtils, getClubId, getEstadoInfo, getEstadoLabel, formatTimeAgoReal, calcularDiasLectura, getAccionTexto, formatearMes } from './club-componentes/club-utils.js';
+import { initUtils } from './club-componentes/club-utils.js';
+
 import { API_URL } from './env.js';
 import { showLoader, hideLoader } from "../componentes/loader.js";
 import { initClubVotingComponent } from './club-componentes/club-voting.js';
 import { initPeriodosHistoryComponent } from './club-componentes/club-periodos-history.js';
+
 console.log("Cargando coordinador principal club.js...");
 
+document.addEventListener("DOMContentLoaded", async () => {
 
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("DOM Content Loaded - Coordinador Principal");
-    
-    // Expose API_URL and loader functions globally
-    window.API_URL = API_URL;
-    window.showLoader = showLoader;
-    window.hideLoader = hideLoader;
-    
-    // Initialize utilities first (they expose functions globally)
-    initUtils();
-    
-    // Initialize shared variables for inter-module communication
-    window.currentBookId = null;
-    window.modalComentarios = document.getElementById("modalComentarios");
-    
-    // Inicializar todos los módulos
-    initHeader();
-    initNavigation();
-    initCore();
-    initLibrary();
-    initClubVotingComponent();
-    initPeriodosHistoryComponent();
-    initWidgets();
-    initBookModal();
-    initCommentsModal();
-    initHistoryModal();
-    initInfoModals();
-    
+  console.log("DOM Content Loaded - Coordinador Principal");
 
-    
-    showLoader("Cargando club...");
-    setTimeout(() => {
-        try {
-            hideLoader();
-            renderClub(); // Llama a la función principal desde club-core.js
-        } catch (error) {
-            console.error("Error en la carga inicial:", error);
+  // Variables globales
+  window.API_URL = API_URL;
+  window.showLoader = showLoader;
+  window.hideLoader = hideLoader;
+
+  initUtils();
+  window.currentBookId = null;
+  window.modalComentarios = document.getElementById("modalComentarios");
+
+  // =======================
+  // 1) HEADER BASE
+  // =======================
+  initAppHeader({ showBackButton: true });
+
+  // =======================
+  // 2) Inicializar módulos UI
+  // =======================
+  initNavigation();
+  initLibrary();
+  initClubVotingComponent();
+  initPeriodosHistoryComponent();
+  initWidgets();
+  initBookModal();
+  initCommentsModal();
+  initHistoryModal();
+  initInfoModals();
+
+  // =======================
+  // 3) Cargar club
+  // =======================
+  showLoader("Cargando club...");
+
+  setTimeout(async () => {
+    try {
+      await renderClub(); // → carga club y setea window.clubData
+
+      hideLoader();
+
+      if (!window.clubData) {
+        console.warn("⚠️ renderClub terminó pero clubData es null");
+        return;
+      }
+
+      const clubData = window.clubData;
+
+      // ========================
+      // 4) Configurar header (nombre, miembros)
+      // ========================
+      setHeaderContext({
+        icon: "📚",
+        title: clubData.name,
+        subtitle: `${clubData.members?.length || 0} miembros`,
+      });
+
+      // ========================
+      // 5) DETERMINAR SI ES ADMIN
+      // ========================
+      const userId = parseInt(localStorage.getItem("userId"));
+      const esAdmin = window.canUserManageClub
+        ? window.canUserManageClub(clubData, userId)
+        : false;
+
+      console.log("¿Es admin?", esAdmin);
+
+      // ========================
+      // 6) SOLO SI ES ADMIN, CREAR LOS BOTONES
+      // ========================
+      if (esAdmin) {
+
+        // ELIMINAR CLUB
+        addHeaderAction({
+          id: "eliminarClubBtnHeader",
+          label: "Eliminar club",
+          icon: "🗑️",
+          variant: "primary",
+          // sin onClick, lo conecta club-core.js
+        });
+
+        // SOLICITUDES
+        const solicitudesBtn = addHeaderAction({
+          id: "requestsBtn",
+          label: "Solicitudes",
+          icon: "👥",
+          variant: "secondary",
+        });
+
+        // badge
+        if (solicitudesBtn) {
+          const badge = document.createElement("span");
+          badge.id = "requestsBadge";
+          badge.className = "requests-badge";
+          badge.style.display = "none";
+          solicitudesBtn.appendChild(badge);
         }
-    }, 800);
+      }
+
+      // ========================
+      // 7) SIEMPRE (admin o no), botón salir
+      // ========================
+      addHeaderAction({
+        id: "salirClubBtnHeader",
+        label: "Salir del club",
+        icon: "🚪",
+        variant: "ghost",
+      });
+
+      // ========================
+      // 8) AHORA que los botones existen → conectar listeners
+      // ========================
+      initCore();
+
+    } catch (error) {
+      hideLoader();
+      console.error("Error en la carga inicial:", error);
+    }
+  }, 800);
 });
