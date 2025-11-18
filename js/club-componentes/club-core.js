@@ -1,5 +1,54 @@
 window.clubData = null;
 
+function actualizarEstadisticas(club) {
+    // Contadores por estado
+    let librosLeidos = 0;
+    let librosLeyendo = 0;
+    let librosPorLeer = 0;
+    
+    // Actualizar contadores de libros por estado
+    const totalBooksCounter = document.getElementById('total-books');
+    const readingBooksCounter = document.getElementById('reading-books');
+    const pendingBooksCounter = document.getElementById('pending-books');
+    
+    if (club.readBooks) {
+        club.readBooks.forEach(libro => {
+            if (libro.estado === 'leido') {
+                librosLeidos++;
+            } else if (libro.estado === 'leyendo') {
+                librosLeyendo++;
+            } else if (libro.estado === 'por_leer') {
+                librosPorLeer++;
+            }
+        });
+    }
+    
+    if (totalBooksCounter) {
+        totalBooksCounter.textContent = librosLeidos;
+    }
+    if (readingBooksCounter) {
+        readingBooksCounter.textContent = librosLeyendo;
+    }
+    if (pendingBooksCounter) {
+        pendingBooksCounter.textContent = librosPorLeer;
+    }
+    
+    // Actualizar contador de categorías (categorías únicas)
+    const totalCategoriesCounter = document.getElementById('total-categories');
+    if (totalCategoriesCounter) {
+        const categoriesSet = new Set();
+        if (club.readBooks) {
+            club.readBooks.forEach(libro => {
+                libro.categorias.forEach(cat => categoriesSet.add(cat.id));
+            });
+        }
+        totalCategoriesCounter.textContent = categoriesSet.size;
+    }
+}
+
+// Make actualizarEstadisticas globally available immediately
+window.actualizarEstadisticas = actualizarEstadisticas;
+
 async function renderClub() {
     const clubId = getClubId();
     
@@ -362,7 +411,7 @@ function mostrarBotonesAccion(club) {
             
         }
     } else {
-        console.error('❌ No se encontró el botón requestsBtn');
+        console.warn('⚠️ Botón requestsBtn no encontrado en el DOM - puede que no esté implementado en esta página');
     }
     
     // Actualizar badge de solicitudes
@@ -518,11 +567,15 @@ function setupButtonEventListeners() {
     if (eliminarBtnHeader) {
         eliminarBtnHeader.addEventListener('click', eliminarClub);
         
+    } else {
+        console.warn('⚠️ Botón eliminarClubBtnHeader no encontrado - funcionalidad no disponible');
     }
     
     if (salirBtnHeader) {
         salirBtnHeader.addEventListener('click', salirDelClub);
         
+    } else {
+        console.warn('⚠️ Botón salirClubBtnHeader no encontrado - funcionalidad no disponible');
     }
     
     // Configurar event listeners para iconos del header
@@ -554,57 +607,15 @@ function setupButtonEventListeners() {
             mostrarSolicitudesModal();
         });
         
+    } else {
+        console.warn('⚠️ Botón requestsBtn no encontrado - funcionalidad de solicitudes no disponible');
     }
     
     // Note: configurarModalGrafico() and setupHistorialClubEventListeners() 
     // are now called from their respective init functions
 }
 
-function actualizarEstadisticas(club) {
-    // Contadores por estado
-    let librosLeidos = 0;
-    let librosLeyendo = 0;
-    let librosPorLeer = 0;
-    
-    // Actualizar contadores de libros por estado
-    const totalBooksCounter = document.getElementById('total-books');
-    const readingBooksCounter = document.getElementById('reading-books');
-    const pendingBooksCounter = document.getElementById('pending-books');
-    
-    if (club.readBooks) {
-        club.readBooks.forEach(libro => {
-            if (libro.estado === 'leido') {
-                librosLeidos++;
-            } else if (libro.estado === 'leyendo') {
-                librosLeyendo++;
-            } else if (libro.estado === 'por_leer') {
-                librosPorLeer++;
-            }
-        });
-    }
-    
-    if (totalBooksCounter) {
-        totalBooksCounter.textContent = librosLeidos;
-    }
-    if (readingBooksCounter) {
-        readingBooksCounter.textContent = librosLeyendo;
-    }
-    if (pendingBooksCounter) {
-        pendingBooksCounter.textContent = librosPorLeer;
-    }
-    
-    // Actualizar contador de categorías (categorías únicas)
-    const totalCategoriesCounter = document.getElementById('total-categories');
-    if (totalCategoriesCounter) {
-        const categoriesSet = new Set();
-        if (club.readBooks) {
-            club.readBooks.forEach(libro => {
-                libro.categorias.forEach(cat => categoriesSet.add(cat.id));
-            });
-        }
-        totalCategoriesCounter.textContent = categoriesSet.size;
-    }
-}
+
 
 // ========== INICIALIZACIÓN ==========
 function initCore() {
