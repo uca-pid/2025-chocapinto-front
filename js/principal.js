@@ -397,7 +397,7 @@ async function cargarLibrosRecomendados() {
     grid.innerHTML = "";
     
     try {
-        const res = await fetch(`${API_URL}/books`);
+        const res = await fetch(`${API_URL}/api/books`);
         const data = await res.json();
         
         if (!data.success || !data.books) {

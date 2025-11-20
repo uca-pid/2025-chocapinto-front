@@ -39,24 +39,184 @@
             </div>
         </nav>
     </header>
-    <div class="crear-club-container">
-        <h2>Crear Club de Lectura</h2>
-        <form id="crearClubForm">
-  <input type="text" id="name" placeholder="Nombre del club" required maxlength="50">
-  <textarea id="description" placeholder="Descripción del club" required maxlength="255"></textarea>
-  
-  <label style="font-weight:600; color:#2c5a91;">Foto del club</label>
-  <input type="url" id="imagenClubUrl" placeholder="https://example.com/imagen.png" style="margin-bottom:10px;">
-  <img id="previewClubImg" src="https://img.lovepik.com/png/20231109/book-cartoon-illustration-school-start-reading-reading-book_539915_wh860.png" alt="Vista previa" style="max-width:200px; margin-top:10px; border-radius:12px; display:block;">
-  
-  <button type="submit">Crear club</button>
-</form>
-
-    <div id="crearClubMsg" style="display:none;"></div>
-        <button onclick="window.location.href='main.html'" style="margin-top:1rem;">Volver</button>
-    </div>
+    
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Sección Izquierda - Información y Motivación -->
+            <div class="info-section">
+                <div class="info-content">
+                    <div class="hero-image-container">
+                        <img id="heroPreviewImg" src="https://img.lovepik.com/png/20231109/book-cartoon-illustration-school-start-reading-reading-book_539915_wh860.png" alt="Imagen del club" class="hero-club-image">
+                    </div>
+                    
+                    <h1>Crear tu Club de Lectura</h1>
+                    <p class="hero-description">
+                        Únete a la comunidad de lectores más apasionados. Crea tu propio espacio para compartir, 
+                        descubrir y disfrutar de los mejores libros junto a personas con tus mismos intereses.
+                    </p>
+                    
+                    <div class="features-list">
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="m22 21-3-3"/>
+                                </svg>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Conecta con lectores</h4>
+                                <p>Encuentra personas que comparten tu pasión por la lectura</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Organiza lecturas</h4>
+                                <p>Crea cronogramas de lectura y debates grupales</p>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-item">
+                            <div class="feature-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="3"/>
+                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                </svg>
+                            </div>
+                            <div class="feature-text">
+                                <h4>Gestiona fácilmente</h4>
+                                <p>Herramientas simples para administrar tu club</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sección Derecha - Formulario -->
+            <div class="form-section">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2>¡Empecemos!</h2>
+                        <p>Completa la información básica de tu nuevo club</p>
+                    </div>
+                    
+                    <form id="crearClubForm" class="club-form">
+                        <div class="form-group">
+                            <label for="name" class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="m22 21-3-3"/>
+                                </svg>
+                                Nombre del club
+                            </label>
+                            <input type="text" id="name" name="name" placeholder="Ej: Club de Fantasía Épica" required maxlength="50" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description" class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <polyline points="10,9 9,9 8,9"/>
+                                </svg>
+                                Descripción del club
+                            </label>
+                            <textarea id="description" name="description" placeholder="Cuéntanos sobre los géneros, frecuencia de lectura y ambiente que quieres crear..." required maxlength="255" class="form-textarea" rows="4"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="imagenClubUrl" class="form-label">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21,15 16,10 5,21"/>
+                                </svg>
+                                Imagen del club (opcional)
+                            </label>
+                            <input type="url" id="imagenClubUrl" name="imagenClubUrl" placeholder="https://example.com/imagen.png" class="form-input">
+                            
+                            <div class="image-preview-info">
+                                <small class="preview-hint desktop-only">La imagen aparecerá arriba del título ⬆</small>
+                                <div class="mobile-image-preview">
+                                    <img id="mobilePreviewImg" src="https://img.lovepik.com/png/20231109/book-cartoon-illustration-school-start-reading-reading-book_539915_wh860.png" alt="Vista previa móvil" class="mobile-preview-image">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="window.location.href='main.html'">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="15,18 9,12 15,6"/>
+                                </svg>
+                                Volver
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                    <polyline points="22,4 12,14.01 9,11.01"/>
+                                </svg>
+                                Crear club
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div id="crearClubMsg" class="form-message" style="display:none;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
     <div id="notifications" class="notification-container"></div>
     <script type="module" src="../js/creacion_club.js"></script>
+    
+    <script>
+        // Sincronizar las imágenes (hero y móvil) con el input de URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const imagenInput = document.getElementById('imagenClubUrl');
+            const heroImg = document.getElementById('heroPreviewImg');
+            const mobileImg = document.getElementById('mobilePreviewImg');
+            const defaultImg = 'https://img.lovepik.com/png/20231109/book-cartoon-illustration-school-start-reading-reading-book_539915_wh860.png';
+            
+            // Función para actualizar ambas imágenes
+            function updateImages(url) {
+                const imageUrl = url && url.trim() !== '' ? url : defaultImg;
+                
+                if (heroImg) {
+                    heroImg.src = imageUrl;
+                }
+                if (mobileImg) {
+                    mobileImg.src = imageUrl;
+                }
+            }
+            
+            // Escuchar cambios en el input de imagen
+            imagenInput.addEventListener('input', function() {
+                updateImages(this.value);
+            });
+            
+            // Manejar errores de carga de imagen
+            if (heroImg) {
+                heroImg.addEventListener('error', function() {
+                    this.src = defaultImg;
+                });
+            }
+            
+            if (mobileImg) {
+                mobileImg.addEventListener('error', function() {
+                    this.src = defaultImg;
+                });
+            }
+        });
+    </script>
     
 </body>
 </html>
