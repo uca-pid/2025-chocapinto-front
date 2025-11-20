@@ -2705,6 +2705,48 @@ main {
     .comments-card .text-box .formatting .send:hover {
       background-color: #026eda;
     }
+    /* Estilos para los Tabs de Búsqueda */
+.search-tabs-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.search-tab {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid transparent;
+  background-color: var(--gray-50);
+  color: var(--gray-500);
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.search-tab:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.search-tab.active {
+  background-color: #e3f2fd; /* Azul clarito para libros */
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+/* Estilo específico para cuando Cursos está activo (opcional) */
+#tab-cursos.search-tab.active {
+  background-color: #e0f2f1; /* Verde clarito para cursos */
+  color: #009688;
+  border-color: #009688;
+}
 
     /* Modal Ranking Styles */
     .modalRanking {

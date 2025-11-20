@@ -366,7 +366,30 @@ async function eliminarCategoria(categoriaId) {
       });
   });
 }
+// Variable de estado (por defecto busca libros)
+let modoBusquedaActual = 'google'; 
 
+// Función para cambiar el modo (se llama desde el HTML onclick)
+function cambiarModoBusqueda(modo) {
+    modoBusquedaActual = modo;
+    
+    // 1. Actualizar visualmente los botones
+    document.querySelectorAll('.search-tab').forEach(btn => btn.classList.remove('active'));
+    
+    if (modo === 'google') {
+        document.getElementById('tab-libros').classList.add('active');
+        document.getElementById('buscadorLibro').placeholder = "Buscar libro por título, autor o ISBN...";
+    } else {
+        document.getElementById('tab-cursos').classList.add('active');
+        document.getElementById('buscadorLibro').placeholder = "Buscar curso por nombre...";
+    }
+
+    // 2. Limpiar resultados anteriores y el input
+    document.getElementById('resultadosBusquedaLibro').innerHTML = '';
+    document.getElementById('searchResultsSection').style.display = 'none';
+    
+    
+}
 async function editarCategoria(categoriaId, nombreActual) {
   // Verificar permisos antes de editar
   const userRole = await verificarRolUsuario();
@@ -409,6 +432,29 @@ async function editarCategoria(categoriaId, nombreActual) {
     });
 }
 
+// Función para buscar cursos en tu API propia
+async function buscarCursosAPI(query) {
+    try {
+        // Llamamos a TU backend (puerto 5000), que a su vez llama a json-server
+        const res = await fetch(`${API_URL}/api/books/searchCursos?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        
+        if (data.success && Array.isArray(data.cursos)) {
+            console.log(data.cursos)
+            // Mapeamos para añadir el tipo 'curso' y normalizar datos
+            return data.cursos.map(curso => ({
+                ...curso, // Trae title, author, portada, id_api
+                thumbnail: curso.portada, // Normalizamos nombre de imagen para que el frontend lo entienda
+                origin: 'curso' // Marcamos que viene de cursos para saber a qué endpoint enviarlo después
+            }));
+
+        }
+        return [];
+    } catch (error) {
+        console.error("Error buscando cursos:", error);
+        return [];
+    }
+}
 async function buscarLibrosGoogleBooksAPI(query) {
     const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
     try {
@@ -486,83 +532,71 @@ function configurarBuscadorLibro() {
     if (!buscadorLibro) return;
     
     buscadorLibro.addEventListener("input", async function () {
-    const query = buscadorLibro.value.trim();
-    const resultadosBusqueda = document.getElementById('resultadosBusquedaLibro');
-    const searchResultsSection = document.getElementById('searchResultsSection');
-    const selectedBookSection = document.getElementById('selectedBookSection');
-    const searchLoader = document.getElementById('searchLoader');
-    
-    // Limpiar resultados previos
-    resultadosBusqueda.innerHTML = "";
-    
-    if (query.length < 2) {
-        searchResultsSection.style.display = 'none';
-        selectedBookSection.style.display = 'none';
-        return;
-    }
-    
-    // Mostrar loader
-    searchLoader.style.display = 'block';
-    searchResultsSection.style.display = 'block';
-    
-    const libros = await buscarLibrosGoogleBooksAPI(query);
-    
-    // Ocultar loader
-    searchLoader.style.display = 'none';
-    
-    if (libros.length === 0) {
-        resultadosBusqueda.innerHTML = `
-            <div class="no-results">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="m21 21-4.35-4.35"/>
-                    <line x1="11" y1="8" x2="11" y2="16"/>
-                    <line x1="8" y1="11" x2="14" y2="11"/>
-                </svg>
-                <p>No se encontraron libros</p>
-                <span>Intenta con otros términos de búsqueda</span>
-            </div>
-        `;
-        return;
-    }
-    
-    libros.forEach(libro => {
-        const div = document.createElement("div");
-        div.className = "search-result-item";
-        div.innerHTML = `
-            <div class="result-cover">
-                ${libro.thumbnail ? 
-                    `<img src="${libro.thumbnail}" alt="Portada de ${libro.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                     <div class="cover-placeholder" style="display: none;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                        </svg>
-                     </div>` 
-                    : 
-                    `<div class="cover-placeholder">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                        </svg>
-                     </div>`
-                }
-            </div>
-            <div class="result-info">
-                <h4>${libro.title}</h4>
-                <p>${libro.author}</p>
-            </div>
-            <div class="result-action">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="9,18 15,12 9,6"/>
-                </svg>
-            </div>
-        `;
+        const query = buscadorLibro.value.trim();
+        const resultadosBusqueda = document.getElementById('resultadosBusquedaLibro');
+        const searchResultsSection = document.getElementById('searchResultsSection');
+        const searchLoader = document.getElementById('searchLoader');
         
-        div.onclick = () => seleccionarLibro(libro);
-        resultadosBusqueda.appendChild(div);
+        resultadosBusqueda.innerHTML = "";
+        
+        if (query.length < 2) {
+            searchResultsSection.style.display = 'none';
+            return;
+        }
+        
+        searchLoader.style.display = 'block';
+        searchResultsSection.style.display = 'block';
+        
+        let resultados = [];
+
+        // --- LOGICA CONDICIONAL ---
+        if (modoBusquedaActual === 'google') {
+            // Solo busca libros
+            resultados = await buscarLibrosGoogleBooksAPI(query);
+        } else {
+            // Solo busca cursos
+            resultados = await buscarCursosAPI(query);
+        }
+        // --------------------------
+        
+        searchLoader.style.display = 'none';
+        
+        if (resultados.length === 0) {
+            resultadosBusqueda.innerHTML = `
+                <div class="no-results">
+                    <p>No se encontraron ${modoBusquedaActual === 'google' ? 'libros' : 'cursos'}</p>
+                </div>
+            `;
+            return;
+        }
+        
+        resultados.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "search-result-item";
+            
+            // Icono diferente según si es libro o curso
+            const iconPlaceholder = modoBusquedaActual === 'google' ? '📚' : '🎓';
+
+            div.innerHTML = `
+                <div class="result-cover">
+                    ${item.thumbnail ? 
+                        `<img src="${item.thumbnail}" alt="${item.title}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                         <div class="cover-placeholder" style="display: none;">${iconPlaceholder}</div>` 
+                        : 
+                        `<div class="cover-placeholder">${iconPlaceholder}</div>`
+                    }
+                </div>
+                <div class="result-info">
+                    <h4>${item.title}</h4>
+                    <p>${item.author}</p>
+                </div>
+                <div class="result-action">➕</div>
+            `;
+            
+            div.onclick = () => seleccionarLibro(item);
+            resultadosBusqueda.appendChild(div);
+        });
     });
-});
 }
 
 // Función para seleccionar un libro
@@ -716,7 +750,7 @@ function initBookModal() {
     window.configurarPermisosCategorias = configurarPermisosCategorias;
     window.getRoleColor = getRoleColor;
     window.getRoleDisplayName = getRoleDisplayName;
-    
+    window.buscarCursosAPI = buscarCursosAPI;
     
 }
 
@@ -792,6 +826,7 @@ window.cambiarLibroSeleccionado = cambiarLibroSeleccionado;
 window.seleccionarLibro = seleccionarLibro;
 window.resetearModalLibro = resetearModalLibro;
 window.mostrarMensajeModal = mostrarMensajeModal;
+window.cambiarModoBusqueda = cambiarModoBusqueda;
 
 // Exportar función de inicialización
 window.initBookModal = initBookModal;
@@ -806,5 +841,7 @@ export {
     cambiarLibroSeleccionado,
     seleccionarLibro,
     resetearModalLibro,
-    mostrarMensajeModal
+    mostrarMensajeModal,
+    cambiarModoBusqueda
+
 };
