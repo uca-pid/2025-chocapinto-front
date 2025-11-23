@@ -25,6 +25,8 @@
                 <div class="sidebar-actions">
                     <button id="showEditProfileBtn" class="btn-primary-sidebar active-btn" data-target="edit-profile">Editar perfil</button>
                     <button id="showChangePasswordBtn" class="btn-secondary-sidebar" data-target="change-password">Cambiar contraseña</button>
+                    
+                    <button id="showMyClubsBtn" class="btn-secondary-sidebar" data-target="my-clubs">Mis clubes</button>
                 </div>
                 
                 <div class="sidebar-info">
@@ -89,6 +91,15 @@
                         <p class="form-note">Recomendación: usa una contraseña segura con al menos 8 caracteres, incluyendo mayúsculas, minúsculas y números.</p>
                     </form>
                 </section>
+                <section id="my-clubs" class="form-section" style="display:none;">
+                    <h2>Mis Clubes</h2>
+                    <p class="subtitle">Aquí puedes ver los clubes a los que estás suscrito y gestionar tu membresía.</p>
+
+                    <div id="clubs-list" class="clubs-container">
+                        <p class="loading-message">Cargando clubes...</p>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>

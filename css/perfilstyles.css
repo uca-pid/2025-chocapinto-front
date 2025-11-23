@@ -380,3 +380,96 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
     min-height: 40px;
   }
 }
+/* --- Estilos para la Nueva Sección de Clubes --- */
+
+.clubs-container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+}
+
+.club-card {
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    transition: transform 0.2s;
+}
+
+.club-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.club-card h3 {
+    color: #0984e3;
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.club-card p {
+    font-size: 0.95rem;
+    color: #4a4a4a;
+    margin: 5px 0;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.card-actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-grow: 1;
+}
+
+.btn-primary-club {
+    background: #2ecc71; 
+    color: #fff;
+}
+.btn-primary-club:hover {
+    background: #27ae60;
+}
+
+.btn-secondary-club {
+    background: #f0f0f0;
+    color: #4a4a4a;
+    border: 1px solid #ccc;
+}
+.btn-secondary-club:hover {
+    background: #e0e0e0;
+}
+
+.no-clubs-message, .error-message {
+    grid-column: 1 / -1; 
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 1.1rem;
+    color: #636e72;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+.error-message {
+    color: #d63031;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 600px) {
+    .clubs-container {
+        grid-template-columns: 1fr;
+    }
+    .card-actions {
+        flex-direction: column;
+    }
+}

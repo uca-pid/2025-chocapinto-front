@@ -7,11 +7,7 @@ import { showLoader, hideLoader } from "../componentes/loader.js";
 showLoader("Iniciando perfil...");
 
 
-
-
-
-
-// --- 2. MANEJO DE SECCIONES (Editar Perfil / Cambiar Contraseña) ---
+// --- 2. MANEJO DE SECCIONES (Editar Perfil / Cambiar Contraseña / Mis Clubes) ---
 
 function switchSection(targetId) {
     // Oculta todas las secciones
@@ -32,7 +28,16 @@ function switchSection(targetId) {
     }
     
     // Activa el botón de navegación correspondiente
-    document.querySelector(`.sidebar-actions button[data-target="${targetId}"]`).classList.add('active-btn');
+    // NOTA: Asegúrate de que todos los botones tengan el atributo data-target
+    const navButton = document.querySelector(`.sidebar-actions button[data-target="${targetId}"]`);
+    if (navButton) {
+        navButton.classList.add('active-btn');
+    }
+
+    // NUEVA LÓGICA: Si es la sección de clubes, carga los datos.
+    if (targetId === 'my-clubs') {
+        loadMyClubs();
+    }
     
     // Limpia el formulario de contraseña al cambiar de sección
     if (targetId === 'edit-profile') {
@@ -43,12 +48,13 @@ function switchSection(targetId) {
 // Event listeners para los botones de la barra lateral
 document.getElementById('showEditProfileBtn').addEventListener('click', () => switchSection('edit-profile'));
 document.getElementById('showChangePasswordBtn').addEventListener('click', () => switchSection('change-password'));
+document.getElementById('showMyClubsBtn').addEventListener('click', () => switchSection('my-clubs')); // <--- NUEVO EVENT LISTENER
 
 // Event listener para el botón Cancelar de cambiar contraseña
 document.getElementById('cancelPasswordBtn').addEventListener('click', () => switchSection('edit-profile'));
 
 
-// --- 3. LÓGICA DE CARGA DE DATOS ---
+// --- 3. LÓGICA DE CARGA DE DATOS INICIALES ---
 
 document.addEventListener("DOMContentLoaded", async () => {
     const currentUsername = localStorage.getItem("username");
@@ -192,7 +198,6 @@ document.getElementById("passwordForm").addEventListener("submit", async (e) => 
     } catch (error) {
         hideLoader();
         showNotification("error", "Error de conexión con el servidor");
-        // Este es el error que estás viendo: si el endpoint no existe o falla la conexión.
     }
 });
 
@@ -236,3 +241,61 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
         showNotification("error", "Error de conexión con el servidor");
     }
 });
+
+
+// --- 7. LÓGICA DE CARGA DE MIS CLUBES (NUEVA FUNCIÓN) ---
+
+async function loadMyClubs() {
+    showLoader("Cargando tus clubes...");
+    const currentUsername = localStorage.getItem("username");
+    const clubsListContainer = document.getElementById("clubs-list");
+    clubsListContainer.innerHTML = ''; // Limpia el contenido anterior
+
+    try {
+        // Este FETCH requiere el endpoint /user/{username}/clubs en tu backend
+        const res = await fetch(`${API_URL}/user/${currentUsername}/clubs`);
+        
+        if (!res.ok) {
+            throw new Error(`Error en la API: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (data.success && data.clubs) {
+            const clubs = data.clubs;
+
+            if (clubs.length === 0) {
+                clubsListContainer.innerHTML = '<p class="no-clubs-message">Aún no estás suscrito a ningún club. ¡Busca uno!</p>';
+            } else {
+                clubs.forEach(club => {
+                    // Determinar el texto de rol a mostrar
+                    const roleText = club.role === 'OWNER' ? 'Dueño del Club' : club.role;
+                    
+                    const clubCard = `
+                        <div class="club-card">
+                            <h3>${club.name}</h3>
+                            <p><strong>Rol:</strong> ${roleText}</p>
+                            <p><strong>Se unió el:</strong> ${new Date(club.joinedAt).toLocaleDateString()}</p>
+                            <div class="card-actions">
+                                <button class="btn-primary-club">Ir al Club</button>
+                                <button class="btn-secondary-club">${club.role === 'OWNER' ? 'Administrar' : 'Gestionar'}</button>
+                            </div>
+                        </div>
+                    `;
+                    clubsListContainer.innerHTML += clubCard;
+                });
+            }
+            
+            hideLoader();
+        } else {
+            hideLoader();
+            clubsListContainer.innerHTML = '<p class="error-message">No se pudo cargar la lista de clubes.</p>';
+            showNotification("error", data.message || "Error al obtener los datos de los clubes.");
+        }
+    } catch (error) {
+        console.error("Error en loadMyClubs:", error);
+        hideLoader();
+        clubsListContainer.innerHTML = '<p class="error-message">Error de conexión con el servidor. Por favor, verifica el endpoint.</p>';
+        showNotification("error", "Error de conexión al cargar los clubes.");
+    }
+}
