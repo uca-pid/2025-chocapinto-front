@@ -601,10 +601,14 @@ function configurarBuscadorLibro() {
 
 // Función para seleccionar un libro
 function seleccionarLibro(libro) {
+    console.log("📚 Seleccionando libro:", libro);
+    console.log("🔍 ID API del libro:", libro.id_api || libro.id || "NO TIENE ID_API");
+    
     // Llenar campos ocultos
     document.getElementById('tituloLibro').value = libro.title;
     document.getElementById('autorLibro').value = libro.author;
     document.getElementById('portadaLibro').value = libro.thumbnail || "";
+    document.getElementById('idApiLibro').value = libro.id_api || libro.id || "";
     
     // Mostrar libro seleccionado
     const selectedBookSection = document.getElementById('selectedBookSection');
@@ -653,6 +657,15 @@ function configurarFormularioLibro() {
     const username = localStorage.getItem("username");
     const msg = document.getElementById("msgLibro");
     const submitBtn = document.getElementById('submitLibroBtn');
+    
+    console.log("📤 Enviando libro con datos:", {
+        title,
+        author, 
+        thumbnail,
+        id_api: id_api || "NO TIENE ID_API",
+        clubId,
+        username
+    });
     
     // Limpiar mensaje previo
     msg.className = "message-libro";
