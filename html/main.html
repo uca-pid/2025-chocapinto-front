@@ -111,6 +111,102 @@
     </footer>
 
     <script type="module" src="../js/principal.js"></script>
+    
+    <style>
+    /* Estilos para avatares del ranking */
+    .ranking-avatar-container {
+        position: relative;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .ranking-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #eaf6ff;
+    }
+    
+    .ranking-avatar-initials {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0984e3, #74b9ff);
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #eaf6ff;
+        text-transform: uppercase;
+    }
+    
+    .ranking-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 8px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+    }
+    
+    .ranking-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    
+    .ranking-puesto {
+        font-weight: bold;
+        font-size: 18px;
+        color: #2c5a91;
+        margin-right: 12px;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    .ranking-info {
+        flex: 1;
+        margin-left: 12px;
+    }
+    
+    .ranking-info h4 {
+        margin: 0;
+        font-size: 14px;
+        color: #2c5a91;
+        font-weight: 600;
+    }
+    
+    .ranking-info p {
+        margin: 2px 0 0 0;
+        font-size: 12px;
+        color: #636e72;
+    }
+    
+    .ranking-metrica {
+        font-weight: bold;
+        color: #0984e3;
+        font-size: 16px;
+    }
+    
+    /* Posiciones especiales */
+    .ranking-item:nth-child(1) .ranking-puesto {
+        color: #f39c12;
+        text-shadow: 0 1px 3px rgba(243, 156, 18, 0.3);
+    }
+    
+    .ranking-item:nth-child(2) .ranking-puesto {
+        color: #95a5a6;
+        text-shadow: 0 1px 3px rgba(149, 165, 166, 0.3);
+    }
+    
+    .ranking-item:nth-child(3) .ranking-puesto {
+        color: #e67e22;
+        text-shadow: 0 1px 3px rgba(230, 126, 34, 0.3);
+    }
+    </style>
     // ...existing code...
 
   <script>

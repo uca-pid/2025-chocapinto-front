@@ -19,6 +19,42 @@ export function initAppHeader(options = {}) {
   }
 
   headerRoot.innerHTML = `
+    <style>
+    .user-avatar {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0984e3, #74b9ff);
+      border-radius: 50%;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      border: 2px solid #eaf6ff;
+    }
+    
+    .user-avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    
+    #userInitials {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      text-transform: uppercase;
+    }
+    </style>
+    
     <div class="app-header-inner">
       <div class="app-header-left">
         <button id="header-back-btn" class="header-icon-btn" style="display: ${
@@ -39,7 +75,8 @@ export function initAppHeader(options = {}) {
         </div>
 
         <div class="user-profile">
-          <div class="user-avatar">
+          <div class="user-avatar" id="userAvatarContainer">
+            <img id="userAvatarImg" class="user-avatar-img" style="display: none;" alt="Avatar del usuario">
             <span id="userInitials">?</span>
           </div>
           <div class="user-info">
@@ -173,6 +210,43 @@ function updateUsernameAndInitials() {
       .join("") || "?";
 
   if (initialsEl) initialsEl.textContent = initials;
+  
+  // Cargar avatar del usuario
+  loadUserAvatar();
+}
+
+/**
+ * Carga el avatar del usuario desde el servidor
+ */
+function loadUserAvatar() {
+  const username = localStorage.getItem("username");
+  if (!username) return;
+
+  fetch(`${window.API_URL}/user/${username}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success && data.user && data.user.avatar) {
+        const avatarImg = document.getElementById("userAvatarImg");
+        const initialsEl = document.getElementById("userInitials");
+        
+        if (avatarImg && initialsEl) {
+          avatarImg.src = data.user.avatar;
+          avatarImg.style.display = 'block';
+          initialsEl.style.display = 'none';
+          
+          // Si la imagen falla al cargar, mostrar iniciales
+          avatarImg.onerror = function() {
+            console.log('Error cargando avatar, mostrando iniciales');
+            avatarImg.style.display = 'none';
+            initialsEl.style.display = 'flex';
+          };
+        }
+      }
+    })
+    .catch((error) => {
+      console.log('Error obteniendo avatar del usuario:', error);
+      // Mantener las iniciales si hay error
+    });
 }
 
 /**

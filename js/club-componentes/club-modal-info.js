@@ -1,6 +1,53 @@
 // Variables para el gráfico
 let graficoInstancia = null;
 
+// Agregar estilos CSS para avatares en modales
+const modalAvatarStyles = document.createElement('style');
+modalAvatarStyles.textContent = `
+/* Estilos para avatares en modales */
+.ranking-avatar-container, .member-avatar-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ranking-avatar-img, .member-avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eaf6ff;
+}
+
+.ranking-avatar-initials, .member-avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #eaf6ff;
+    text-transform: uppercase;
+}
+
+/* Backwards compatibility - hide old avatar classes */
+.ranking-avatar, .member-avatar {
+    display: none !important;
+}
+`;
+
+// Agregar estilos al head si no existen
+if (!document.querySelector('#modal-avatar-styles')) {
+    modalAvatarStyles.id = 'modal-avatar-styles';
+    document.head.appendChild(modalAvatarStyles);
+}
+
 // Info Modals Initialization
 function initInfoModals() {
     console.log("Initializing Info Modals");
@@ -459,10 +506,23 @@ function mostrarListaRanking(ranking, club) {
         const positionClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
         const initials = usuario.username.charAt(0).toUpperCase();
         
+        // Buscar el miembro correspondiente en el club para obtener el avatar
+        const miembro = club.members?.find(m => m.id === usuario.userId || m.username === usuario.username);
+        const hasAvatar = miembro && miembro.avatar && miembro.avatar.trim() !== '';
+        
+        const avatarHTML = hasAvatar 
+            ? `<img src="${miembro.avatar}" alt="Avatar de ${usuario.username}" class="ranking-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+            : '';
+        
+        const initialsHTML = `<div class="ranking-avatar-initials" style="${hasAvatar ? 'display: none;' : 'display: flex;'}">${initials}</div>`;
+        
         return `
             <li>
                 <div class="ranking-position ${positionClass}">${index + 1}</div>
-                <div class="ranking-avatar">${initials}</div>
+                <div class="ranking-avatar-container">
+                    ${avatarHTML}
+                    ${initialsHTML}
+                </div>
                 <div class="ranking-info">
                     <h4 class="ranking-name">
                         ${usuario.username}
@@ -564,14 +624,15 @@ function mostrarListaMiembros(miembros, club) {
     const currentUserId = localStorage.getItem("userId");
     const isCurrentUserOwner = club.id_owner == currentUserId;
     
-    console.log('🔍 DEBUG - Datos de miembros recibidos:');
+    console.log('🔍 DEBUG - Datos de miembros para avatares:');
     miembros.forEach((miembro, index) => {
         console.log(`Miembro ${index + 1}:`, {
             id: miembro.id,
             username: miembro.username,
-            level: miembro.level,
-            // Mostrar todas las propiedades disponibles
-            allProperties: Object.keys(miembro)
+            avatar: miembro.avatar,
+            avatarType: typeof miembro.avatar,
+            hasAvatar: miembro.avatar && miembro.avatar.trim() !== '',
+            avatarPath: miembro.avatar ? `../images/avatares/${miembro.avatar}` : 'NO AVATAR'
         });
     });
     
@@ -581,10 +642,12 @@ function mostrarListaMiembros(miembros, club) {
         const isCurrentUser = currentUserId == miembro.id;
         const canRemove = isCurrentUserOwner && !isCurrentUser && !isOwner;
         
+        // Verificar si tiene avatar
+        const hasAvatar = miembro.avatar && miembro.avatar.trim() !== '';
+        
         // Obtener el rol del miembro (nuevo sistema)
         const memberRole = miembro.role || (isOwner ? 'OWNER' : 'LECTOR');
         const canChangeRole = isCurrentUserOwner && !isCurrentUser && !isOwner;
-        
         
         // Configurar display del rol
         const roleInfo = getRoleDisplayInfo(memberRole, isOwner);
@@ -596,9 +659,18 @@ function mostrarListaMiembros(miembros, club) {
             month: 'short' 
         });
         
+        const avatarHTML = hasAvatar 
+            ? `<img src="${miembro.avatar}" alt="Avatar de ${miembro.username}" class="member-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+            : '';
+        
+        const initialsHTML = `<div class="member-avatar-initials" style="${hasAvatar ? 'display: none;' : 'display: flex;'}">${initials}</div>`;
+        
         return `
             <li>
-                <div class="member-avatar">${initials}</div>
+                <div class="member-avatar-container">
+                    ${avatarHTML}
+                    ${initialsHTML}
+                </div>
                 <div class="member-info">
                     <h4 class="member-name">
                         ${miembro.username}
