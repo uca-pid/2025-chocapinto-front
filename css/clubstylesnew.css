@@ -4000,6 +4000,130 @@ main {
       font-weight: 600;
     }
 
+    .member-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #f59e0b;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid #f59e0b20;
+      box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);
+    }
+
+    .level-icon {
+      color: #f59e0b;
+      fill: #fbbf24;
+      drop-shadow: 0 1px 2px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Efectos hover para el nivel */
+    .member-level:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .member-level:hover .level-icon {
+      color: white;
+      fill: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Variaciones de color según el nivel */
+    .member-level[data-level="1"] {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      color: #6b7280;
+      border-color: #d1d5db20;
+    }
+
+    .member-level[data-level="1"] .level-icon {
+      color: #6b7280;
+      fill: #9ca3af;
+    }
+
+    .member-level[data-level^="2"], .member-level[data-level^="3"] {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #2563eb;
+      border-color: #2563eb20;
+    }
+
+    .member-level[data-level^="2"] .level-icon, .member-level[data-level^="3"] .level-icon {
+      color: #2563eb;
+      fill: #3b82f6;
+    }
+
+    .member-level[data-level^="4"], .member-level[data-level^="5"] {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      color: #16a34a;
+      border-color: #16a34a20;
+    }
+
+    .member-level[data-level^="4"] .level-icon, .member-level[data-level^="5"] .level-icon {
+      color: #16a34a;
+      fill: #22c55e;
+    }
+
+    .member-level[data-level^="6"], .member-level[data-level^="7"], .member-level[data-level^="8"], .member-level[data-level^="9"] {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color: #d97706;
+      border-color: #d9770620;
+    }
+
+    .member-level[data-level^="6"] .level-icon, .member-level[data-level^="7"] .level-icon, .member-level[data-level^="8"] .level-icon, .member-level[data-level^="9"] .level-icon {
+      color: #d97706;
+      fill: #f59e0b;
+    }
+
+    .member-level[data-level^="10"], .member-level[data-level^="11"], .member-level[data-level^="12"], .member-level[data-level^="13"], .member-level[data-level^="14"], .member-level[data-level^="15"] {
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+      color: #be185d;
+      border-color: #be185d20;
+    }
+
+    .member-level[data-level^="10"] .level-icon, .member-level[data-level^="11"] .level-icon, .member-level[data-level^="12"] .level-icon, .member-level[data-level^="13"] .level-icon, .member-level[data-level^="14"] .level-icon, .member-level[data-level^="15"] .level-icon {
+      color: #be185d;
+      fill: #ec4899;
+    }
+
+    /* Niveles muy altos (16+) - Dorado especial */
+    .member-level[data-level^="16"], .member-level[data-level^="17"], .member-level[data-level^="18"], .member-level[data-level^="19"], .member-level[data-level^="20"] {
+      background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+      color: white;
+      border-color: #ffd70050;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+      animation: goldenGlow 3s ease-in-out infinite;
+    }
+
+    .member-level[data-level^="16"] .level-icon, .member-level[data-level^="17"] .level-icon, .member-level[data-level^="18"] .level-icon, .member-level[data-level^="19"] .level-icon, .member-level[data-level^="20"] .level-icon {
+      color: white;
+      fill: rgba(255, 255, 255, 0.9);
+    }
+
+    @keyframes goldenGlow {
+      0%, 100% { box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3); }
+      50% { box-shadow: 0 3px 12px rgba(255, 215, 0, 0.5); }
+    }
+
+    /* Responsive para niveles */
+    @media (max-width: 768px) {
+      .member-level {
+        font-size: 10px;
+        padding: 1px 4px;
+        margin-left: 4px;
+      }
+      
+      .level-icon {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
     .member-actions {
       margin-left: 12px;
       display: flex;
