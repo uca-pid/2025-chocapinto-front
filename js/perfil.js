@@ -2,6 +2,19 @@ import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
 
+// Configuración de avatares por nivel
+const AVATARS_POR_NIVEL = {
+    1: ['River.png', 'Boca.png'], // Nivel 1: Solo los dos grandes
+    2: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png'], // Nivel 2: Los 5 grandes
+    3: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png'],
+    4: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png'],
+    5: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png'],
+    6: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png'],
+    7: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png'],
+    8: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png', 'Rosario Ctral.png'],
+    9: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png', 'Rosario Ctral.png', 'Talleres.png'],
+    10: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png', 'Rosario Ctral.png', 'Talleres.png', 'Belgrano.png', 'Instituto.png']
+};
 
 //Inicializador de pagina - mostrar loader inicial
 showLoader("Iniciando perfil...");
@@ -309,13 +322,23 @@ async function loadMyClubs() {
 }
 
 // Funciones del Modal de Avatar
-function abrirModalAvatar() {
+async function abrirModalAvatar() {
     const modal = document.getElementById('modalSeleccionAvatar');
-    if (modal) {
-        modal.style.display = 'flex';
-        // Marcar el avatar actual como seleccionado
-        marcarAvatarActual();
+    if (!modal) return;
+    
+    // Obtener el nivel actual del usuario
+    const userLevel = await obtenerNivelUsuario();
+    
+    if (userLevel === null) {
+        showNotification("error", "No se pudo obtener tu nivel actual");
+        return;
     }
+    
+    // Generar el HTML del modal con avatares filtrados por nivel
+    generarGridAvataresPorNivel(userLevel);
+    
+    modal.style.display = 'flex';
+    marcarAvatarActual();
 }
 
 function cerrarModalAvatar() {
@@ -329,13 +352,122 @@ function cerrarModalAvatar() {
     }
 }
 
+// Función para obtener el nivel actual del usuario
+async function obtenerNivelUsuario() {
+    try {
+        const currentUsername = localStorage.getItem("username");
+        if (!currentUsername) return null;
+        
+        const res = await fetch(`${API_URL}/user/${currentUsername}`);
+        const data = await res.json();
+        
+        if (data.success && data.user && data.user.level) {
+            return data.user.level;
+        }
+        return 1; // Nivel por defecto si no se encuentra
+    } catch (error) {
+        console.error("Error obteniendo nivel del usuario:", error);
+        return 1; // Nivel por defecto en caso de error
+    }
+}
+
+// Función para generar el grid de avatares según el nivel
+function generarGridAvataresPorNivel(userLevel) {
+    const avatarGrid = document.querySelector('.avatar-grid');
+    if (!avatarGrid) return;
+    
+    // Obtener avatares disponibles para el nivel del usuario
+    let avatarsDisponibles = [];
+    for (let nivel = 1; nivel <= userLevel; nivel++) {
+        if (AVATARS_POR_NIVEL[nivel]) {
+            avatarsDisponibles = [...new Set([...avatarsDisponibles, ...AVATARS_POR_NIVEL[nivel]])];
+        }
+    }
+    
+    // Si el nivel es muy alto, mostrar todos
+    if (userLevel > 10) {
+        avatarsDisponibles = Object.values(AVATARS_POR_NIVEL).flat();
+        avatarsDisponibles = [...new Set(avatarsDisponibles)]; // Remover duplicados
+    }
+    
+    // Todos los avatares posibles con sus detalles
+    const todosLosAvatares = [
+        { archivo: 'River.png', nombre: 'River Plate', nivelRequerido: 1 },
+        { archivo: 'Boca.png', nombre: 'Boca Juniors', nivelRequerido: 1 },
+        { archivo: 'Racing.png', nombre: 'Racing', nivelRequerido: 2 },
+        { archivo: 'Independiente.png', nombre: 'Independiente', nivelRequerido: 2 },
+        { archivo: 'San Lorenzo.png', nombre: 'San Lorenzo', nivelRequerido: 3 },
+        { archivo: 'Huracán.png', nombre: 'Huracán', nivelRequerido: 4 },
+        { archivo: 'Estudiantes.png', nombre: 'Estudiantes', nivelRequerido: 5 },
+        { archivo: 'Gimnasia.png', nombre: 'Gimnasia', nivelRequerido: 5 },
+        { archivo: 'Vélez.png', nombre: 'Vélez', nivelRequerido: 6 },
+        { archivo: 'Lanús.png', nombre: 'Lanús', nivelRequerido: 6 },
+        { archivo: 'Banfield.png', nombre: 'Banfield', nivelRequerido: 7 },
+        { archivo: 'Newells.png', nombre: 'Newell\'s', nivelRequerido: 7 },
+        { archivo: 'Rosario Ctral.png', nombre: 'Rosario Central', nivelRequerido: 8 },
+        { archivo: 'Talleres.png', nombre: 'Talleres', nivelRequerido: 9 },
+        { archivo: 'Belgrano.png', nombre: 'Belgrano', nivelRequerido: 10 },
+        { archivo: 'Instituto.png', nombre: 'Instituto', nivelRequerido: 10 }
+    ];
+    
+    // Primero crear el HTML de información del nivel
+    const levelInfoHTML = `
+        <div class="avatar-level-info">
+            <h4>🌟 Tu nivel actual: ${userLevel}</h4>
+            <p>Avatares disponibles: ${avatarsDisponibles.length} de ${todosLosAvatares.length}</p>
+        </div>
+    `;
+    
+    // Luego generar HTML de avatares
+    let avatarsHTML = '';
+    todosLosAvatares.forEach(avatar => {
+        const disponible = avatarsDisponibles.includes(avatar.archivo);
+        const clases = `avatar-option ${disponible ? 'available' : 'locked'}`;
+        const onClick = disponible ? `seleccionarAvatar('${avatar.archivo}')` : `mostrarAvatarBloqueado('${avatar.nombre}', ${avatar.nivelRequerido})`;
+        
+        avatarsHTML += `
+            <div class="avatar-item">
+                <img src="../images/avatars/${avatar.archivo}" 
+                     class="${clases}" 
+                     onclick="${onClick}" 
+                     alt="${avatar.nombre}"
+                     title="${disponible ? avatar.nombre : `${avatar.nombre} (Nivel ${avatar.nivelRequerido} requerido)`}">
+                ${!disponible ? `<div class="avatar-lock">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Nivel ${avatar.nivelRequerido}</span>
+                </div>` : ''}
+            </div>
+        `;
+    });
+    
+    // Insertar la información del nivel antes del grid
+    const modalContent = avatarGrid.parentElement;
+    
+    // Verificar si ya existe el panel de información y eliminarlo
+    const existingInfo = modalContent.querySelector('.avatar-level-info');
+    if (existingInfo) {
+        existingInfo.remove();
+    }
+    
+    // Insertar la nueva información antes del grid de avatares
+    avatarGrid.insertAdjacentHTML('beforebegin', levelInfoHTML);
+    
+    // Actualizar solo el contenido del grid con los avatares
+    avatarGrid.innerHTML = avatarsHTML;
+}
+
+// Función para mostrar mensaje cuando se intenta seleccionar un avatar bloqueado
+function mostrarAvatarBloqueado(nombreAvatar, nivelRequerido) {
+    showNotification("warning", `¡${nombreAvatar} se desbloquea en el Nivel ${nivelRequerido}! Sigue leyendo para alcanzarlo 📚`);
+}
+
 function marcarAvatarActual() {
     const currentAvatarImg = document.getElementById('currentAvatarImg');
     if (currentAvatarImg && currentAvatarImg.src) {
         const currentSrc = currentAvatarImg.src;
         const filename = currentSrc.split('/').pop();
         
-        document.querySelectorAll('.avatar-option').forEach(option => {
+        document.querySelectorAll('.avatar-option.available').forEach(option => {
             option.classList.remove('selected');
             if (option.src.includes(filename)) {
                 option.classList.add('selected');
@@ -416,3 +548,4 @@ async function cargarAvatarActual() {
 window.abrirModalAvatar = abrirModalAvatar;
 window.cerrarModalAvatar = cerrarModalAvatar;
 window.seleccionarAvatar = seleccionarAvatar;
+window.mostrarAvatarBloqueado = mostrarAvatarBloqueado;
