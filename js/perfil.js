@@ -80,6 +80,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             const email = data.user.email || "Email no disponible";
             const role = data.user.role || "No asignado";
             
+            // Guardar userId en localStorage si no existe
+            if (data.user.id && !localStorage.getItem("userId")) {
+                localStorage.setItem("userId", data.user.id.toString());
+            }
+            
             // Sidebar
             document.getElementById("sidebar-name").textContent = username; 
             document.getElementById("info-role").textContent = role;
@@ -88,6 +93,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Formulario de Edición
             document.getElementById("username").value = username;
             document.getElementById("email").value = email;
+            
+            // Cargar avatar actual
+            await cargarAvatarActual();
             
             // Simular un pequeño delay para mejor UX
             setTimeout(() => {
@@ -299,3 +307,112 @@ async function loadMyClubs() {
         showNotification("error", "Error de conexión al cargar los clubes.");
     }
 }
+
+// Funciones del Modal de Avatar
+function abrirModalAvatar() {
+    const modal = document.getElementById('modalSeleccionAvatar');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Marcar el avatar actual como seleccionado
+        marcarAvatarActual();
+    }
+}
+
+function cerrarModalAvatar() {
+    const modal = document.getElementById('modalSeleccionAvatar');
+    if (modal) {
+        modal.style.display = 'none';
+        // Quitar selección visual
+        document.querySelectorAll('.avatar-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+    }
+}
+
+function marcarAvatarActual() {
+    const currentAvatarImg = document.getElementById('currentAvatarImg');
+    if (currentAvatarImg && currentAvatarImg.src) {
+        const currentSrc = currentAvatarImg.src;
+        const filename = currentSrc.split('/').pop();
+        
+        document.querySelectorAll('.avatar-option').forEach(option => {
+            option.classList.remove('selected');
+            if (option.src.includes(filename)) {
+                option.classList.add('selected');
+            }
+        });
+    }
+}
+
+async function seleccionarAvatar(nombreArchivo) {
+    const userId = localStorage.getItem("userId");
+    
+    if (!userId) {
+        showNotification("error", "No se encontró el ID del usuario");
+        return;
+    }
+    
+    try {
+        showLoader("Actualizando avatar...");
+        
+        const res = await fetch(`${API_URL}/users/${userId}/update-avatar`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ avatarName: nombreArchivo })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            // Actualizar la imagen en la pantalla inmediatamente
+            const avatarImg = document.getElementById('currentAvatarImg');
+            const defaultIcon = document.getElementById('defaultAvatarIcon');
+            
+            if (avatarImg && defaultIcon) {
+                avatarImg.src = data.avatar;
+                avatarImg.style.display = 'block';
+                defaultIcon.style.display = 'none';
+            }
+            
+            showNotification("success", "¡Avatar actualizado correctamente!");
+            cerrarModalAvatar();
+        } else {
+            showNotification("error", data.message || "Error al actualizar el avatar");
+        }
+    } catch (error) {
+        console.error("Error al actualizar avatar:", error);
+        showNotification("error", "Error de conexión al actualizar el avatar");
+    } finally {
+        hideLoader();
+    }
+}
+
+// Función para cargar el avatar actual del usuario
+async function cargarAvatarActual() {
+    const currentUsername = localStorage.getItem("username");
+    if (!currentUsername) return;
+    
+    try {
+        const res = await fetch(`${API_URL}/user/${currentUsername}`);
+        const data = await res.json();
+        
+        if (data.success && data.user && data.user.avatar) {
+            const avatarImg = document.getElementById('currentAvatarImg');
+            const defaultIcon = document.getElementById('defaultAvatarIcon');
+            
+            if (avatarImg && defaultIcon) {
+                avatarImg.src = data.user.avatar;
+                avatarImg.style.display = 'block';
+                defaultIcon.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error("Error al cargar avatar actual:", error);
+        // Si hay error, mantener el ícono por defecto
+    }
+}
+
+// Exponer funciones globalmente para el HTML
+window.abrirModalAvatar = abrirModalAvatar;
+window.cerrarModalAvatar = cerrarModalAvatar;
+window.seleccionarAvatar = seleccionarAvatar;

@@ -1,3 +1,36 @@
+<div id="modalSeleccionAvatar" class="modal-backdrop" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Elige tu Avatar</h3>
+      <button class="modal-close" onclick="cerrarModalAvatar()">×</button>
+    </div>
+    
+    <div class="avatar-grid">
+      <img src="../images/avatars/River.png" class="avatar-option" onclick="seleccionarAvatar('River.png')" alt="River Plate">
+      <img src="../images/avatars/Boca.png" class="avatar-option" onclick="seleccionarAvatar('Boca.png')" alt="Boca Juniors">
+      <img src="../images/avatars/Racing.png" class="avatar-option" onclick="seleccionarAvatar('Racing.png')" alt="Racing">
+      <img src="../images/avatars/Independiente.png" class="avatar-option" onclick="seleccionarAvatar('Independiente.png')" alt="Independiente">
+      <img src="../images/avatars/San Lorenzo.png" class="avatar-option" onclick="seleccionarAvatar('San Lorenzo.png')" alt="San Lorenzo">
+      <img src="../images/avatars/Huracán.png" class="avatar-option" onclick="seleccionarAvatar('Huracán.png')" alt="Huracán">
+      <img src="../images/avatars/Estudiantes.png" class="avatar-option" onclick="seleccionarAvatar('Estudiantes.png')" alt="Estudiantes">
+      <img src="../images/avatars/Gimnasia.png" class="avatar-option" onclick="seleccionarAvatar('Gimnasia.png')" alt="Gimnasia">
+      <img src="../images/avatars/Vélez.png" class="avatar-option" onclick="seleccionarAvatar('Vélez.png')" alt="Vélez">
+      <img src="../images/avatars/Lanús.png" class="avatar-option" onclick="seleccionarAvatar('Lanús.png')" alt="Lanús">
+      <img src="../images/avatars/Banfield.png" class="avatar-option" onclick="seleccionarAvatar('Banfield.png')" alt="Banfield">
+      <img src="../images/avatars/Newells.png" class="avatar-option" onclick="seleccionarAvatar('Newells.png')" alt="Newell's">
+      <img src="../images/avatars/Rosario Ctral.png" class="avatar-option" onclick="seleccionarAvatar('Rosario Ctral.png')" alt="Rosario Central">
+      <img src="../images/avatars/Talleres.png" class="avatar-option" onclick="seleccionarAvatar('Talleres.png')" alt="Talleres">
+      <img src="../images/avatars/Belgrano.png" class="avatar-option" onclick="seleccionarAvatar('Belgrano.png')" alt="Belgrano">
+      <img src="../images/avatars/Instituto.png" class="avatar-option" onclick="seleccionarAvatar('Instituto.png')" alt="Instituto">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="cerrarModalAvatar()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -16,8 +49,9 @@
     <div class="perfil-wrapper">
         <div class="perfil-layout">
             <aside class="perfil-sidebar">
-                <div class="profile-photo">
-                    <i class="fa-solid fa-user"></i>
+                <div class="profile-photo" id="profilePhotoContainer" onclick="abrirModalAvatar()" title="Cambiar avatar">
+                    <img id="currentAvatarImg" src="../images/avatars/River.png" alt="Avatar actual" style="display: none;">
+                    <i id="defaultAvatarIcon" class="fa-solid fa-user"></i>
                 </div>
                 <h3 id="sidebar-name">@usuario</h3>
                 <span id="sidebar-tag">Rol: <strong id="info-role">Cargando...</strong></span>
