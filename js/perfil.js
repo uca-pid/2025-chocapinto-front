@@ -271,6 +271,7 @@ async function loadMyClubs() {
     const currentUsername = localStorage.getItem("username");
     const clubsListContainer = document.getElementById("clubs-list");
     clubsListContainer.innerHTML = ''; // Limpia el contenido anterior
+    
 
     try {
         // Este FETCH requiere el endpoint /user/{username}/clubs en tu backend
@@ -284,6 +285,7 @@ async function loadMyClubs() {
         
         if (data.success && data.clubs) {
             const clubs = data.clubs;
+        
 
             if (clubs.length === 0) {
                 clubsListContainer.innerHTML = '<p class="no-clubs-message">Aún no estás suscrito a ningún club. ¡Busca uno!</p>';
@@ -291,17 +293,28 @@ async function loadMyClubs() {
                 clubs.forEach(club => {
                     // Determinar el texto de rol a mostrar
                     const roleText = club.role === 'OWNER' ? 'Dueño del Club' : club.role;
-                    
                     const clubCard = `
-                        <div class="club-card">
-                            <h3>${club.name}</h3>
-                            <p><strong>Rol:</strong> ${roleText}</p>
-                            <p><strong>Se unió el:</strong> ${new Date(club.joinedAt).toLocaleDateString()}</p>
-                            <div class="card-actions">
-                                <button class="btn-primary-club">Ir al Club</button>
-                                <button class="btn-secondary-club">${club.role === 'OWNER' ? 'Administrar' : 'Gestionar'}</button>
+                        
+                        <div class="club-card-row">
+
+                            <img class="club-photo-small"
+                                src="${club.imagen || '../images/default-club.png'}"
+                                alt="Foto del club">
+
+                            <div class="club-info">
+                                <h3 class="club-name">${club.name}</h3>
+
+                                <p class="club-detail"><strong>Rol:</strong> ${roleText}</p>
+                                <p class="club-detail"><strong>Se unió el:</strong> ${new Date(club.joinedAt).toLocaleDateString()}</p>
+
+                                <button class="btn-primary-club club-button"
+                                    onclick="window.location.href='club_lectura.html?clubId=${club.id}'">
+                                    Ir al Club
+                                </button>
                             </div>
+
                         </div>
+                    
                     `;
                     clubsListContainer.innerHTML += clubCard;
                 });

@@ -993,3 +993,56 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
     outline: 2px solid white;
     outline-offset: 2px;
 }
+
+.club-card-row {
+    display: flex;
+    align-items: flex-start; /* Alineación arriba */
+    padding: 15px;
+    gap: 15px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+
+
+.club-photo-small {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.club-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.club-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0077cc;
+    margin: 0 0 4px 0;
+}
+
+.club-detail {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.club-button {
+    margin-top: 10px;
+    width: 140px;
+    align-self: flex-start;
+}
+
+.clubs-container {
+    max-width: 600px;   /* → ancho máximo de las tarjetas */
+    margin: 0 auto;     /* → centra el contenedor */
+}
+
+
