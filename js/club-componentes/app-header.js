@@ -2,6 +2,7 @@ const XP_PER_LEVEL = 500;
 
 // URL del login (ajustar si es otra)
 const LOGIN_URL = "/index.html";
+const PROFILE_URL = "/html/perfil.html";
 
 /**
  * Inicializa el header base dentro de #app-header.
@@ -53,6 +54,181 @@ export function initAppHeader(options = {}) {
       height: 100%;
       text-transform: uppercase;
     }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px; /* separación entre iconos */
+    }
+
+    .header-action-btn {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      /* elimina cualquier estilo nativo */
+      outline: none;
+      box-shadow: none;
+    }
+
+    .header-action-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+      
+    .header-action-btn:hover .header-action-icon {
+      transform: scale(1.15);
+      opacity: 0.85;
+    }
+
+    .header-action-btn:active .header-action-icon {
+      transform: scale(1.05);
+    }
+
+    .header-action-primary,
+    .header-action-secondary,
+    .header-action-ghost {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Columna izquierda: nombre + estado */
+    .user-info > div:first-child {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Nombre */
+    .username {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* Estado */
+    .user-status {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .user-xp {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 140px;
+    }
+
+    .user-level {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    /* Barra de progreso */
+    .xp-progress-bar-bg {
+      width: 120px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .xp-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00cec9, #0984e3);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .xp-progress-text {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+    .app-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Avatar + bloque de info en fila */
+    .app-header-right .user-profile {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Dentro de user-info queremos:
+      [  (nombre+estado)   ][   (nivel+barra)   ]  */
+    .app-header-right .user-info {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    /* Columna izquierda: nombre + estado */
+    .app-header-right .user-info > div:first-child {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Columna derecha: nivel + barra */
+    .app-header-right .user-xp {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 140px;
+    }
+
+    /* Barra de progreso más visible sobre fondo blanco */
+    .app-header-right .xp-progress-bar-bg {
+      width: 120px;
+      height: 6px;
+      background: #eceff4; /* gris clarito para que se vea aunque el fill esté en 0 */
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .app-header-right .xp-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00cec9, #0984e3);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .app-header-right .xp-progress-text {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 2px;
+    }
+
+
     </style>
     
     <div class="app-header-inner">
@@ -80,9 +256,10 @@ export function initAppHeader(options = {}) {
             <span id="userInitials">?</span>
           </div>
           <div class="user-info">
-            <span class="username" id="usernameDisplay">Cargando...</span>
-            <span class="user-status" id="userRoleStatus">Miembro activo</span>
-
+            <div>
+              <span class="username" id="usernameDisplay">Cargando...</span>
+              <span class="user-status" id="userRoleStatus">Miembro activo</span>
+            </div>
             <div class="user-xp" id="userXpContainer">
               <div class="user-level" id="userLevelDisplay">Nivel 1</div>
               <div class="xp-progress">
@@ -118,6 +295,17 @@ export function initAppHeader(options = {}) {
 
   // Exponer para que otras partes (p. ej. concluir lectura) puedan refrescar XP
   window.updateUserXpHeader = updateUserXpHeader;
+
+  // Click en todo el perfil -> ir a pantalla de perfil
+  const userProfile = document.querySelector(".user-profile");
+  if (userProfile) {
+    userProfile.style.cursor = "pointer";
+
+    userProfile.addEventListener("click", () => {
+      window.location.href = PROFILE_URL;
+    });
+  }
+
 }
 
 /**
@@ -166,11 +354,8 @@ export function addHeaderAction({
 
   btn.innerHTML = `
     ${
-      icon
-        ? `<span class="header-action-icon">${icon}</span>`
-        : ""
+        `<span class="header-action-icon">${icon}</span>`
     }
-    <span>${label}</span>
   `;
 
   if (typeof onClick === "function") {
