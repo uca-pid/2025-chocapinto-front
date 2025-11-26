@@ -435,7 +435,7 @@ async function editarCategoria(categoriaId, nombreActual) {
 // Función para buscar cursos en tu API propia
 async function buscarCursosAPI(query) {
     try {
-        // Llamamos a TU backend (puerto 5000), que a su vez llama a json-server
+        
         const res = await fetch(`${API_URL}/api/books/searchCursos?query=${encodeURIComponent(query)}`);
         const data = await res.json();
         
