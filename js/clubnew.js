@@ -95,22 +95,41 @@ document.addEventListener("DOMContentLoaded", async () => {
           // sin onClick, lo conecta club-core.js
         });
 
+        // ================================
         // SOLICITUDES
+        // ================================
+
         const solicitudesBtn = addHeaderAction({
           id: "requestsBtn",
-          label: "Solicitudes",
-          icon: "👥",
+          icon: "📬",   
           variant: "secondary",
+          onClick: () => {
+            if (window.abrirModalSolicitudes) {
+              window.abrirModalSolicitudes();   // abre el modal existente
+            } else {
+              console.warn("⚠️ abrirModalSolicitudes no está disponible");
+            }
+          }
         });
 
-        // badge
+        // Crear badge SOLO para este botón
         if (solicitudesBtn) {
           const badge = document.createElement("span");
-          badge.id = "requestsBadge";
-          badge.className = "requests-badge";
+          badge.className = "header-notification-badge";
           badge.style.display = "none";
           solicitudesBtn.appendChild(badge);
+
+          // Método exclusivo de este botón
+          solicitudesBtn.setBadge = function (value) {
+            if (!value || value <= 0) {
+              badge.style.display = "none";
+            } else {
+              badge.textContent = value > 99 ? "99+" : value;
+              badge.style.display = "flex";
+            }
+          };
         }
+
       }
 
       // ========================
@@ -134,3 +153,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }, 800);
 });
+
+async function actualizarBadgeSolicitudes() {
+  try {
+    const clubId = localStorage.getItem("clubId");
+    if (!clubId || !solicitudesBtn?.setBadge) return;
+
+    const res = await fetch(`${window.API_URL}/clubs/${clubId}/solicitudes`);
+    const data = await res.json();
+
+    if (data.success) {
+      solicitudesBtn.setBadge(data.solicitudes.length);
+    }
+  } catch (err) {
+    console.error("Error al actualizar badge de solicitudes:", err);
+  }
+}
+
+// Llamada inicial
+actualizarBadgeSolicitudes();
+
+// (opcional) refrescar cada 30 segundos
+setInterval(actualizarBadgeSolicitudes, 30000);

@@ -135,6 +135,7 @@ export function initAppHeader(options = {}) {
   align-items: center;
   justify-content: center;
   outline: none;
+  position: relative;
 }
 
 .header-action-icon {
@@ -149,6 +150,25 @@ export function initAppHeader(options = {}) {
 
 .header-action-btn:active .header-action-icon {
   transform: scale(1.05);
+}
+
+.header-notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #e53935;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #fff;
 }
 
 /* =========================
@@ -388,13 +408,26 @@ export function addHeaderAction({
 
   btn.innerHTML = `
     ${
-        `<span class="header-action-icon">${icon}</span>`
+        `<span class="header-action-icon">${icon}</span>
+        <span class="header-notification-badge" style="display:none;"></span>`
     }
   `;
 
   if (typeof onClick === "function") {
     btn.addEventListener("click", onClick);
   }
+
+  btn.setBadge = function (value) {
+  const badge = btn.querySelector(".header-notification-badge");
+  if (!badge) return;
+
+  if (!value || value <= 0) {
+    badge.style.display = "none";
+  } else {
+    badge.textContent = value > 99 ? "99+" : value;
+    badge.style.display = "flex";
+  }
+};
 
   actionsRoot.appendChild(btn);
   return btn;
