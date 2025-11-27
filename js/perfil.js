@@ -2,6 +2,8 @@ import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
 
+const LOGIN_URL = "index.html";
+
 // Configuración de avatares por nivel
 const AVATARS_POR_NIVEL = {
     1: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg'], // Nivel 1: Solo los dos grandes
@@ -72,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const currentUsername = localStorage.getItem("username");
     if (!currentUsername) {
         hideLoader();
-        window.location.href = "index.html";
+        window.location.href = "LOGIN_URL";
         return;
     }
     
@@ -249,7 +251,7 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
             
             setTimeout(() => {
                 hideLoader();
-                window.location.href = "index.html";
+                window.location.href = LOGIN_URL;
             }, 1500);
         } else {
             hideLoader();
@@ -262,6 +264,48 @@ document.getElementById("deleteAccountBtn").addEventListener("click", async () =
     }
 });
 
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      confirmarCerrarSesion();
+    });
+  }
+
+});
+
+function confirmarCerrarSesion() {
+  if (window.mostrarConfirmacion) {
+    window.mostrarConfirmacion(
+      "Cerrar sesión",
+      "¿Estás seguro de que querés cerrar sesión?",
+      cerrarSesion,
+      null,
+      {
+        confirmText: "Cerrar sesión",
+        cancelText: "Cancelar",
+        confirmClass: "red-btn",
+        cancelClass: "gray-btn"
+      }
+    );
+  } else {
+    const ok = confirm("¿Estás seguro de que querés cerrar sesión?");
+    if (ok) cerrarSesion();
+  }
+}
+
+function cerrarSesion() {
+  localStorage.removeItem("userId");
+  localStorage.removeItem("username");
+  localStorage.removeItem("email");
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+
+  window.location.href = LOGIN_URL;
+}
 
 // --- 7. LÓGICA DE CARGA DE MIS CLUBES (NUEVA FUNCIÓN) ---
 

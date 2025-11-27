@@ -141,8 +141,12 @@ h2 {
     cursor: pointer;
 }
 .btn-back {
-    background: #f0f0f0;
-    color: #4a4a4a;
+    background: #0984e3;
+    color: #fff;
+}
+.btn-logout {
+    background: #e38f09;
+    color: #fff;
 }
 .btn-danger {
     background: #d63031;

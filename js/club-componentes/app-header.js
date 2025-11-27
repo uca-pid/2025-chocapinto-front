@@ -6,12 +6,8 @@ const PROFILE_URL = "/html/perfil.html";
 
 /**
  * Inicializa el header base dentro de #app-header.
- * options:
- *  - showBackButton: boolean
- *  - onBack: función callback opcional (si no, hace history.back())
  */
 export function initAppHeader(options = {}) {
-  const { showBackButton = false, onBack = null } = options;
 
   const headerRoot = document.getElementById("app-header");
   if (!headerRoot) {
@@ -21,248 +17,236 @@ export function initAppHeader(options = {}) {
 
   headerRoot.innerHTML = `
     <style>
-    .user-avatar {
-      position: relative;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0984e3, #74b9ff);
-      border-radius: 50%;
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-      border: 2px solid #eaf6ff;
-    }
-    
-    .user-avatar-img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    
-    #userInitials {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      text-transform: uppercase;
-    }
+    /* =========================
+   CONTENEDOR GENERAL HEADER
+========================= */
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px; /* separación entre iconos */
-    }
+#app-header {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #eaf0f6;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  overflow-x: hidden;
+}
 
-    .header-action-btn {
-      background: transparent;
-      border: none;
-      padding: 0;
-      margin: 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+.app-header-inner {
+  width: 100%;
+  padding: 14px 32px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
 
-      /* elimina cualquier estilo nativo */
-      outline: none;
-      box-shadow: none;
-    }
+/* =========================
+   BLOQUE IZQUIERDO
+========================= */
 
-    .header-action-icon {
-      margin-right: 8px;
-      font-size: 20px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-      
-    .header-action-btn:hover .header-action-icon {
-      transform: scale(1.15);
-      opacity: 0.85;
-    }
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
 
-    .header-action-btn:active .header-action-icon {
-      transform: scale(1.05);
-    }
+/* Logo app */
+.app-logo-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
 
-    .header-action-primary,
-    .header-action-secondary,
-    .header-action-ghost {
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
+.app-logo-img {
+  height: 65px;
+  object-fit: contain;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
 
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+.app-logo-container:hover .app-logo-img {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
 
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+/* Contexto del club */
+.header-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    /* Columna izquierda: nombre + estado */
-    .user-info > div:first-child {
-      display: flex;
-      flex-direction: column;
-    }
+.header-context-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
 
-    /* Nombre */
-    .username {
-      font-size: 14px;
-      font-weight: 600;
-      line-height: 1.2;
-    }
+.header-context-icon-image img {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid #1172faff;
+}
 
-    /* Estado */
-    .user-status {
-      font-size: 11px;
-      opacity: 0.7;
-    }
+.header-context-text {
+  display: flex;
+  flex-direction: column;
+}
 
-    .user-xp {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      min-width: 140px;
-    }
+.header-context-title {
+  font-weight: 600;
+  font-size: 15px;
+}
 
-    .user-level {
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
+.header-context-subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+}
 
-    /* Barra de progreso */
-    .xp-progress-bar-bg {
-      width: 120px;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 4px;
-      overflow: hidden;
-    }
+/* =========================
+   BLOQUE DERECHO
+========================= */
 
-    .xp-progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #00cec9, #0984e3);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
 
-    .xp-progress-text {
-      font-size: 10px;
-      opacity: 0.7;
-      margin-top: 2px;
-    }
+/* =========================
+   ACCIONES (ICONOS)
+========================= */
 
-    .app-header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
-    /* Avatar + bloque de info en fila */
-    .app-header-right .user-profile {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center;
-      gap: 12px;
-    }
+.header-action-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
 
-    /* Dentro de user-info queremos:
-      [  (nombre+estado)   ][   (nivel+barra)   ]  */
-    .app-header-right .user-info {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: flex-start;
-      gap: 16px;
-    }
+.header-action-icon {
+  font-size: 20px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
 
-    /* Columna izquierda: nombre + estado */
-    .app-header-right .user-info > div:first-child {
-      display: flex;
-      flex-direction: column;
-    }
+.header-action-btn:hover .header-action-icon {
+  transform: scale(1.15);
+  opacity: 0.85;
+}
 
-    /* Columna derecha: nivel + barra */
-    .app-header-right .user-xp {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      min-width: 140px;
-    }
+.header-action-btn:active .header-action-icon {
+  transform: scale(1.05);
+}
 
-    /* Barra de progreso más visible sobre fondo blanco */
-    .app-header-right .xp-progress-bar-bg {
-      width: 120px;
-      height: 6px;
-      background: #eceff4; /* gris clarito para que se vea aunque el fill esté en 0 */
-      border-radius: 4px;
-      overflow: hidden;
-    }
+/* =========================
+   BLOQUE USUARIO
+========================= */
 
-    .app-header-right .xp-progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #00cec9, #0984e3);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
 
-    .app-header-right .xp-progress-text {
-      font-size: 10px;
-      opacity: 0.7;
-      margin-top: 2px;
-    }
+/* Avatar */
+.user-avatar {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0984e3, #74b9ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  border: 2px solid #eaf6ff;
+}
 
-    .app-logo-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 14px;
-      cursor: pointer;
-    }
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 
-    .app-logo-img {
-      display:block;
-      margin:0 auto 10px auto;
-      max-width:200px;
-      margin-top:10px;
-    }
+#userInitials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
 
-    .app-logo-container:hover .app-logo-img {
-      transform: scale(1.05);
-      opacity: 0.85;
-    }
+/* =========================
+   INFO USUARIO + XP
+========================= */
 
-    .header-context-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      margin-right: 8px;
-    }
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
 
-    .header-context-icon-image img {
-      width: 55px;
-      height: 55px;
-      border-radius: 8px; /* si lo querés redondo: 50% */
-      object-fit: cover;
-      border: 2px solid #1172faff;
-    }
+/* Username */
+.username {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* XP */
+.user-xp {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.user-level {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.xp-progress-bar-bg {
+  width: 150px;
+  height: 6px;
+  background: #eceff4;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.xp-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00cec9, #0984e3);
+  transition: width 0.3s ease;
+}
+
+.xp-progress-text {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
 
 
 
@@ -292,7 +276,6 @@ export function initAppHeader(options = {}) {
           <div class="user-info">
             <div>
               <span class="username" id="usernameDisplay">Cargando...</span>
-              <span class="user-status" id="userRoleStatus">Miembro activo</span>
             </div>
             <div class="user-xp" id="userXpContainer">
               <div class="user-level" id="userLevelDisplay">Nivel 1</div>

@@ -6,6 +6,7 @@
 import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
+import { initAppHeader, setHeaderContext } from "./club-componentes/app-header.js";
 
 // ========== FUNCIONES DE UTILIDAD ==========
 
@@ -363,6 +364,22 @@ function configurarDropdownPerfil() {
         });
     }
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    window.API_URL = API_URL;
+
+    initAppHeader();
+
+    setHeaderContext({
+    icon: "",
+    title: "",
+    subtitle: ""
+    });
+
+    inicializarAplicacion();
+});
 
 /**
  * Inicializa la aplicación cuando el DOM está listo

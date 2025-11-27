@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =======================
   // 1) HEADER BASE
   // =======================
-  initAppHeader({ showBackButton: true });
+  initAppHeader();
 
   // =======================
   // 2) Inicializar módulos UI
