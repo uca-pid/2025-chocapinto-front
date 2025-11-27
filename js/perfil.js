@@ -4,16 +4,15 @@ import { showLoader, hideLoader } from "../componentes/loader.js";
 
 // Configuración de avatares por nivel
 const AVATARS_POR_NIVEL = {
-    1: ['River.png', 'Boca.png'], // Nivel 1: Solo los dos grandes
-    2: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png'], // Nivel 2: Los 5 grandes
-    3: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png'],
-    4: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png'],
-    5: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png'],
-    6: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png'],
-    7: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png'],
-    8: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png', 'Rosario Ctral.png'],
-    9: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png', 'Rosario Ctral.png', 'Talleres.png'],
-    10: ['River.png', 'Boca.png', 'Racing.png', 'Independiente.png', 'San Lorenzo.png', 'Huracán.png', 'Estudiantes.png', 'Gimnasia.png', 'Vélez.png', 'Lanús.png', 'Banfield.png', 'Newells.png', 'Rosario Ctral.png', 'Talleres.png', 'Belgrano.png', 'Instituto.png']
+    1: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg'], // Nivel 1: Solo los dos grandes
+    2: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg'], // Nivel 2: Los 5 grandes
+    3: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg'],
+    4: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg', 'ElfaArquera.jpg'],
+    5: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg', 'ElfaArquera.jpg', 'Hechizera2.jpg', 'Mago.jpg'],
+    6: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg', 'ElfaArquera.jpg', 'Hechizera2.jpg', 'Mago.jpg', 'Vampiro.jpg', 'Hechizera.jpg'],
+    7: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg', 'ElfaArquera.jpg', 'Hechizera2.jpg', 'Mago.jpg', 'Vampiro.jpg', 'Hechizera.jpg', 'Cyborg.jpg', 'Filosofo.jpg'],
+    8: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg', 'ElfaArquera.jpg', 'Hechizera2.jpg', 'Mago.jpg', 'Vampiro.jpg', 'Hechizera.jpg', 'Cyborg.jpg', 'Filosofo.jpg', 'Reina.jpg'],
+    9: ['DetectiveHombre.jpg', 'DetectiveMujer.jpg', 'AventureroFantasia.jpg', 'Exploradora.jpg', 'Filosofo.jpg', 'ElfaArquera.jpg', 'Hechizera2.jpg', 'Mago.jpg', 'Vampiro.jpg', 'Hechizera.jpg', 'Cyborg.jpg', 'Filosofo.jpg', 'Reina.jpg', 'SilverShroud.jpg'],
 };
 
 //Inicializador de pagina - mostrar loader inicial
@@ -405,22 +404,20 @@ function generarGridAvataresPorNivel(userLevel) {
     
     // Todos los avatares posibles con sus detalles
     const todosLosAvatares = [
-        { archivo: 'River.png', nombre: 'River Plate', nivelRequerido: 1 },
-        { archivo: 'Boca.png', nombre: 'Boca Juniors', nivelRequerido: 1 },
-        { archivo: 'Racing.png', nombre: 'Racing', nivelRequerido: 2 },
-        { archivo: 'Independiente.png', nombre: 'Independiente', nivelRequerido: 2 },
-        { archivo: 'San Lorenzo.png', nombre: 'San Lorenzo', nivelRequerido: 3 },
-        { archivo: 'Huracán.png', nombre: 'Huracán', nivelRequerido: 4 },
-        { archivo: 'Estudiantes.png', nombre: 'Estudiantes', nivelRequerido: 5 },
-        { archivo: 'Gimnasia.png', nombre: 'Gimnasia', nivelRequerido: 5 },
-        { archivo: 'Vélez.png', nombre: 'Vélez', nivelRequerido: 6 },
-        { archivo: 'Lanús.png', nombre: 'Lanús', nivelRequerido: 6 },
-        { archivo: 'Banfield.png', nombre: 'Banfield', nivelRequerido: 7 },
-        { archivo: 'Newells.png', nombre: 'Newell\'s', nivelRequerido: 7 },
-        { archivo: 'Rosario Ctral.png', nombre: 'Rosario Central', nivelRequerido: 8 },
-        { archivo: 'Talleres.png', nombre: 'Talleres', nivelRequerido: 9 },
-        { archivo: 'Belgrano.png', nombre: 'Belgrano', nivelRequerido: 10 },
-        { archivo: 'Instituto.png', nombre: 'Instituto', nivelRequerido: 10 }
+        { archivo: 'DetectiveHombre.jpg', nombre: 'Detective Hombre', nivelRequerido: 1 },
+        { archivo: 'DetectiveMujer.jpg', nombre: 'Detective Mujer', nivelRequerido: 1 },
+        { archivo: 'AventureroFantasia.jpg', nombre: 'Aventurero de Fantasia', nivelRequerido: 2 },
+        { archivo: 'Exploradora.jpg', nombre: 'Exploradora', nivelRequerido: 2 },
+        { archivo: 'Filosofo.jpg', nombre: 'Filosofo', nivelRequerido: 3 },
+        { archivo: 'ElfaArquera.jpg', nombre: 'ElfaArquera', nivelRequerido: 4 },
+        { archivo: 'Hechizera2.jpg', nombre: 'Hechizera', nivelRequerido: 5 },
+        { archivo: 'Mago.jpg', nombre: 'Mago', nivelRequerido: 5 },
+        { archivo: 'Vampiro.jpg', nombre: 'Vampiro', nivelRequerido: 6 },
+        { archivo: 'Hechizera.jpg', nombre: 'Bruja', nivelRequerido: 6 },
+        { archivo: 'Cyborg.jpg', nombre: 'Cyborg', nivelRequerido: 7 },
+        { archivo: 'Filosofo.jpg', nombre: 'Filosofo', nivelRequerido: 7 },
+        { archivo: 'Reina.jpg', nombre: 'Reina', nivelRequerido: 8 },
+        { archivo: 'SilverShroud.jpg', nombre: 'SilverShroud', nivelRequerido: 9 },
     ];
     
     // Primero crear el HTML de información del nivel

@@ -23,8 +23,8 @@ export function initAppHeader(options = {}) {
     <style>
     .user-avatar {
       position: relative;
-      width: 40px;
-      height: 40px;
+      width: 60px;
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -228,18 +228,52 @@ export function initAppHeader(options = {}) {
       margin-top: 2px;
     }
 
+    .app-logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      cursor: pointer;
+    }
+
+    .app-logo-img {
+      display:block;
+      margin:0 auto 10px auto;
+      max-width:200px;
+      margin-top:10px;
+    }
+
+    .app-logo-container:hover .app-logo-img {
+      transform: scale(1.05);
+      opacity: 0.85;
+    }
+
+    .header-context-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-right: 8px;
+    }
+
+    .header-context-icon-image img {
+      width: 55px;
+      height: 55px;
+      border-radius: 8px; /* si lo querés redondo: 50% */
+      object-fit: cover;
+      border: 2px solid #1172faff;
+    }
+
+
+
 
     </style>
     
     <div class="app-header-inner">
       <div class="app-header-left">
-        <button id="header-back-btn" class="header-icon-btn" style="display: ${
-          showBackButton ? "flex" : "none"
-        }">
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-            <polyline points="15 18 9 12 15 6" fill="none" stroke="currentColor" stroke-width="2"/>
-          </svg>
-        </button>
+        <div class="app-logo-container" id="appLogoBtn">
+          <img src="/images/BooksyLogo.png" alt="Logo App" class="app-logo-img" />
+        </div>
         <div id="header-context" class="header-context">
           <!-- Icono + título + subtítulo -->
         </div>
@@ -277,18 +311,6 @@ export function initAppHeader(options = {}) {
     </div>
   `;
 
-  // Botón de back
-  const backBtn = document.getElementById("header-back-btn");
-  if (backBtn && showBackButton) {
-    backBtn.addEventListener("click", () => {
-      if (typeof onBack === "function") {
-        onBack();
-      } else {
-        window.history.back();
-      }
-    });
-  }
-
   // Inicializar usuario + xp
   updateUsernameAndInitials();
   updateUserXpHeader();
@@ -306,6 +328,14 @@ export function initAppHeader(options = {}) {
     });
   }
 
+  const appLogoBtn = document.getElementById("appLogoBtn");
+  if (appLogoBtn) {
+    appLogoBtn.addEventListener("click", () => {
+      window.location.href = "/html/main.html"; // ajustá si tu home está en otra ruta
+    });
+  }
+
+
 }
 
 /**
@@ -316,8 +346,28 @@ export function setHeaderContext({ icon = "📚", title = "", subtitle = "" } = 
   const contextRoot = document.getElementById("header-context");
   if (!contextRoot) return;
 
+  // Detectar si el "icon" es una URL de imagen o un emoji/texto
+  let iconHtml = "";
+  if (icon) {
+    const isUrl =
+      typeof icon === "string" &&
+      (icon.startsWith("http://") ||
+       icon.startsWith("https://") ||
+       icon.startsWith("/"));
+
+    if (isUrl) {
+      iconHtml = `
+        <div class="header-context-icon header-context-icon-image">
+          <img src="${icon}" alt="${title}" onerror="this.style.display='none'; this.closest('.header-context-icon').textContent='📚';" />
+        </div>
+      `;
+    } else {
+      iconHtml = `<div class="header-context-icon">${icon}</div>`;
+    }
+  }
+
   contextRoot.innerHTML = `
-    <div class="header-context-icon">${icon}</div>
+    ${iconHtml}
     <div class="header-context-text">
       <div class="header-context-title">${title}</div>
       ${
@@ -328,6 +378,7 @@ export function setHeaderContext({ icon = "📚", title = "", subtitle = "" } = 
     </div>
   `;
 }
+
 
 /**
  * Agrega un botón de acción a la derecha del header
