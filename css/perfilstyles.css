@@ -141,8 +141,12 @@ h2 {
     cursor: pointer;
 }
 .btn-back {
-    background: #f0f0f0;
-    color: #4a4a4a;
+    background: #0984e3;
+    color: #fff;
+}
+.btn-logout {
+    background: #e38f09;
+    color: #fff;
 }
 .btn-danger {
     background: #d63031;
@@ -298,6 +302,175 @@ h2 {
   flex: 1 1 180px;          /* se acomodan en 1 o 2 columnas según ancho */
 }
 
+/* Modal de Avatar */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c5a91;
+  font-size: 1.4rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 15px;
+  padding: 24px;
+}
+
+.avatar-option {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+  object-fit: cover;
+  background: #f8f9fa;
+}
+
+.avatar-option:hover {
+  transform: scale(1.1);
+  border-color: #0984e3;
+  box-shadow: 0 4px 12px rgba(9, 132, 227, 0.3);
+}
+
+.avatar-option.selected {
+  border-color: #0984e3;
+  box-shadow: 0 0 0 2px rgba(9, 132, 227, 0.2);
+}
+
+.modal-actions {
+  padding: 16px 24px 24px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Profile Photo Clickeable */
+.profile-photo {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-photo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 4px rgba(9, 132, 227, 0.2);
+}
+
+.profile-photo::after {
+  content: '📷';
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: #0984e3;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.profile-photo:hover::after {
+  opacity: 1;
+}
+
+#currentAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+#defaultAvatarIcon {
+  transition: all 0.3s ease;
+}
+
+/* Responsive para modal */
+@media (max-width: 600px) {
+  .modal-content {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .avatar-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 12px;
+    padding: 20px;
+  }
+  
+  .avatar-option {
+    width: 70px;
+    height: 70px;
+  }
+}
 /* Inputs y tipografías que escalen suave */
 h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
 .form-group input{ font-size: 1rem; }
@@ -380,3 +553,500 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
     min-height: 40px;
   }
 }
+/* --- Estilos para la Nueva Sección de Clubes --- */
+
+.clubs-container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
+}
+
+.club-card {
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    transition: transform 0.2s;
+}
+
+.club-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.club-card h3 {
+    color: #0984e3;
+    font-size: 1.25rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.club-card p {
+    font-size: 0.95rem;
+    color: #4a4a4a;
+    margin: 5px 0;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.card-actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    flex-grow: 1;
+}
+
+.btn-primary-club {
+    background: #2ecc71; 
+    color: #fff;
+}
+.btn-primary-club:hover {
+    background: #27ae60;
+}
+
+.btn-secondary-club {
+    background: #f0f0f0;
+    color: #4a4a4a;
+    border: 1px solid #ccc;
+}
+.btn-secondary-club:hover {
+    background: #e0e0e0;
+}
+
+.no-clubs-message, .error-message {
+    grid-column: 1 / -1; 
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 1.1rem;
+    color: #636e72;
+    background: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+.error-message {
+    color: #d63031;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 600px) {
+    .clubs-container {
+        grid-template-columns: 1fr;
+    }
+    .card-actions {
+        flex-direction: column;
+    }
+}
+
+/* ===== ESTILOS PARA SISTEMA DE AVATARES POR NIVEL ===== */
+
+/* Modal de avatares mejorado */
+.modal-backdrop {
+    background: rgba(9, 132, 227, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    background: linear-gradient(145deg, #ffffff 0%, #f8fbff 100%);
+    border: 2px solid rgba(9, 132, 227, 0.1);
+    box-shadow: 0 20px 60px rgba(9, 132, 227, 0.2);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+    color: white;
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+    padding: 24px;
+}
+
+.modal-header h3 {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-close {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 28px;
+    font-weight: 300;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+/* Panel de información del nivel */
+.avatar-level-info {
+    text-align: center;
+    margin: 24px 24px 20px 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, #0984e3 0%, #00b894 100%);
+    border-radius: 12px;
+    color: white;
+    box-shadow: 0 8px 25px rgba(9, 132, 227, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    order: -1; /* Asegurar que aparezca primero */
+}
+
+.avatar-level-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-level-info p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Grid de avatares responsivo */
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 20px;
+    max-height: 450px;
+    overflow-y: auto;
+    padding: 0 24px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: #0984e3 #f1f3f4;
+    justify-items: center;
+}
+
+.avatar-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.avatar-grid::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 3px;
+}
+
+.avatar-grid::-webkit-scrollbar-thumb {
+    background: #0984e3;
+    border-radius: 3px;
+}
+
+.avatar-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90px;
+    height: 90px;
+    padding: 0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.avatar-item:hover {
+    background: rgba(9, 132, 227, 0.05);
+}
+
+/* Avatares disponibles */
+.avatar-option {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 50% !important;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    object-fit: cover !important;
+    box-shadow: 0 4px 12px rgba(9, 132, 227, 0.1);
+    flex-shrink: 0;
+    display: block;
+}
+
+.avatar-option.available {
+    border-color: rgba(9, 132, 227, 0.2);
+    background: white;
+}
+
+.avatar-option.available:hover {
+    border-color: #0984e3;
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(9, 132, 227, 0.3);
+    z-index: 2;
+}
+
+.avatar-option.available.selected {
+    border-color: #0984e3;
+    box-shadow: 0 0 0 4px rgba(9, 132, 227, 0.2);
+    transform: scale(1.05);
+}
+
+/* Avatares bloqueados */
+.avatar-option.locked {
+    border-color: rgba(99, 110, 114, 0.3);
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(70%);
+    background: #f8f9fa;
+}
+
+.avatar-option.locked:hover {
+    transform: scale(1.05);
+    filter: grayscale(50%);
+    box-shadow: 0 4px 15px rgba(99, 110, 114, 0.2);
+}
+
+/* Candado para avatares bloqueados */
+.avatar-lock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #636e72 0%, #2d3436 100%);
+    color: white;
+    padding: 10px;
+    border-radius: 25px;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.avatar-lock i {
+    font-size: 14px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.avatar-lock span {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Acciones del modal */
+.modal-actions {
+    background: rgba(248, 251, 255, 0.8);
+    border-top: 1px solid rgba(9, 132, 227, 0.1);
+    padding: 20px 24px;
+}
+
+.modal-actions .btn-secondary {
+    background: linear-gradient(135deg, #ddd6fe 0%, #e0e7ff 100%);
+    color: #636e72;
+    border: 1px solid rgba(9, 132, 227, 0.2);
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+}
+
+.modal-actions .btn-secondary:hover {
+    background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(9, 132, 227, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+        margin: 20px;
+    }
+    
+    .modal-header {
+        padding: 20px;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .avatar-level-info {
+        margin: 20px 16px 16px 16px;
+        padding: 16px;
+    }
+    
+    .avatar-level-info h4 {
+        font-size: 1.1rem;
+    }
+    
+    .avatar-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 15px;
+        padding: 0 16px 20px;
+        max-height: 350px;
+    }
+    
+    .avatar-item {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .avatar-option {
+        width: 70px !important;
+        height: 70px !important;
+    }
+    
+    .avatar-option.available:hover {
+        transform: scale(1.1);
+    }
+    
+    .avatar-lock {
+        padding: 8px;
+        border-radius: 20px;
+    }
+    
+    .avatar-lock i {
+        font-size: 12px;
+    }
+    
+    .modal-actions {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 98%;
+        max-height: 90vh;
+        margin: 10px;
+    }
+    
+    .modal-header {
+        padding: 16px;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .avatar-level-info {
+        margin: 16px 12px 12px 12px;
+        padding: 14px;
+    }
+    
+    .avatar-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 12px;
+        padding: 0 12px 16px;
+        max-height: 300px;
+    }
+    
+    .avatar-item {
+        width: 65px;
+        height: 65px;
+    }
+    
+    .avatar-option {
+        width: 60px !important;
+        height: 60px !important;
+        border-width: 2px;
+    }
+    
+    .avatar-lock {
+        padding: 6px;
+        font-size: 9px;
+    }
+    
+    .avatar-lock i {
+        font-size: 10px;
+    }
+    
+    .avatar-lock span {
+        font-size: 8px;
+    }
+}
+
+/* Animaciones suaves */
+@keyframes avatarPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.avatar-option.available.selected {
+    animation: avatarPulse 2s infinite;
+}
+
+/* Mejoras de accesibilidad */
+.avatar-option:focus {
+    outline: 3px solid #0984e3;
+    outline-offset: 2px;
+}
+
+.modal-close:focus {
+    outline: 2px solid white;
+    outline-offset: 2px;
+}
+
+.club-card-row {
+    display: flex;
+    align-items: flex-start; /* Alineación arriba */
+    padding: 15px;
+    gap: 15px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+
+
+.club-photo-small {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.club-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.club-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0077cc;
+    margin: 0 0 4px 0;
+}
+
+.club-detail {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.club-button {
+    margin-top: 10px;
+    width: 140px;
+    align-self: flex-start;
+}
+
+.clubs-container {
+    max-width: 600px;   /* → ancho máximo de las tarjetas */
+    margin: 0 auto;     /* → centra el contenedor */
+}
+
+

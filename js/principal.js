@@ -6,6 +6,7 @@
 import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
+import { initAppHeader, setHeaderContext } from "./club-componentes/app-header.js";
 
 // ========== FUNCIONES DE UTILIDAD ==========
 
@@ -85,13 +86,26 @@ function crearMensajeMisClubesVacio() {
 
 /**
  * Función auxiliar para generar el HTML de una tarjeta de ranking.
- * @param {Object} user - Objeto con los datos del usuario (puesto, username, clubsCount, avatarURL).
+ * @param {Object} user - Objeto con los datos del usuario (puesto, username, clubsCount, avatar).
  */
 function createRankingItemHTML(user) {
+    // Determinar si mostrar avatar o iniciales
+    const hasAvatar = user.avatar && user.avatar.trim() !== '';
+    const initials = user.username ? user.username.charAt(0).toUpperCase() : '?';
+    
+    const avatarHTML = hasAvatar 
+        ? `<img src="${user.avatar}" alt="Avatar de ${user.username}" class="ranking-avatar" onerror="console.log('Error cargando avatar para ${user.username}'); this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+        : '';
+    
+    const initialsHTML = `<div class="ranking-avatar-initials" style="${hasAvatar ? 'display: none;' : 'display: flex;'}">${initials}</div>`;
+    
     return `
         <div class="ranking-item">
             <span class="ranking-puesto">${user.puesto}</span>
-            <img src="${user.avatarURL}" alt="Avatar de ${user.username}" class="ranking-avatar">
+            <div class="ranking-avatar-container">
+                ${avatarHTML}
+                ${initialsHTML}
+            </div>
             <div class="ranking-info">
                 <h4>${user.username}</h4>
                 <p>Clubes unidos:</p>
@@ -126,14 +140,32 @@ async function loadRanking() {
         }
         
         const data = await response.json();
+        console.log('DEBUG: Datos del ranking recibidos:', data);
+        
+        if (!data.success) {
+            console.error('Error en la respuesta del ranking:', data.message);
+            rankingGrid.innerHTML = '<p style="text-align:center; color:red; padding:15px;">Error al cargar el ranking.</p>';
+            return;
+        }
+        
         const topReaders = data.ranking; 
 
         if (!topReaders || topReaders.length === 0) {
-            rankingGrid.innerHTML = '<p style="text-align:center; color:#888; padding:15px;">Aún no hay usuarios suficientes para el Top 3.</p>';
+            rankingGrid.innerHTML = '<p style="text-align:center; color:#888; padding:15px;">Aún no hay usuarios suficientes para el ranking.</p>';
             return;
         }
 
-        let rankingHTML = topReaders.map(createRankingItemHTML).join('');
+        // Mapear los datos para asegurar la estructura correcta
+        const formattedRanking = topReaders.map((user, index) => ({
+            puesto: index + 1,
+            username: user.username || user.user?.username || 'Usuario desconocido',
+            clubsCount: user.clubsCount || user.totalClubs || 0,
+            avatar: user.avatar || user.user?.avatar || null
+        }));
+        
+        console.log('DEBUG: Ranking formateado:', formattedRanking);
+        
+        let rankingHTML = formattedRanking.map(createRankingItemHTML).join('');
         rankingGrid.innerHTML = rankingHTML;
         console.log("DEBUG: Ranking cargado con éxito.");
 
@@ -333,6 +365,22 @@ function configurarDropdownPerfil() {
     }
 }
 
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    window.API_URL = API_URL;
+
+    initAppHeader();
+
+    setHeaderContext({
+    icon: "",
+    title: "",
+    subtitle: ""
+    });
+
+    inicializarAplicacion();
+});
+
 /**
  * Inicializa la aplicación cuando el DOM está listo
  */
@@ -397,7 +445,7 @@ async function cargarLibrosRecomendados() {
     grid.innerHTML = "";
     
     try {
-        const res = await fetch(`${API_URL}/books`);
+        const res = await fetch(`${API_URL}/api/books`);
         const data = await res.json();
         
         if (!data.success || !data.books) {

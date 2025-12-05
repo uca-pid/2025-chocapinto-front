@@ -44,12 +44,22 @@ async function cargarClubesExploracion() {
             
             // 1. Creamos la tarjeta
             const clubCard = crearTarjetaClub(club, esMiembro, esCreador, img);
-            
+
+            clubCard.addEventListener("click", (e) => {
+                if (
+                    e.target.classList.contains("unirme-btn") ||
+                    e.target.classList.contains("editar-btn")
+                ) return;
+
+                window.location.href = `club_lectura.html?clubId=${club.id}`;
+            });
+
             // 2. Agregamos a la grilla
             clubesGrid.appendChild(clubCard);
 
-            // 3. Configuramos los eventos de los botones Unirme/Editar
+            // 3. Configuramos los botones
             configurarEventosClub(clubCard, club, esMiembro, esCreador, username);
+
         });
         
     } catch (error) {

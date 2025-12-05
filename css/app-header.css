@@ -1,0 +1,229 @@
+ /* =========================
+   CONTENEDOR GENERAL HEADER
+========================= */
+
+#app-header {
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #eaf0f6;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  overflow-x: hidden;
+}
+
+.app-header-inner {
+  width: 100%;
+  padding: 14px 32px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* =========================
+   BLOQUE IZQUIERDO
+========================= */
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Logo app */
+.app-logo-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.app-logo-img {
+  height: 65px;
+  object-fit: contain;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.app-logo-container:hover .app-logo-img {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+/* Contexto del club */
+.header-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-context-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.header-context-icon-image img {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 2px solid #1172faff;
+}
+
+.header-context-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-context-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.header-context-subtitle {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* =========================
+   BLOQUE DERECHO
+========================= */
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+/* =========================
+   ACCIONES (ICONOS)
+========================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-action-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+
+.header-action-icon {
+  font-size: 20px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.header-action-btn:hover .header-action-icon {
+  transform: scale(1.15);
+  opacity: 0.85;
+}
+
+.header-action-btn:active .header-action-icon {
+  transform: scale(1.05);
+}
+
+/* =========================
+   BLOQUE USUARIO
+========================= */
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+/* Avatar */
+.user-avatar {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0984e3, #74b9ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  border: 2px solid #eaf6ff;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#userInitials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+/* =========================
+   INFO USUARIO + XP
+========================= */
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+/* Username */
+.username {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* XP */
+.user-xp {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.user-level {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.xp-progress-bar-bg {
+  width: 150px;
+  height: 6px;
+  background: #eceff4;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.xp-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00cec9, #0984e3);
+  transition: width 0.3s ease;
+}
+
+.xp-progress-text {
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 2px;
+}

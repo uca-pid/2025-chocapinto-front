@@ -1,6 +1,53 @@
 // Variables para el gráfico
 let graficoInstancia = null;
 
+// Agregar estilos CSS para avatares en modales
+const modalAvatarStyles = document.createElement('style');
+modalAvatarStyles.textContent = `
+/* Estilos para avatares en modales */
+.ranking-avatar-container, .member-avatar-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ranking-avatar-img, .member-avatar-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eaf6ff;
+}
+
+.ranking-avatar-initials, .member-avatar-initials {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0984e3, #74b9ff);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #eaf6ff;
+    text-transform: uppercase;
+}
+
+/* Backwards compatibility - hide old avatar classes */
+.ranking-avatar, .member-avatar {
+    display: none !important;
+}
+`;
+
+// Agregar estilos al head si no existen
+if (!document.querySelector('#modal-avatar-styles')) {
+    modalAvatarStyles.id = 'modal-avatar-styles';
+    document.head.appendChild(modalAvatarStyles);
+}
+
 // Info Modals Initialization
 function initInfoModals() {
     console.log("Initializing Info Modals");
@@ -411,12 +458,27 @@ async function mostrarRanking() {
     empty.style.display = 'none';
 
     try {
-        const response = await fetch(`${API_URL}/api/ranking/club/${clubId}/ranking`);
-        const data = await response.json();
+        // Obtener tanto el ranking como los datos actualizados del club
+        const [rankingResponse, clubActualizado] = await Promise.all([
+            fetch(`${API_URL}/api/ranking/club/${clubId}/ranking`),
+            cargarDatosActualizadosClub()
+        ]);
+        
+        const rankingData = await rankingResponse.json();
 
-        if (data.success && data.ranking && data.ranking.length > 0) {
-            // Mostrar ranking
-            mostrarListaRanking(data.ranking, data.club);
+        if (rankingData.success && rankingData.ranking && rankingData.ranking.length > 0) {
+            // Enriquecer los datos del ranking con la información actualizada del club
+            const rankingConNiveles = rankingData.ranking.map(usuario => {
+                const miembroActualizado = clubActualizado.members?.find(m => m.id === usuario.userId || m.username === usuario.username);
+                return {
+                    ...usuario,
+                    level: miembroActualizado?.level || 1,
+                    xp: miembroActualizado?.xp || 0
+                };
+            });
+            
+            // Mostrar ranking con niveles
+            mostrarListaRanking(rankingConNiveles, clubActualizado);
             loader.style.display = 'none';
             lista.style.display = 'block';
         } else {
@@ -444,10 +506,23 @@ function mostrarListaRanking(ranking, club) {
         const positionClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
         const initials = usuario.username.charAt(0).toUpperCase();
         
+        // Buscar el miembro correspondiente en el club para obtener el avatar
+        const miembro = club.members?.find(m => m.id === usuario.userId || m.username === usuario.username);
+        const hasAvatar = miembro && miembro.avatar && miembro.avatar.trim() !== '';
+        
+        const avatarHTML = hasAvatar 
+            ? `<img src="${miembro.avatar}" alt="Avatar de ${usuario.username}" class="ranking-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+            : '';
+        
+        const initialsHTML = `<div class="ranking-avatar-initials" style="${hasAvatar ? 'display: none;' : 'display: flex;'}">${initials}</div>`;
+        
         return `
             <li>
                 <div class="ranking-position ${positionClass}">${index + 1}</div>
-                <div class="ranking-avatar">${initials}</div>
+                <div class="ranking-avatar-container">
+                    ${avatarHTML}
+                    ${initialsHTML}
+                </div>
                 <div class="ranking-info">
                     <h4 class="ranking-name">
                         ${usuario.username}
@@ -456,6 +531,12 @@ function mostrarListaRanking(ranking, club) {
                     <p class="ranking-stats">
                         <span>💬 ${usuario.commentsCount} comentarios</span>
                         <span>📚 ${usuario.booksAddedCount} libros</span>
+                        <span class="member-level" data-level="${usuario.level || 1}">
+                            <svg class="level-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12,2 15.09,8.26 22,9 17,14 18.18,21 12,17.77 5.82,21 7,14 2,9 8.91,8.26"/>
+                            </svg>
+                            Nivel ${usuario.level || 1}
+                        </span>
                     </p>
                 </div>
                 <div class="ranking-score">
@@ -483,10 +564,15 @@ async function mostrarMiembros() {
     empty.style.display = 'none';
 
     try {
-        // Usar los datos del club que ya están cargados
-        if (window.clubData && window.clubData.members && window.clubData.members.length > 0) {
-            // Mostrar miembros
-            mostrarListaMiembros(window.clubData.members, window.clubData);
+        // Obtener datos actualizados del club desde el servidor
+        const clubActualizado = await cargarDatosActualizadosClub();
+        
+        if (clubActualizado && clubActualizado.members && clubActualizado.members.length > 0) {
+            // Actualizar window.clubData con datos frescos
+            window.clubData = clubActualizado;
+            
+            // Mostrar miembros con datos actualizados
+            mostrarListaMiembros(clubActualizado.members, clubActualizado);
             loader.style.display = 'none';
             lista.style.display = 'block';
         } else {
@@ -495,7 +581,7 @@ async function mostrarMiembros() {
             empty.style.display = 'block';
         }
     } catch (error) {
-        console.error('Error al cargar miembros:', error);
+        console.error('Error al cargar miembros actualizados:', error);
         loader.style.display = 'none';
         empty.style.display = 'block';
         
@@ -507,22 +593,57 @@ async function mostrarMiembros() {
     }
 }
 
+/**
+ * Obtiene datos actualizados del club desde el servidor
+ */
+async function cargarDatosActualizadosClub() {
+    try {
+        const clubId = getClubId();
+        
+        if (!clubId) {
+            throw new Error('No se encontró ID del club');
+        }
+
+        const response = await fetch(`${window.API_URL}/club/${clubId}`);
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.message || 'Error al obtener datos del club');
+        }
+
+        console.log('✅ Datos del club actualizados:', data.club);
+        return data.club;
+    } catch (error) {
+        console.error('❌ Error al cargar datos actualizados del club:', error);
+        throw error;
+    }
+}
+
 function mostrarListaMiembros(miembros, club) {
     const lista = document.getElementById('membersList');
     const currentUserId = localStorage.getItem("userId");
     const isCurrentUserOwner = club.id_owner == currentUserId;
     
-    console.log('🔍 DEBUG mostrarListaMiembros:');
-    console.log('   - currentUserId:', currentUserId);
-    console.log('   - club.id_owner:', club.id_owner);
-    console.log('   - isCurrentUserOwner:', isCurrentUserOwner);
-    console.log('   - miembros:', miembros);
+    console.log('🔍 DEBUG - Datos de miembros para avatares:');
+    miembros.forEach((miembro, index) => {
+        console.log(`Miembro ${index + 1}:`, {
+            id: miembro.id,
+            username: miembro.username,
+            avatar: miembro.avatar,
+            avatarType: typeof miembro.avatar,
+            hasAvatar: miembro.avatar && miembro.avatar.trim() !== '',
+            avatarPath: miembro.avatar ? `../images/avatares/${miembro.avatar}` : 'NO AVATAR'
+        });
+    });
     
     const html = miembros.map((miembro) => {
         const initials = miembro.username.charAt(0).toUpperCase();
         const isOwner = club.id_owner == miembro.id;
         const isCurrentUser = currentUserId == miembro.id;
         const canRemove = isCurrentUserOwner && !isCurrentUser && !isOwner;
+        
+        // Verificar si tiene avatar
+        const hasAvatar = miembro.avatar && miembro.avatar.trim() !== '';
         
         // Obtener el rol del miembro (nuevo sistema)
         const memberRole = miembro.role || (isOwner ? 'OWNER' : 'LECTOR');
@@ -538,9 +659,18 @@ function mostrarListaMiembros(miembros, club) {
             month: 'short' 
         });
         
+        const avatarHTML = hasAvatar 
+            ? `<img src="${miembro.avatar}" alt="Avatar de ${miembro.username}" class="member-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+            : '';
+        
+        const initialsHTML = `<div class="member-avatar-initials" style="${hasAvatar ? 'display: none;' : 'display: flex;'}">${initials}</div>`;
+        
         return `
             <li>
-                <div class="member-avatar">${initials}</div>
+                <div class="member-avatar-container">
+                    ${avatarHTML}
+                    ${initialsHTML}
+                </div>
                 <div class="member-info">
                     <h4 class="member-name">
                         ${miembro.username}
@@ -549,6 +679,12 @@ function mostrarListaMiembros(miembros, club) {
                     </h4>
                     <p class="member-role">
                         ${roleInfo.description}
+                        <span class="member-level" data-level="${miembro.level || 1}">
+                            <svg class="level-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12,2 15.09,8.26 22,9 17,14 18.18,21 12,17.77 5.82,21 7,14 2,9 8.91,8.26"/>
+                            </svg>
+                            Nivel ${miembro.level || 1}
+                        </span>
                     </p>
                 </div>
                 <div class="member-stats">
@@ -599,7 +735,7 @@ function getRoleDisplayInfo(role, isOwner) {
         return {
             displayText: 'Owner',
             cssClass: 'owner',
-            description: '🛡️ Propietario del club',
+            description: '🛡️ Propietario',
             activityText: 'Fundador'
         };
     }
@@ -608,19 +744,19 @@ function getRoleDisplayInfo(role, isOwner) {
         'OWNER': {
             displayText: 'Owner',
             cssClass: 'owner',
-            description: '🛡️ Propietario del club',
+            description: '🛡️ Propietario',
             activityText: 'Fundador'
         },
         'MODERADOR': {
             displayText: 'Moderador',
             cssClass: 'moderador',
-            description: '⚡ Moderador del club',
+            description: '⚡ Moderador',
             activityText: 'Moderador'
         },
         'LECTOR': {
             displayText: 'Miembro',
             cssClass: 'miembro',
-            description: '📖 Lector activo',
+            description: '📖 Lector',
             activityText: 'Activo'
         }
     };

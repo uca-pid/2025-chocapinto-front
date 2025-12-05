@@ -2599,6 +2599,25 @@ main {
       border: 2px solid #ffffff;
     }
 
+    /* Avatar styles for comments */
+    .comments-card .comment-item .user .user-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .comments-card .comment-item .user .user-pic.initials {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
     .comments-card .comment-item .user .user-info {
       width: 100%;
       display: flex;
@@ -2705,6 +2724,48 @@ main {
     .comments-card .text-box .formatting .send:hover {
       background-color: #026eda;
     }
+    /* Estilos para los Tabs de Búsqueda */
+.search-tabs-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.search-tab {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid transparent;
+  background-color: var(--gray-50);
+  color: var(--gray-500);
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.search-tab:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.search-tab.active {
+  background-color: #e3f2fd; /* Azul clarito para libros */
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+/* Estilo específico para cuando Cursos está activo (opcional) */
+#tab-cursos.search-tab.active {
+  background-color: #e0f2f1; /* Verde clarito para cursos */
+  color: #009688;
+  border-color: #009688;
+}
 
     /* Modal Ranking Styles */
     .modalRanking {
@@ -3956,6 +4017,130 @@ main {
       font-size: 12px;
       color: var(--primary-color);
       font-weight: 600;
+    }
+
+    .member-level {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #f59e0b;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      padding: 2px 6px;
+      border-radius: 8px;
+      border: 1px solid #f59e0b20;
+      box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);
+    }
+
+    .level-icon {
+      color: #f59e0b;
+      fill: #fbbf24;
+      drop-shadow: 0 1px 2px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Efectos hover para el nivel */
+    .member-level:hover {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .member-level:hover .level-icon {
+      color: white;
+      fill: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Variaciones de color según el nivel */
+    .member-level[data-level="1"] {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      color: #6b7280;
+      border-color: #d1d5db20;
+    }
+
+    .member-level[data-level="1"] .level-icon {
+      color: #6b7280;
+      fill: #9ca3af;
+    }
+
+    .member-level[data-level^="2"], .member-level[data-level^="3"] {
+      background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #2563eb;
+      border-color: #2563eb20;
+    }
+
+    .member-level[data-level^="2"] .level-icon, .member-level[data-level^="3"] .level-icon {
+      color: #2563eb;
+      fill: #3b82f6;
+    }
+
+    .member-level[data-level^="4"], .member-level[data-level^="5"] {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      color: #16a34a;
+      border-color: #16a34a20;
+    }
+
+    .member-level[data-level^="4"] .level-icon, .member-level[data-level^="5"] .level-icon {
+      color: #16a34a;
+      fill: #22c55e;
+    }
+
+    .member-level[data-level^="6"], .member-level[data-level^="7"], .member-level[data-level^="8"], .member-level[data-level^="9"] {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color: #d97706;
+      border-color: #d9770620;
+    }
+
+    .member-level[data-level^="6"] .level-icon, .member-level[data-level^="7"] .level-icon, .member-level[data-level^="8"] .level-icon, .member-level[data-level^="9"] .level-icon {
+      color: #d97706;
+      fill: #f59e0b;
+    }
+
+    .member-level[data-level^="10"], .member-level[data-level^="11"], .member-level[data-level^="12"], .member-level[data-level^="13"], .member-level[data-level^="14"], .member-level[data-level^="15"] {
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+      color: #be185d;
+      border-color: #be185d20;
+    }
+
+    .member-level[data-level^="10"] .level-icon, .member-level[data-level^="11"] .level-icon, .member-level[data-level^="12"] .level-icon, .member-level[data-level^="13"] .level-icon, .member-level[data-level^="14"] .level-icon, .member-level[data-level^="15"] .level-icon {
+      color: #be185d;
+      fill: #ec4899;
+    }
+
+    /* Niveles muy altos (16+) - Dorado especial */
+    .member-level[data-level^="16"], .member-level[data-level^="17"], .member-level[data-level^="18"], .member-level[data-level^="19"], .member-level[data-level^="20"] {
+      background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+      color: white;
+      border-color: #ffd70050;
+      box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+      animation: goldenGlow 3s ease-in-out infinite;
+    }
+
+    .member-level[data-level^="16"] .level-icon, .member-level[data-level^="17"] .level-icon, .member-level[data-level^="18"] .level-icon, .member-level[data-level^="19"] .level-icon, .member-level[data-level^="20"] .level-icon {
+      color: white;
+      fill: rgba(255, 255, 255, 0.9);
+    }
+
+    @keyframes goldenGlow {
+      0%, 100% { box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3); }
+      50% { box-shadow: 0 3px 12px rgba(255, 215, 0, 0.5); }
+    }
+
+    /* Responsive para niveles */
+    @media (max-width: 768px) {
+      .member-level {
+        font-size: 10px;
+        padding: 1px 4px;
+        margin-left: 4px;
+      }
+      
+      .level-icon {
+        width: 12px;
+        height: 12px;
+      }
     }
 
     .member-actions {
@@ -7691,4 +7876,144 @@ main {
 .no-results span {
   font-size: var(--text-sm);
   color: var(--gray-500);
+}
+
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--header-bg, #ffffff);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon-btn {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.header-context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-context-icon {
+  font-size: 20px;
+}
+
+.header-context-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-context-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header-context-subtitle {
+  font-size: 12px;
+  color: #777;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.header-action-icon {
+  font-size: 14px;
+}
+
+/* Variantes de botones */
+.header-action-primary {
+  background: #e53935;
+  color: white;
+}
+
+.header-action-secondary {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.header-action-ghost {
+  background: transparent;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+/* Bloque de XP */
+.user-xp {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.user-level {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.xp-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xp-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+
+.xp-progress-bar-fill {
+  height: 100%;
+  width: 0; /* Se actualiza por JS */
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  transition: width 0.3s ease-out;
+}
+
+.xp-progress-text {
+  font-size: 10px;
+  color: #6b7280;
+  line-height: 1.2;
 }
