@@ -1,8 +1,8 @@
 const XP_PER_LEVEL = 500;
 
 // URL del login (ajustar si es otra)
-const LOGIN_URL = "/index.html";
-const PROFILE_URL = "/html/perfil.html";
+const LOGIN_URL = "index.html";
+const PROFILE_URL = "/2025-chocapinto-front/html/perfil.html";
 
 /**
  * Inicializa el header base dentro de #app-header.
@@ -276,7 +276,7 @@ export function initAppHeader(options = {}) {
     <div class="app-header-inner">
       <div class="app-header-left">
         <div class="app-logo-container" id="appLogoBtn">
-          <img src="/images/BooksyLogo.png" alt="Logo App" class="app-logo-img" />
+          <img src="/2025-chocapinto-front/images/BooksyLogo.png" alt="Logo App" class="app-logo-img" />
         </div>
         <div id="header-context" class="header-context">
           <!-- Icono + título + subtítulo -->
@@ -334,7 +334,7 @@ export function initAppHeader(options = {}) {
   const appLogoBtn = document.getElementById("appLogoBtn");
   if (appLogoBtn) {
     appLogoBtn.addEventListener("click", () => {
-      window.location.href = "/html/main.html"; // ajustá si tu home está en otra ruta
+      window.location.href = "/2025-chocapinto-front/html/main.html"; // ajustá si tu home está en otra ruta
     });
   }
 
