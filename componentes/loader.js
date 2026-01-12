@@ -1,3 +1,8 @@
+/**
+ * Componente Loader - Indicador de carga animado con libros
+ * Proporciona funciones para mostrar/ocultar un loader con animación de libros girando
+ */
+
 class LoaderComponent {
     constructor() {
         this.loaderId = 'app-loader';
@@ -5,12 +10,19 @@ class LoaderComponent {
         this.init();
     }
 
+    /**
+     * Inicializa el componente creando el elemento HTML
+     */
     init() {
+        // Solo crear si no existe
         if (!document.getElementById(this.loaderId)) {
             this.createElement();
         }
     }
 
+    /**
+     * Crea el elemento HTML del loader
+     */
     createElement() {
         const loaderHTML = `
             <div id="${this.loaderId}" class="loader">
@@ -54,11 +66,16 @@ class LoaderComponent {
             </div>
         `;
 
+        // Insertar el loader al final del body
         document.body.insertAdjacentHTML('beforeend', loaderHTML);
     }
 
+    /**
+     * Muestra el loader
+     * @param {string} message - Mensaje personalizado (opcional)
+     */
     show(message = 'Cargando...') {
-        this.init();
+        this.init(); // Asegurarse de que existe
         const loader = document.getElementById(this.loaderId);
         const span = loader?.querySelector('span');
         
@@ -69,6 +86,9 @@ class LoaderComponent {
         }
     }
 
+    /**
+     * Oculta el loader
+     */
     hide() {
         const loader = document.getElementById(this.loaderId);
         if (loader) {
@@ -77,6 +97,11 @@ class LoaderComponent {
         }
     }
 
+    /**
+     * Muestra el loader por un tiempo determinado
+     * @param {number} duration - Duración en milisegundos
+     * @param {string} message - Mensaje personalizado (opcional)
+     */
     showFor(duration = 2000, message = 'Cargando...') {
         this.show(message);
         setTimeout(() => {
@@ -84,10 +109,17 @@ class LoaderComponent {
         }, duration);
     }
 
+    /**
+     * Obtiene el estado de visibilidad del loader
+     * @returns {boolean}
+     */
     isShowing() {
         return this.isVisible;
     }
 
+    /**
+     * Destruye el componente eliminándolo del DOM
+     */
     destroy() {
         const loader = document.getElementById(this.loaderId);
         if (loader) {
@@ -97,8 +129,10 @@ class LoaderComponent {
     }
 }
 
+// Crear instancia global del loader
 const appLoader = new LoaderComponent();
 
+// Funciones de conveniencia para mantener compatibilidad
 function showLoader(message) {
     appLoader.show(message);
 }
@@ -107,7 +141,10 @@ function hideLoader() {
     appLoader.hide();
 }
 
+// Exportar el componente y las funciones
+// Exponer funciones globalmente
 window.showLoader = showLoader;
 window.hideLoader = hideLoader;
 
+// También para ES6 modules
 export { LoaderComponent, appLoader, showLoader, hideLoader };

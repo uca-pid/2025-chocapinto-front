@@ -1,26 +1,11 @@
-// 2025-chocapinto-front/js/app.js
 import { API_URL } from "./env.js";
 
-let isLoggingIn = false;
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+        e.preventDefault(); // evita que recargue la página
 
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    
-    if (isLoggingIn) return;
-    isLoggingIn = true;
-    
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    
-    submitBtn.disabled = true;
-    submitBtn.style.opacity = '0.6';
-    submitBtn.style.cursor = 'not-allowed';
-    submitBtn.textContent = 'Iniciando sesión...';
-    
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
 
-    try {
         const res = await fetch(`${API_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -29,35 +14,18 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
         if (res.ok) {
             const data = await res.json();
+            console.log(data);
 
-            // Guardar el JWT token
-            localStorage.setItem("token", data.token);  // ← NUEVO
+            // Guardar el usuario en localStorage (para usarlo en main.html)
             localStorage.setItem("username", username);
             localStorage.setItem("role", data.role);
-            localStorage.setItem("userId", data.id);
+            if (data.id) {
+                localStorage.setItem("userId", data.id);
+            }
 
-            submitBtn.textContent = '✓ Redirigiendo...';
+            // Redirigir al main
             window.location.href = "main.html";
         } else {
-            const errorData = await res.json();
-            const errorMsg = document.getElementById("errorMsg");
-            errorMsg.textContent = errorData.message || "Credenciales inválidas";
-            errorMsg.style.display = "block";
-            
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
-            submitBtn.textContent = originalText;
-            isLoggingIn = false;
+            document.getElementById("errorMsg").style.display = "block";
         }
-    } catch (error) {
-        document.getElementById("errorMsg").textContent = "Error de conexión con el servidor";
-        document.getElementById("errorMsg").style.display = "block";
-        
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
-        submitBtn.textContent = originalText;
-        isLoggingIn = false;
-    }
-});
+    });

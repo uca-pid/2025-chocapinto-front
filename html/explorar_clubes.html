@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Explorar Clubes - Booksy</title>
     <link rel="stylesheet" href="../css/styles.css">
-    <link rel="stylesheet" href="../css/componentes/notificaciones.css">
-    <link rel="stylesheet" href="../css/componentes/notificacion-alerta.css">
     <link rel="stylesheet" href="../css/componentes/loader.css">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet">
 </head>
@@ -23,31 +21,10 @@
             </div>
             
             <div id="clubesGridExploracion" class="clubes-grid exploracion-grid">
-            </div>
+                </div>
         </section>
     </main>
-    <div id="notifications" class="notification-container"></div>
     
-    <!-- Modal de Notificaciones -->
-    <div id="modalNotificaciones" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
-        <div class="notificaciones-modal-content">
-            <div class="notificaciones-modal-header">
-                <h2>🔔 Notificaciones</h2>
-                <div class="notificaciones-actions">
-                    <button class="btn-secondary btn-small" onclick="marcarTodasLeidas()">
-                        Marcar todas como leídas
-                    </button>
-                    <button class="close-btn" onclick="cerrarModalNotificaciones()">✕</button>
-                </div>
-            </div>
-            <div class="notificaciones-modal-body">
-                <div id="notificacionesLista" class="notificaciones-lista">
-                </div>
-            </div>
-        </div>
-    </div>
-    
-
     <footer class="main-footer">
         <p>Booksy &copy; 2025</p>
     </footer>
