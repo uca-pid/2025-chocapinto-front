@@ -2796,6 +2796,8 @@ main {
       overflow: hidden;
       position: relative;
       animation: slideUp 0.4s ease-out;
+      padding-bottom: 20px;
+    
     }
 
     .ranking-card .close-btn {
@@ -3086,6 +3088,9 @@ main {
 
     /* Responsive Design for Ranking Modal */
     @media (max-width: 768px) {
+      .modalRanking{
+        padding-top: 20px;
+      }
       .ranking-card {
         width: 95vw;
         margin: 20px;
@@ -3135,8 +3140,7 @@ main {
       .ranking-card {
         width: 100vw;
         height: 100vh;
-        border-radius: 0;
-        max-height: none;
+       
       }
 
       .ranking-header {
@@ -3634,132 +3638,265 @@ main {
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
     }
-    /* Responsive Design for Chart Modal */
-    @media (max-width: 768px) {
-      #modalGrafico {
-        padding: 10px;
-      }
-      
-      .chart-modal-box {
-        width: 100%;
-        max-width: none;
-        max-height: 95vh;
-        border-radius: 20px;
-      }
+    /* ============================================ */
+/* RESPONSIVE MODAL GRÁFICO */
+/* ============================================ */
 
-      .chart-header {
-        padding: 20px 24px;
-      }
+/* Tablet */
+@media (max-width: 1024px) {
+  .chart-modal-box {
+    width: min(90vw, 900px);
+    max-height: 85vh;
+  }
 
-      .chart-header h3 {
-        font-size: 20px;
-      }
+  .chart-header {
+    padding: 22px 28px;
+  }
 
-      .chart-header .close-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-        top: 16px;
-        right: 16px;
-      }
+  .chart-header h3 {
+    font-size: 22px;
+  }
 
-      .chart-filters {
-        padding: 16px 24px;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
-      }
+  .chart-filters {
+    padding: 18px 28px;
+    flex-wrap: wrap;
+  }
 
-      .chart-filter-select {
-        min-width: auto;
-        width: 100%;
-      }
+  .chart-filter-select {
+    min-width: 180px;
+  }
 
-      .chart-container {
-        padding: 24px 16px;
-        min-height: 300px;
-        max-height: 350px;
-      }
-      
-      #genreChart {
-        max-height: 280px !important;
-      }
+  .chart-container {
+    min-height: 350px;
+    max-height: 450px;
+    padding: 28px;
+  }
 
-      .chart-legend {
-        padding: 20px 24px;
-        max-height: 200px;
-      }
+  #genreChart {
+    max-height: 350px !important;
+  }
+}
 
-      .legend-item {
-        padding: 10px 12px;
-        gap: 12px;
-      }
+/* Mobile */
+@media (max-width: 768px) {
+  #modalGrafico {
+    padding: 0;
+    align-items: flex-start;
+  }
+  
+  .chart-modal-box {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
 
-      .legend-color {
-        width: 18px;
-        height: 18px;
-      }
+  .chart-header {
+    padding: 18px 20px;
+  }
 
-      .legend-label {
-        font-size: 14px;
-      }
+  .chart-header h3 {
+    font-size: 19px;
+    gap: 10px;
+    padding-right: 40px;
+  }
 
-      .legend-value {
-        font-size: 12px;
-      }
+  .chart-header .close-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 22px;
+    top: 14px;
+    right: 14px;
+  }
+
+  .chart-filters {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .chart-filters label {
+    font-size: 13px;
+  }
+
+  .chart-filter-select {
+    min-width: auto;
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .chart-container {
+    padding: 20px 16px;
+    min-height: 280px;
+    max-height: 320px;
+  }
+  
+  #genreChart {
+    max-height: 260px !important;
+  }
+
+  .chart-legend {
+    padding: 18px 20px;
+    max-height: 180px;
+  }
+
+  .chart-legend::before {
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+
+  .legend-item {
+    padding: 10px 14px;
+    gap: 12px;
+    margin: 6px 0;
+  }
+
+  .legend-color {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+  }
+
+  .legend-label {
+    font-size: 14px;
+  }
+
+  .legend-value {
+    font-size: 12px;
+    min-width: 40px;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 480px) {
+  .chart-modal-box {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    max-height: none;
+  }
+
+  .chart-header {
+    padding: 14px 16px;
+  }
+
+  .chart-header h3 {
+    font-size: 17px;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+    padding-right: 30px;
+  }
+
+  .chart-header .close-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+    top: 12px;
+    right: 12px;
+  }
+
+  .chart-filters {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .chart-filters label {
+    font-size: 12px;
+  }
+
+  .chart-filter-select {
+    padding: 9px 12px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+
+  .chart-container {
+    padding: 16px 12px;
+    min-height: 240px;
+    max-height: 260px;
+  }
+  
+  #genreChart {
+    max-height: 200px !important;
+  }
+
+  .chart-legend {
+    padding: 14px 16px;
+    max-height: 160px;
+  }
+
+  .chart-legend::before {
+    font-size: 13px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+  }
+
+  .legend-item {
+    padding: 8px 10px;
+    gap: 10px;
+    margin: 4px 0;
+  }
+
+  .legend-color {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+  }
+
+  .legend-label {
+    font-size: 13px;
+  }
+
+  .legend-value {
+    font-size: 11px;
+    min-width: 35px;
+  }
+}
+
+/* Animaciones responsive */
+@media (max-width: 768px) {
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
     }
-
-    @media (max-width: 480px) {
-      .chart-modal-box {
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-        max-height: none;
-      }
-
-      .chart-header {
-        padding: 16px 20px;
-      }
-
-      .chart-header h3 {
-        font-size: 18px;
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
-      }
-
-      .chart-filters {
-        padding: 12px 20px;
-      }
-
-      .chart-container {
-        padding: 20px 16px;
-        min-height: 200px;
-        max-height: 280px;
-      }
-      
-      #genreChart {
-        max-height: 220px !important;
-      }
-
-      .chart-legend {
-        padding: 16px 20px;
-        max-height: 150px;
-      }
-
-      .legend-item {
-        gap: 8px;
-      }
-
-      .legend-label {
-        font-size: 13px;
-      }
-
-      .legend-value {
-        font-size: 11px;
-      }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
+  }
 
+  .chart-modal-box {
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Optimización de scrollbar en mobile */
+@media (max-width: 768px) {
+  .chart-legend::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .chart-legend::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+
+  .chart-legend::-webkit-scrollbar-thumb {
+    background: rgba(79, 172, 254, 0.5);
+    border-radius: 10px;
+  }
+
+  .chart-legend::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 172, 254, 0.8);
+  }
+}
     /* Modal Members Styles */
     .modalMiembros {
       display: none;
@@ -3789,6 +3926,7 @@ main {
       overflow: hidden;
       position: relative;
       animation: slideUp 0.4s ease-out;
+      padding-bottom: 20px;
     }
 
     .members-card .close-btn {
@@ -4037,7 +4175,7 @@ main {
     .level-icon {
       color: #f59e0b;
       fill: #fbbf24;
-      drop-shadow: 0 1px 2px rgba(245, 158, 11, 0.3);
+      
     }
 
     /* Efectos hover para el nivel */
@@ -4129,6 +4267,7 @@ main {
       50% { box-shadow: 0 3px 12px rgba(255, 215, 0, 0.5); }
     }
 
+
     /* Responsive para niveles */
     @media (max-width: 768px) {
       .member-level {
@@ -4142,7 +4281,7 @@ main {
         height: 12px;
       }
     }
-
+    
     .member-actions {
       margin-left: 12px;
       display: flex;
@@ -4298,6 +4437,9 @@ main {
 
     /* Responsive Design for Members Modal */
     @media (max-width: 768px) {
+      .modalMiembros {
+        padding-top: 20px;
+      }
       .members-card {
         width: 95vw;
         margin: 20px;
@@ -4342,11 +4484,11 @@ main {
     }
 
     @media (max-width: 480px) {
+      
       .members-card {
         width: 100vw;
         height: 100vh;
-        border-radius: 0;
-        max-height: none;
+        
       }
 
       .members-header {
@@ -6424,7 +6566,10 @@ main {
 }
 
 .modal-body-votacion {
-  padding: 32px 24px;
+  padding-left:24px;
+  padding-right: 24px;
+  padding-bottom: 5px;
+  padding-top: 3px;
   background: var(--white);
   overflow-y: auto;
   max-height: calc(90vh - 120px);
@@ -6920,6 +7065,10 @@ main {
   color: var(--gray-600);
 }
 
+.header-context-text {
+  display: flex;
+  flex-direction: column;
+}
 /* Empty State */
 .periodos-empty {
   text-align: center;
@@ -7113,6 +7262,9 @@ main {
     flex-direction: column;
     text-align: center;
     gap: 12px;
+  }
+  .header-context-text{
+    display: none;
   }
   
   .modal-body-periodos {
@@ -7924,10 +8076,7 @@ main {
   font-size: 20px;
 }
 
-.header-context-text {
-  display: flex;
-  flex-direction: column;
-}
+
 
 .header-context-title {
   font-weight: 600;
@@ -7962,8 +8111,8 @@ main {
 
 /* Variantes de botones */
 .header-action-primary {
-  background: #e53935;
-  color: white;
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .header-action-secondary {

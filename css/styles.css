@@ -235,13 +235,29 @@ main {
     .hero-card {
         flex-direction: column;
         text-align: center;
-        padding: 2rem;
+        padding: 1.5rem 1rem;
+        gap: 1rem;
+    }
+    .hero-text-content h1 {
+        font-size: clamp(1.8rem, 5vw, 2.5rem);
+        margin-bottom: 0.5rem;
+    }
+    .hero-text-content p {
+        font-size: 1rem;
+        margin-bottom: 1rem;
     }
     .hero-decoration {
         display: none; 
     }
     .hero-actions {
+        flex-direction: column;
         justify-content: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+    .hero-actions button {
+        width: 100%;
+        max-width: 300px;
     }
     .hero-card p {
         margin-left: auto;
@@ -252,15 +268,16 @@ main {
 /* ========================= */
 /* Secciones / Títulos       */
 /* ========================= */
-.mis-clubes-section, .main-sections, .recomendaciones-section{
+.mis-clubes-section, .main-sections{
   margin: 2rem auto; max-width: var(--page-max-width); padding-inline:0;
 }
-.mis-clubes-section h2, .main-sections h2, .recomendaciones-section h2{
+.mis-clubes-section h2, .main-sections h2, .recomendaciones-section h2 {
   font-size: clamp(1.6rem, 1vw + 1.2rem, 2.2rem);
   font-weight:700; color:var(--brand-dark); font-family:"Dancing Script", cursive; line-height:1.2;
   margin-bottom:1rem; padding-left:var(--page-padding-inline); padding-right:var(--page-padding-inline);
 }
 .mis-clubes-section h2{ margin-bottom:.75rem; } 
+
 
 /* ========================= */
 /* Grillas / Carruseles      */
@@ -282,6 +299,12 @@ main {
   -webkit-overflow-scrolling: touch;
 }
 
+.section.recomendacion-section{
+  display: flex;
+gap: 30px;
+padding-top: 1rem;
+align-items: flex-start;
+}
 /* Clubes de Lectura: SIN carrusel, límite de 2 visibles */
 .clubes-header {
     display: flex;
@@ -389,31 +412,59 @@ main {
 /* Responsive para forzar el carrusel de 2 tarjetas en tablet/desktop */
 @media (min-width: 601px) {
     .clubes-grid {
-        overflow-x: auto; /* Habilitar el scroll horizontal */
-        scroll-snap-type: x mandatory; /* Para mejor experiencia de carrusel */
-        
-        /* ✅ FIX: Añadir padding al final del contenedor deslizable para evitar el corte */
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
         padding-right: 2rem !important; 
         padding-left: 1rem !important; 
     }
     .clubes-grid > .club-card,
     .clubes-grid > .create-club-card {
-        /* Fuerza a que ocupen la mitad más el gap, garantizando el desborde horizontal para el carrusel */
         flex: 0 0 calc(50% - 0.5rem); 
         min-width: calc(50% - 0.5rem); 
         max-width: none; 
     }
 }
 
+/* Tablet - 1 tarjeta más grande */
+@media (max-width: 900px) and (min-width: 601px) {
+    .clubes-grid > .club-card,
+    .clubes-grid > .create-club-card {
+        flex: 0 0 70%;
+        min-width: 70%;
+    }
+}
+
 /* Responsive para que la sección de 2 clubes se apile en móviles */
 @media (max-width: 600px) {
     .clubes-grid {
-        justify-content: flex-start; /* Centrado ya no es ideal con carrusel en móviles */
-        overflow-x: auto; /* Reestablecer carrusel en móviles */
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }
     .clubes-grid > .club-card,
     .clubes-grid > .create-club-card {
-        flex: 0 0 85%; /* Muestra 1 tarjeta grande por fila */
+        flex: 0 0 90%;
+        min-width: 90%;
+    }
+    
+    .mis-clubes-grid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    .mis-club-card {
+        min-width: 85%;
+    }
+    
+    .recomendaciones-row {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    
+    .recomendacion-card {
+        min-width: 85%;
+        max-width: 85%;
     }
 }
 
@@ -509,6 +560,16 @@ main {
 .main-footer a{ color:var(--brand-dark); word-break:break-word; }
 .footer-credits{ color:#888; font-size:.85rem; margin-top:.5rem; }
 
+@media (max-width: 600px) {
+  .main-footer {
+    padding: 1.5rem 1rem;
+    font-size: 0.9rem;
+  }
+  .main-footer p {
+    margin-bottom: 0.5rem;
+  }
+}
+
 /* ========================= */
 /* Libros 3D                 */
 /* ========================= */
@@ -533,6 +594,79 @@ main {
   backdrop-filter:blur(4px); box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 @media (hover:hover){ .book:hover .cover{ transition:.5s; transform:rotateY(-80deg); } }
+
+/* Responsive para libros 3D - SOLO CARRUSEL HORIZONTAL */
+@media (max-width: 1024px) {
+  .book, .cover {
+    width: 160px !important;
+    min-width: 160px;
+    max-width: 160px;
+    height: 240px !important;
+    min-height: 240px;
+    max-height: 240px;
+  }
+  .book .book-title {
+    font-size: 16px;
+  }
+  .book .book-author {
+    font-size: 12px;
+  }
+  .book .book-content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .book, .cover {
+    width: 140px !important;
+    min-width: 140px;
+    max-width: 140px;
+    height: 200px !important;
+    min-height: 200px;
+    max-height: 200px;
+  }
+  
+  .book .book-content {
+    padding: 12px;
+  }
+  
+  .book .book-title {
+    font-size: 14px;
+  }
+  
+  .book .book-author {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .book, .cover {
+    width: 120px !important;
+    min-width: 120px;
+    max-width: 120px;
+    height: 170px !important;
+    min-height: 170px;
+    max-height: 170px;
+  }
+  
+  .book .book-content {
+    padding: 8px;
+  }
+  
+  .book .book-title {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .book .book-author {
+    font-size: 10px;
+  }
+  
+  .cover .cover-text {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+}
 
 /* ========================= */
 /* Responsive mínimos        */
@@ -595,20 +729,27 @@ main {
 /* Manejo de responsive para apilar las columnas en dispositivos pequeños */
 @media (max-width: 900px) {
     .contenedor-principal-columnas {
-        flex-direction: column; /* Apila las columnas */
-        gap: 0;
-        overflow: visible; /* mantener visible para mobile */
+        flex-direction: column;
+        gap: 1.5rem;
+        overflow: visible;
+        padding-inline: 1rem;
     }
     .columna-clubes, .columna-ranking {
         flex: 1;
         width: 100%;
-        position: static; /* Desactiva sticky en móviles */
+        position: static;
         max-width: none;
     }
     .ranking-usuarios-section {
         overflow-y: auto !important;
         overscroll-behavior: contain !important;
         -webkit-overflow-scrolling: touch !important;
+        max-height: 500px;
+    }
+    .mis-clubes-section h2,
+    .main-sections h2{
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 }
 
@@ -815,4 +956,32 @@ main {
     .columna-clubes {
         min-width: 640px; /* ✅ ANCHO MÍNIMO MÁS SEGURO (AUMENTADO) */
     }
+}
+
+/* ========================= */
+/* Modal Notificaciones - Close Button */
+/* ========================= */
+.notificaciones-modal-content .close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border: none;
+    color: #2c5a91;
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.notificaciones-modal-content .close-btn:hover {
+    background: #f0f0f0;
+    transform: scale(1.1);
 }

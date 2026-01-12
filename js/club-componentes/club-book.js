@@ -25,8 +25,6 @@ async function verificarRolUsuario() {
                 const role = userMember.role || 'LECTOR';
                 const canManageCategories = role === 'OWNER' || role === 'MODERADOR';
                 
-               
-                
                 return { canManageCategories, role };
             }
         }
@@ -39,7 +37,6 @@ async function verificarRolUsuario() {
         return { canManageCategories: false, role: 'LECTOR' };
         
     } catch (error) {
-        console.error('Error al verificar rol de usuario:', error);
         return { canManageCategories: false, role: 'LECTOR' };
     }
 }
@@ -62,10 +59,8 @@ async function configurarPermisosCategorias() {
     if (crearCategoriaBox) {
         if (userRole.canManageCategories) {
             crearCategoriaBox.style.display = 'block';
-            
         } else {
             crearCategoriaBox.style.display = 'none';
-            
         }
     }
     
@@ -160,17 +155,12 @@ function setupModalLibro() {
             await cargarCategorias();
             await configurarPermisosCategorias();
             
-            // Resetear el modal al estado inicial
             resetearModalLibro();
         });
-       
-    } else if (!agregarLibroBtn) {
-        console.warn("⚠️ No se encontró el botón de agregar libro (.primary-action-btn)");
     }
 }
 
 async function mostrarModalAgregarLibro() {
-    
     const modal = document.getElementById('modalLibro');
     
     if (modal) {
@@ -181,11 +171,7 @@ async function mostrarModalAgregarLibro() {
         await cargarCategorias();
         await configurarPermisosCategorias();
         
-        // Resetear el modal al estado inicial
         resetearModalLibro();
-        
-    } else {
-        console.error("❌ No se encontró el modal de agregar libro");
     }
 }
 
@@ -311,8 +297,6 @@ function renderCategoriasCheckboxes() {
       categoriasContainer.appendChild(label);
     });
   }).catch(error => {
-    console.error('Error al verificar permisos para categorías:', error);
-    // En caso de error, solo mostrar las categorías sin opciones de edición
     categoriasDisponibles.forEach(cat => {
       const label = document.createElement('label');
       label.style.marginRight = '12px';
@@ -341,7 +325,6 @@ async function eliminarCategoria(categoriaId) {
   }
 
   confirmarEliminacion("esta categoría", () => {
-    
     showLoader("Eliminando categoría...");
     
     fetch(`${API_URL}/categorias/${categoriaId}`, {
@@ -384,11 +367,8 @@ function cambiarModoBusqueda(modo) {
         document.getElementById('buscadorLibro').placeholder = "Buscar curso por nombre...";
     }
 
-    // 2. Limpiar resultados anteriores y el input
     document.getElementById('resultadosBusquedaLibro').innerHTML = '';
     document.getElementById('searchResultsSection').style.display = 'none';
-    
-    
 }
 async function editarCategoria(categoriaId, nombreActual) {
   // Verificar permisos antes de editar
@@ -402,7 +382,6 @@ async function editarCategoria(categoriaId, nombreActual) {
   const nuevoNombre = prompt(`Editando categoría como ${userRole.role}.\nNuevo nombre:`, nombreActual);
   if (!nuevoNombre || nuevoNombre.trim() === "") return;
 
- 
   showLoader("Editando categoría...");
   
   fetch(`${API_URL}/categorias/${categoriaId}`, {
@@ -435,13 +414,10 @@ async function editarCategoria(categoriaId, nombreActual) {
 // Función para buscar cursos en tu API propia
 async function buscarCursosAPI(query) {
     try {
-        
         const res = await fetch(`${API_URL}/api/books/searchCursos?query=${encodeURIComponent(query)}`);
         const data = await res.json();
         
         if (data.success && Array.isArray(data.cursos)) {
-            console.log(data.cursos)
-            // Mapeamos para añadir el tipo 'curso' y normalizar datos
             return data.cursos.map(curso => ({
                 ...curso, // Trae title, author, portada, id_api
                 thumbnail: curso.portada, // Normalizamos nombre de imagen para que el frontend lo entienda
@@ -451,7 +427,6 @@ async function buscarCursosAPI(query) {
         }
         return [];
     } catch (error) {
-        console.error("Error buscando cursos:", error);
         return [];
     }
 }
@@ -601,10 +576,6 @@ function configurarBuscadorLibro() {
 
 // Función para seleccionar un libro
 function seleccionarLibro(libro) {
-    console.log("📚 Seleccionando libro:", libro);
-    console.log("🔍 ID API del libro:", libro.id_api || libro.id || "NO TIENE ID_API");
-    
-    // Llenar campos ocultos
     document.getElementById('tituloLibro').value = libro.title;
     document.getElementById('autorLibro').value = libro.author;
     document.getElementById('portadaLibro').value = libro.thumbnail || "";
@@ -658,16 +629,6 @@ function configurarFormularioLibro() {
     const msg = document.getElementById("msgLibro");
     const submitBtn = document.getElementById('submitLibroBtn');
     
-    console.log("📤 Enviando libro con datos:", {
-        title,
-        author, 
-        thumbnail,
-        id_api: id_api || "NO TIENE ID_API",
-        clubId,
-        username
-    });
-    
-    // Limpiar mensaje previo
     msg.className = "message-libro";
     msg.style.display = "none";
     
@@ -700,6 +661,12 @@ function configurarFormularioLibro() {
         
         if (res.ok && data.success) {
             mostrarMensajeModal("success", `📚 "${title}" fue agregado al club exitosamente`);
+            
+            // Actualizar XP en el header
+            if (typeof window.updateUserXpHeader === 'function') {
+                window.updateUserXpHeader();
+            }
+            
             setTimeout(() => { 
                 document.getElementById('modalLibro').style.display='none'; 
                 renderClub(); 
@@ -745,8 +712,6 @@ function mostrarMensajeModal(tipo, texto) {
 
 // ========== INICIALIZACIÓN ==========
 function initBookModal() {
-    
-    // Configurar todos los elementos del modal
     setupModalLibro();
     configurarBuscadorLibro();
     configurarBotonAgregarCategoria();
@@ -775,10 +740,7 @@ function initBookModal() {
 async function actualizarCategoriasEnModal(nuevaCategoria) {
     try {
         const container = document.getElementById("categoriasContainer");
-        if (!container) {
-            console.warn('Container de categorías no encontrado');
-            return;
-        }
+        if (!container) return;
         
         // Crear el nuevo checkbox dinámicamente
         const checkbox = document.createElement("label");
@@ -799,16 +761,11 @@ async function actualizarCategoriasEnModal(nuevaCategoria) {
         // Agregar con animación suave utilizando CSS
         container.appendChild(checkbox);
         
-        // Remover la clase de animación después de que termine
         setTimeout(() => {
             checkbox.classList.remove('categoria-nueva');
         }, 300);
         
-        
-        
-    } catch (error) {
-        console.error('Error al actualizar categorías en modal:', error);
-    }
+    } catch (error) {}
 }
 
 /**
@@ -816,20 +773,15 @@ async function actualizarCategoriasEnModal(nuevaCategoria) {
  */
 async function actualizarCategoriasEnDashboard() {
     try {
-        // Simplemente llamar a la función de actualización de estadísticas existente
         if (typeof window.actualizarEstadisticas === 'function' && window.clubData) {
             window.actualizarEstadisticas(window.clubData);
-            
         }
         
-        // Si existe algún widget de categorías específico, actualizarlo también
         if (typeof window.actualizarWidgetCategorias === 'function') {
             window.actualizarWidgetCategorias();
         }
         
-    } catch (error) {
-        console.error('Error al actualizar categorías en dashboard:', error);
-    }
+    } catch (error) {}
 }
 
 // Exponer las funciones globalmente

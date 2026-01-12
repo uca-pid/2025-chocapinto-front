@@ -168,19 +168,15 @@ async function cambiarEstadoLibro(bookId, nuevoEstado) {
             
             // Recargar los datos del club para actualizar las estadísticas
             renderClub();
-            // Actualizar la sección de progreso de lectura
             if (typeof cargarProgresoLectura === 'function') {
                 cargarProgresoLectura();
             }
-            // Actualizar actividad reciente después de cambiar estado
             cargarActividadReciente();
         } else {
             hideLoader();
-            console.error("Error al cambiar estado automáticamente:", data.message);
         }
     } catch (error) {
         hideLoader();
-        console.error("Error al cambiar estado automáticamente:", error);
     }
 }
 
@@ -252,18 +248,11 @@ document.addEventListener("click", async (e) => {
   }
 });
 
-// ========== INICIALIZACIÓN ==========
 function initLibrary() {
-    
-    
-    // Configurar event listeners para filtros
     setupLibraryEventListeners();
     
-    // Exponer funciones globalmente para HTML
     window.aplicarFiltros = aplicarFiltros;
     window.eliminarLibro = eliminarLibro;
-    
-    
 }
 
 function setupLibraryEventListeners() {

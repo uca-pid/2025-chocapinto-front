@@ -1,0 +1,63 @@
+   .ranking-avatar-container {
+      position: relative;
+      width: 40px;
+      height: 40px;
+    }
+
+    .ranking-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #eaf6ff;
+    }
+
+    .ranking-avatar-initials {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0984e3, #74b9ff);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #eaf6ff;
+      text-transform: uppercase;
+    }
+
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .ranking-item:hover {
+      transform: translateY(-2px);
+    }
+
+    .ranking-puesto {
+      font-weight: bold;
+      font-size: 18px;
+      color: #2c5a91;
+      margin-right: 12px;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .ranking-info {
+      flex: 1;
+      margin-left: 12px;
+    }
+
+    .ranking-metrica {
+      font-weight: bold;
+      color: #0984e3;
+      font-size: 16px;
+    }

@@ -412,34 +412,95 @@ h2 {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .profile-photo:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 0 4px rgba(9, 132, 227, 0.2);
 }
 
-.profile-photo::after {
-  content: '📷';
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  background: #0984e3;
+/* Marcos por nivel */
+.marco-bronce {
+  border: 4px solid #cd7f32 !important;
+  box-shadow: 0 0 20px rgba(205, 127, 50, 0.5), 0 0 40px rgba(205, 127, 50, 0.3) !important;
+}
+
+.marco-bronce:hover {
+  box-shadow: 0 0 25px rgba(205, 127, 50, 0.7), 0 0 50px rgba(205, 127, 50, 0.4) !important;
+}
+
+.marco-plata {
+  border: 4px solid #c0c0c0 !important;
+  box-shadow: 0 0 20px rgba(192, 192, 192, 0.6), 0 0 40px rgba(192, 192, 192, 0.4) !important;
+}
+
+.marco-plata:hover {
+  box-shadow: 0 0 25px rgba(192, 192, 192, 0.8), 0 0 50px rgba(192, 192, 192, 0.5) !important;
+}
+
+.marco-oro {
+  border: 4px solid #ffd700 !important;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.4) !important;
+  animation: pulso-oro 2s ease-in-out infinite;
+}
+
+.marco-oro:hover {
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.5) !important;
+}
+
+@keyframes pulso-oro {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.marco-diamante {
+  border: 4px solid #b9f2ff !important;
+  box-shadow: 0 0 30px #00d4ff, 0 0 60px #00d4ff, 0 0 90px rgba(0, 212, 255, 0.5) !important;
+  animation: pulso-diamante 2s ease-in-out infinite;
+  position: relative;
+}
+
+.marco-diamante:hover {
+  box-shadow: 0 0 40px #00d4ff, 0 0 80px #00d4ff, 0 0 120px rgba(0, 212, 255, 0.6) !important;
+}
+
+@keyframes pulso-diamante {
+  0%, 100% {
+    box-shadow: 0 0 30px #00d4ff, 0 0 60px #00d4ff, 0 0 90px rgba(0, 212, 255, 0.5);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 40px #00d4ff, 0 0 80px #00d4ff, 0 0 120px rgba(0, 212, 255, 0.7);
+    filter: brightness(1.1);
+  }
+}
+
+/* Insignia badge */
+.insignia-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  opacity: 0;
-  transition: opacity 0.3s;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  margin-top: 4px;
+  text-align: center;
+  animation: brillo-insignia 3s ease-in-out infinite;
 }
 
-.profile-photo:hover::after {
-  opacity: 1;
+@keyframes brillo-insignia {
+  0%, 100% {
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 15px rgba(102, 126, 234, 0.5), 0 0 20px rgba(102, 126, 234, 0.3);
+  }
 }
 
 #currentAvatarImg {
@@ -494,17 +555,45 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
 
 /* ----- Mobile (≤ 768px): retoques finos ----- */
 @media (max-width: 768px){
-  .profile-photo{ margin: 0 0 10px 0; }
+  .profile-photo{ 
+    margin: 0 auto 10px auto; /* Centrar foto en móvil */
+  }
+  
+  .perfil-sidebar {
+    text-align: center; /* Centrar contenido del sidebar */
+  }
+  
   .sidebar-actions{
     gap: 10px;
-    justify-content: flex-start;
+    justify-content: center;
   }
+  
+  .sidebar-info {
+    text-align: center; /* Centrar info del usuario */
+  }
+  
+  /* Los botones globales ahora se muestran */
+  .global-actions {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .global-actions button {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+  
   .form-actions{
     flex-direction: column;
     gap: 10px;
   }
-  .form-actions button{ width: 100%; }
-  .global-actions{ display: none; } /* simplifica el móvil; si querés, dejalo */
+  
+  .form-actions button{ 
+    width: 100%; 
+  }
 }
 
 /* ----- Mobile chico (≤ 480px): tipografía y espacios compactos ----- */
@@ -607,11 +696,28 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
 }
 
 .btn-primary-club {
-    background: #2ecc71; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #fff;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    text-transform: none;
+    letter-spacing: 0.5px;
 }
+
 .btn-primary-club:hover {
-    background: #27ae60;
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary-club:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
 }
 
 .btn-secondary-club {
@@ -702,7 +808,7 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
     color: white;
     box-shadow: 0 8px 25px rgba(9, 132, 227, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    order: -1; /* Asegurar que aparezca primero */
+    order: -1;
 }
 
 .avatar-level-info h4 {
@@ -713,10 +819,52 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
 }
 
 .avatar-level-info p {
-    margin: 0;
+    margin: 0 0 12px 0;
     opacity: 0.95;
     font-size: 0.95rem;
     font-weight: 500;
+}
+
+/* Estilos para recompensas */
+.recompensas-actuales,
+.proximas-recompensas {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    text-align: left;
+}
+
+.recompensas-actuales {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.proximas-recompensas {
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    margin-top: 8px;
+}
+
+.recompensas-actuales strong,
+.proximas-recompensas strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.recompensa-item,
+.recompensa-proxima {
+    display: inline-block;
+    padding: 4px 10px;
+    margin: 4px;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.recompensa-proxima {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px dashed rgba(255, 255, 255, 0.4);
 }
 
 /* Grid de avatares responsivo */
@@ -1039,9 +1187,15 @@ h2{ font-size: clamp(1.4rem, 1.2rem + 1vw, 1.8rem); }
 }
 
 .club-button {
-    margin-top: 10px;
-    width: 140px;
+    margin-top: 15px;
+    width: 100%;
+    max-width: 180px;
     align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 15px;
 }
 
 .clubs-container {

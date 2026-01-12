@@ -5,12 +5,9 @@ async function cargarProgresoLectura() {
     try {
         const clubId = getClubId();
         if (!clubId) {
-            console.log('No se encontró clubId para cargar progreso de lectura');
             mostrarProgresoVacio();
             return;
         }
-
-        console.log('Cargando progreso de lectura para club:', clubId);
         
         // Obtener información del período activo y libros del club
         const [clubResponse, estadoResponse] = await Promise.all([
@@ -22,23 +19,15 @@ async function cargarProgresoLectura() {
         const estadoData = await estadoResponse.json();
         
         if (clubData.success && clubData.club && clubData.club.readBooks) {
-            console.log('Libros recibidos:', clubData.club.readBooks.length);
-            // Filtrar solo los libros que están siendo leídos actualmente
             const librosLeyendo = clubData.club.readBooks.filter(libro => {
-                console.log(`Libro: ${libro.title}, Estado: ${libro.estado}`);
                 return libro.estado === 'leyendo';
             });
-            console.log('Libros con estado "leyendo":', librosLeyendo.length, librosLeyendo);
-            
-            // Pasar la información del período activo si existe
             const periodoActivo = estadoData.success && estadoData.estado === 'LEYENDO' ? estadoData.periodo : null;
             mostrarProgresoLectura(librosLeyendo, periodoActivo);
         } else {
-            console.log('No se recibieron libros o la respuesta no fue exitosa');
             mostrarProgresoVacio();
         }
     } catch (error) {
-        console.error('Error al cargar progreso de lectura:', error);
         mostrarProgresoVacio();
     }
 }
@@ -158,7 +147,6 @@ async function cargarCategoriasClub() {
             }
         }
     } catch (error) {
-        console.error('Error al cargar categorías del club:', error);
         mostrarCategoriasVacio();
     }
 }
@@ -282,20 +270,14 @@ async function cargarActividadReciente() {
     const activityList = document.getElementById('recent-activity-list');
     
     if (!activityList) {
-        console.warn('❌ Elemento recent-activity-list no encontrado');
         return;
     }
 
     try {
-        console.log('📡 Generando actividad reciente desde datos locales...');
         
-        // Generar actividades desde los datos del club actual
         const actividadesGeneradas = await generarActividadDesdeClubData();
         
         if (actividadesGeneradas && actividadesGeneradas.length > 0) {
-            console.log('✅ Actividades generadas:', actividadesGeneradas.length, 'elementos');
-            
-            // Tomar solo las últimas 6 actividades (ordenadas por fecha más reciente)
             const actividadesRecientes = actividadesGeneradas
                 .sort((a, b) => new Date(b.fechaCambio) - new Date(a.fechaCambio))
                 .slice(0, 6);
@@ -308,27 +290,17 @@ async function cargarActividadReciente() {
                 activityList.appendChild(activityItem);
             });
             
-            console.log('✅ Actividad reciente cargada exitosamente');
-            
         } else {
-            console.warn('⚠️ No se generaron actividades');
-            mostrarActividadVacia(activityList);
         }
         
     } catch (error) {
-        console.error('❌ Error generando actividad reciente:', error);
-        
-        // Fallback: intentar cargar desde API
         try {
-            console.log('🔄 Fallback: intentando cargar desde API...');
             const clubId = getClubId();
             const res = await fetch(`${API_URL}/club/${clubId}/reading-history`);
             const data = await res.json();
             
             if (data.success && data.historial) {
-                console.log('✅ Historial recibido de API:', data.historial.length, 'elementos');
                 
-                // Tomar solo las últimas 6 actividades (ordenadas por fecha más reciente)
                 const actividadesRecientes = data.historial
                     .sort((a, b) => new Date(b.fechaCambio) - new Date(a.fechaCambio))
                     .slice(0, 6);
@@ -346,27 +318,17 @@ async function cargarActividadReciente() {
                     activityList.appendChild(activityItem);
                 });
                 
-                console.log('✅ Actividad reciente cargada desde API');
-                
             } else {
-                console.warn('⚠️ No se pudo obtener historial de API:', data.message);
                 mostrarActividadVacia(activityList);
             }
         } catch (apiError) {
-            console.warn('⚠️ Error con API, mostrando actividad vacía');
             mostrarActividadError(activityList);
         }
     }
 }
 
-/**
- * Genera actividad reciente desde los datos actuales del club
- */
 async function generarActividadDesdeClubData() {
-    console.log('📊 Generando actividad reciente desde datos del club...');
-    
     if (!window.clubData) {
-        console.warn('⚠️ No hay datos del club disponibles');
         return [];
     }
     
@@ -439,7 +401,6 @@ async function generarActividadDesdeClubData() {
         });
     }
     
-    console.log('✅ Actividad generada:', eventos.length, 'eventos');
     return eventos;
 }
 
@@ -569,29 +530,18 @@ function mostrarActividadError(container) {
     }
 }
 
-// ========== FUNCIONES AUXILIARES PARA ACTIVIDAD RECIENTE ==========
-
-/**
- * Calcula una fecha estimada de inicio de lectura
- */
 function calcularFechaInicioLectura(fechaAgregado) {
     const fecha = new Date(fechaAgregado);
     fecha.setDate(fecha.getDate() + 1); // Un día después de agregado
     return fecha.toISOString();
 }
 
-/**
- * Calcula una fecha estimada de finalización de lectura
- */
 function calcularFechaFinLectura(fechaAgregado) {
     const fecha = new Date(fechaAgregado);
     fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 21) + 7); // Entre 7-28 días para más variación
     return fecha.toISOString();
 }
 
-/**
- * Calcula días de lectura entre dos fechas
- */
 function calcularDiasLectura(fechaInicio, fechaFin) {
     if (!fechaInicio || !fechaFin) return 0;
     
@@ -603,9 +553,6 @@ function calcularDiasLectura(fechaInicio, fechaFin) {
     return diffDays;
 }
 
-/**
- * Formatea el tiempo transcurrido desde una fecha
- */
 function formatTimeAgoReal(dateString) {
     const now = new Date();
     const date = new Date(dateString);
@@ -614,7 +561,6 @@ function formatTimeAgoReal(dateString) {
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const diffWeeks = Math.floor(diffDays / 7);
-    
     
     if (diffMinutes < 60) return `Hace ${diffMinutes} min`;
     if (diffHours < 24) return `Hace ${diffHours}h`;
@@ -627,12 +573,7 @@ function formatTimeAgoReal(dateString) {
     });
 }
 
-/**
- * Función de prueba para generar datos de ejemplo del club
- * Úsala para probar la funcionalidad sin backend
- */
 window.probarActividadRecienteConDatos = function() {
-    console.log('🧪 Generando datos de prueba para actividad reciente...');
     
     // Crear datos de club de ejemplo
     window.clubData = {
@@ -693,31 +634,17 @@ window.probarActividadRecienteConDatos = function() {
         ]
     };
     
-    // Cargar la actividad reciente con estos datos
     cargarActividadReciente();
-    
-    console.log('✅ Datos de prueba generados y actividad cargada');
 };
 
-// ========== INICIALIZACIÓN ==========
 function initWidgets() {
-    console.log('🔧 Inicializando widgets...');
-    
-    // No necesita event listeners específicos por ahora
-    // Las funciones se llaman desde club-core.js según sea necesario
-    
-    // Exponer funciones globalmente
     window.cargarProgresoLectura = cargarProgresoLectura;
     window.cargarCategoriasClub = cargarCategoriasClub;
     window.cargarActividadReciente = cargarActividadReciente;
     window.mostrarRanking = mostrarRanking;
     window.mostrarMiembros = mostrarMiembros;
-    
-    console.log('✅ Widgets inicializados correctamente');
 }
 
-// Exportar función de inicialización
 window.initWidgets = initWidgets;
 
-// Export for ES6 modules
 export { initWidgets };

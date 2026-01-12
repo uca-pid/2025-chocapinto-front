@@ -1,23 +1,15 @@
-// Modal Comments Initialization
 function initCommentsModal() {
-    
-    
-    // Use global modal reference
     const modalComentarios = window.modalComentarios;
     const closeModalComentarios = document.getElementById("closeModalComentarios");
     const comentariosList = document.getElementById("comentariosList");
     const nuevoComentario = document.getElementById("nuevoComentario");
     const enviarComentarioBtn = document.getElementById("enviarComentarioBtn");
     
-    // Setup event listeners
     if (closeModalComentarios) {
         closeModalComentarios.onclick = () => { modalComentarios.style.display = "none"; };
     }
     
-    // Expose necessary functions globally for HTML compatibility
     window.cargarComentarios = cargarComentarios;
-    // Note: enviarComentario functionality is handled by document event listener
-    // Note: currentBookId and modalComentarios are now global variables
 }
 
 
@@ -209,14 +201,10 @@ async function cargarComentarios(bookId, clubId) {
           const commentItem = document.createElement("div");
           commentItem.className = "comment-item";
           
-          // Obtener la primera letra del username para el avatar fallback
           const avatarLetter = c.user.username ? c.user.username.charAt(0).toUpperCase() : 'U';
           
-          // Verificar si el usuario tiene avatar
           const hasAvatar = c.user.avatar && c.user.avatar.trim() !== '';
-          console.log("tiene avatar:", hasAvatar);
 
-          // Crear HTML del avatar con fallback a iniciales
           const avatarHTML = hasAvatar 
             ? `<img src="${c.user.avatar}" alt="Avatar de ${c.user.username}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                <div class="avatar-initials-comm" style="display:none;">R</div>`
@@ -235,9 +223,6 @@ async function cargarComentarios(bookId, clubId) {
             <p class="comment-content">${c.content}</p>
           `;
 
-          // Mostrar botón de eliminar si:
-          // - Es owner o moderador del club (canManageComments)
-          // - O es el dueño del comentario
           const isCommentOwner = c.userId === userId;
           const canDeleteComment = canManageComments || isCommentOwner;
           
@@ -246,7 +231,6 @@ async function cargarComentarios(bookId, clubId) {
             deleteBtn.className = "delete-comment";
             deleteBtn.innerHTML = "❌";
             
-            // Tooltip más específico según el tipo de permiso
             if (canManageComments && !isCommentOwner) {
               deleteBtn.title = `Eliminar comentario (${userRole.role})`;
             } else if (isCommentOwner) {
@@ -256,7 +240,6 @@ async function cargarComentarios(bookId, clubId) {
             }
             
             deleteBtn.onclick = async () => {
-              // Mensaje de confirmación más específico
               const confirmMessage = isCommentOwner 
                 ? "¿Eliminar tu comentario?"
                 : `¿Eliminar este comentario como ${userRole.role}?`;
@@ -337,6 +320,11 @@ document.addEventListener('click', async (e) => {
         await cargarComentarios(window.currentBookId, clubId);
         hideLoader();
         showNotification("success", "Comentario enviado");
+        
+        // Actualizar XP en el header
+        if (typeof window.updateUserXpHeader === 'function') {
+          window.updateUserXpHeader();
+        }
       } else {
         hideLoader();
         showNotification("error", data.message || "No se pudo enviar el comentario");

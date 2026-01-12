@@ -1,19 +1,17 @@
+import { mostrarConfirmacion } from '../../componentes/confirmacion.js';
 const XP_PER_LEVEL = 500;
 
 // URL del login (ajustar si es otra)
-const LOGIN_URL = "index.html";
-const PROFILE_URL = "/2025-chocapinto-front/html/perfil.html";
+const LOGIN_URL = "../html/index.html";
+const PROFILE_URL = "../html/perfil.html";
 
 /**
  * Inicializa el header base dentro de #app-header.
+ * @param {Object} options - Opciones de configuración (actualmente no utilizado)
  */
 export function initAppHeader(options = {}) {
-
   const headerRoot = document.getElementById("app-header");
-  if (!headerRoot) {
-    console.warn("⚠️ No se encontró #app-header en el DOM");
-    return;
-  }
+  if (!headerRoot) return;
 
   headerRoot.innerHTML = `
     <style>
@@ -267,6 +265,53 @@ export function initAppHeader(options = {}) {
   margin-top: 2px;
 }
 
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+  .header-context-text {
+    display: none;
+  }
+  
+  .user-info {
+    display: none;
+  }
+  
+  .app-header-inner {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  
+  .app-header-left {
+    gap: 12px;
+  }
+  
+  .app-header-right {
+    gap: 16px;
+  }
+  
+  .header-actions {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-logo-img {
+    height: 30px;
+  }
+  
+  .header-context-icon-image img {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .user-avatar {
+    width: 50px;
+    height: 50px;
+  }
+}
+
 
 
 
@@ -276,7 +321,7 @@ export function initAppHeader(options = {}) {
     <div class="app-header-inner">
       <div class="app-header-left">
         <div class="app-logo-container" id="appLogoBtn">
-          <img src="/2025-chocapinto-front/images/BooksyLogo.png" alt="Logo App" class="app-logo-img" />
+          <img src="../images/BooksyLogo.png" alt="Logo App" class="app-logo-img" />
         </div>
         <div id="header-context" class="header-context">
           <!-- Icono + título + subtítulo -->
@@ -334,22 +379,50 @@ export function initAppHeader(options = {}) {
   const appLogoBtn = document.getElementById("appLogoBtn");
   if (appLogoBtn) {
     appLogoBtn.addEventListener("click", () => {
-      window.location.href = "/2025-chocapinto-front/html/main.html"; // ajustá si tu home está en otra ruta
+      window.location.href = "../html/main.html"; // ajustá si tu home está en otra ruta
     });
   }
+  addHeaderAction({
+  id: "logoutBtn",
+  icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+    <polyline points="16 17 21 12 16 7"></polyline>
+    <line x1="21" y1="12" x2="9" y2="12"></line>
+  </svg>`,
+  onClick: () => {
+    mostrarConfirmacion(
+      "Cerrar sesión",
+      "¿Estás seguro de que querés cerrar sesión?",
+      () => {
+        // Confirmado - cerrar sesión
+        localStorage.clear();
+        window.location.href = "../html/index.html";
+      },
+      null, // onCancel (no hace nada)
+      {
+        confirmText: "Cerrar sesión",
+        cancelText: "Cancelar",
+        confirmClass: "red-btn",
+        cancelClass: "green-btn"
+      }
+    );
+  }
+});
 
 
 }
 
 /**
- * Define el contexto del header (icono + título + subtítulo)
- * Ej (club): icon: "📚", title: "Fans de Lovecraft", subtitle: "12 miembros"
+ * Define el contexto del header (icono + título + subtítulo).
+ * @param {Object} options - Configuración del contexto
+ * @param {string} options.icon - URL de imagen o emoji
+ * @param {string} options.title - Título principal
+ * @param {string} options.subtitle - Subtítulo opcional
  */
 export function setHeaderContext({ icon = "📚", title = "", subtitle = "" } = {}) {
   const contextRoot = document.getElementById("header-context");
   if (!contextRoot) return;
 
-  // Detectar si el "icon" es una URL de imagen o un emoji/texto
   let iconHtml = "";
   if (icon) {
     const isUrl =
@@ -384,13 +457,14 @@ export function setHeaderContext({ icon = "📚", title = "", subtitle = "" } = 
 
 
 /**
- * Agrega un botón de acción a la derecha del header
- * config:
- *  - id: string opcional
- *  - label: texto del botón
- *  - icon: string (emoji o SVG inline)
- *  - variant: "primary" | "secondary" | "ghost"
- *  - onClick: función
+ * Agrega un botón de acción a la derecha del header.
+ * @param {Object} config - Configuración del botón
+ * @param {string} config.id - ID opcional del botón
+ * @param {string} config.label - Texto del botón
+ * @param {string} config.icon - Emoji o SVG inline
+ * @param {string} config.variant - Variante visual (primary/secondary/ghost)
+ * @param {Function} config.onClick - Callback al hacer click
+ * @returns {HTMLElement} Elemento del botón creado
  */
 export function addHeaderAction({
   id,
@@ -433,10 +507,10 @@ export function addHeaderAction({
   return btn;
 }
 
-// ================================
-// Helpers internos
-// ================================
-
+/**
+ * Actualiza el username y las iniciales del usuario en el header.
+ * Redirige al login si no hay sesión activa.
+ */
 function updateUsernameAndInitials() {
   const username = localStorage.getItem("username");
   const email = localStorage.getItem("email") || "";
@@ -444,7 +518,6 @@ function updateUsernameAndInitials() {
   const initialsEl = document.getElementById("userInitials");
 
   if (!username) {
-    console.error("❌ No se encontró 'username' en localStorage. Redirigiendo a login...");
     window.location.href = LOGIN_URL;
     return;
   }
@@ -463,12 +536,12 @@ function updateUsernameAndInitials() {
 
   if (initialsEl) initialsEl.textContent = initials;
   
-  // Cargar avatar del usuario
   loadUserAvatar();
 }
 
 /**
- * Carga el avatar del usuario desde el servidor
+ * Carga el avatar del usuario desde el servidor.
+ * Muestra la imagen si existe, o fallback a iniciales.
  */
 function loadUserAvatar() {
   const username = localStorage.getItem("username");
@@ -488,17 +561,13 @@ function loadUserAvatar() {
           
           // Si la imagen falla al cargar, mostrar iniciales
           avatarImg.onerror = function() {
-            console.log('Error cargando avatar, mostrando iniciales');
             avatarImg.style.display = 'none';
             initialsEl.style.display = 'flex';
           };
         }
       }
     })
-    .catch((error) => {
-      console.log('Error obteniendo avatar del usuario:', error);
-      // Mantener las iniciales si hay error
-    });
+    .catch(() => {});
 }
 
 /**
@@ -511,9 +580,7 @@ function updateUserXpHeader() {
 
   const userId = localStorage.getItem("userId");
 
-  // Todos deben estar logueados: si no hay userId -> error de sesión
   if (!userId) {
-    console.error("❌ No se encontró 'userId' en localStorage. Redirigiendo a login...");
     window.location.href = LOGIN_URL;
     return;
   }
@@ -521,10 +588,7 @@ function updateUserXpHeader() {
   fetch(`${window.API_URL}/user/${userId}`)
     .then((res) => res.json())
     .then((data) => {
-      if (!data.success || !data.user) {
-        console.error("No se pudo obtener usuario para XP:", data);
-        return;
-      }
+      if (!data.success || !data.user) return;
 
       const xp = data.user.xp ?? 0;
       const level = data.user.level ?? 1;
@@ -550,7 +614,5 @@ function updateUserXpHeader() {
         xpFillEl.style.width = `${percent}%`;
       }
     })
-    .catch((err) => {
-      console.error("Error obteniendo XP de usuario:", err);
-    });
+    .catch(() => {});
 }

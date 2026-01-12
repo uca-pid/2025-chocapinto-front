@@ -1,8 +1,3 @@
-import { API_URL } from "../env.js";
-import { showNotification } from "../../componentes/notificacion.js";
-import { showLoader, hideLoader } from "../../componentes/loader.js";
-import { mostrarConfirmacion, confirmarEliminacion } from "../../componentes/confirmacion.js";
-
 function getClubId() {
         const params = new URLSearchParams(window.location.search);
         return params.get('clubId');
@@ -103,9 +98,6 @@ function formatearMes(mesISO) {
     return fecha.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 }
 
-/**
- * Obtiene el rol del usuario en el club basándose en la tabla ClubMember
- */
 function getUserRoleInClub(club, userId) {
     if (!club || !userId) {
         return { role: 'LECTOR', isOwner: false, isModerator: false, canManage: false };
@@ -113,13 +105,8 @@ function getUserRoleInClub(club, userId) {
     
     const userIdNum = parseInt(userId);
     
-    console.log('🔍 getUserRoleInClub - Buscando rol para userId:', userIdNum);
-    console.log('🔍 Club members array:', club.members);
-    
-    // Buscar en el array members que viene del backend (ya incluye los roles de ClubMember)
     if (club.members && Array.isArray(club.members)) {
         const userMember = club.members.find(member => {
-            console.log(`   Comparando member ID ${member.id} con userId ${userIdNum}`);
             return member.id == userIdNum;
         });
         
@@ -128,8 +115,6 @@ function getUserRoleInClub(club, userId) {
             const isOwner = role === 'OWNER';
             const isModerator = role === 'MODERADOR';
             const canManage = isOwner || isModerator;
-            
-            console.log(`✅ Rol encontrado en ClubMember: ${role}`);
             
             return {
                 role: role,
@@ -140,59 +125,38 @@ function getUserRoleInClub(club, userId) {
         }
     }
     
-    // Si no está en members, verificar si es el owner legacy (compatibilidad)
     if (club.id_owner == userIdNum) {
-        console.log('⚠️ Usuario encontrado como owner legacy (id_owner)');
         return { role: 'OWNER', isOwner: true, isModerator: false, canManage: true };
     }
     
-    console.log('❌ Usuario no encontrado en ClubMember, asignando LECTOR por defecto');
     return { role: 'LECTOR', isOwner: false, isModerator: false, canManage: false };
 }
 
-/**
- * Verifica si el usuario puede gestionar el club (owner o moderador)
- */
 function canUserManageClub(club, userId) {
     const userRole = getUserRoleInClub(club, userId);
     return userRole.canManage;
 }
 
-/**
- * Verifica si el usuario puede eliminar el club (solo owner)
- */
 function canUserDeleteClub(club, userId) {
     const userRole = getUserRoleInClub(club, userId);
     return userRole.isOwner;
 }
 
-/**
- * Verifica si el usuario puede gestionar miembros (owner o moderador)
- */
 function canUserManageMembers(club, userId) {
     const userRole = getUserRoleInClub(club, userId);
     return userRole.canManage;
 }
 
-/**
- * Verifica si el usuario puede gestionar libros (owner o moderador)
- */
 function canUserManageBooks(club, userId) {
     const userRole = getUserRoleInClub(club, userId);
     return userRole.canManage;
 }
 
-/**
- * Verifica si el usuario puede gestionar categorías (owner o moderador)
- */
 function canUserManageCategories(club, userId) {
     const userRole = getUserRoleInClub(club, userId);
     return userRole.canManage;
 }
 
-/**
- * Verifica si el usuario puede gestionar solicitudes (owner o moderador)
- */
 function canUserManageRequests(club, userId) {
     const userRole = getUserRoleInClub(club, userId);
     return userRole.canManage;
@@ -200,9 +164,6 @@ function canUserManageRequests(club, userId) {
 
 // Initialize and expose utilities globally
 function initUtils() {
-    console.log("Initializing Utils");
-    
-    // Expose utilities globally for module interoperability
     window.getClubId = getClubId;
     window.getEstadoInfo = getEstadoInfo;
     window.getEstadoLabel = getEstadoLabel;
@@ -211,7 +172,6 @@ function initUtils() {
     window.getAccionTexto = getAccionTexto;
     window.formatearMes = formatearMes;
     
-    // Expose permission utilities
     window.getUserRoleInClub = getUserRoleInClub;
     window.canUserManageClub = canUserManageClub;
     window.canUserDeleteClub = canUserDeleteClub;
@@ -221,7 +181,6 @@ function initUtils() {
     window.canUserManageRequests = canUserManageRequests;
 }
 
-// Export for ES6 modules
 export { 
     initUtils,
     getClubId, 

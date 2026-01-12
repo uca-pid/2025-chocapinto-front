@@ -1,12 +1,10 @@
 import { API_URL } from "./env.js";
 import { showNotification } from "../componentes/notificacion.js";
 import { showLoader, hideLoader } from "../componentes/loader.js";
+import { initNotificaciones } from "./club-componentes/notificaciones-alertas.js";
+import { addHeaderAction } from "./club-componentes/app-header.js";
+import { initSessionManager } from "./sessionManager.js";
 
-// ========== FUNCIONES DEL HEADER ==========
-
-/**
- * Cierra sesión del usuario
- */
 function logout() {
     localStorage.removeItem("username");
     localStorage.removeItem("userId");
@@ -14,9 +12,6 @@ function logout() {
     window.location.href = "index.html";
 }
 
-/**
- * Configura el dropdown del perfil
- */
 function configurarDropdownPerfil() {
     const dropdownBtn = document.getElementById("profileDropdownBtn");
     const dropdownContent = document.getElementById("profileDropdownContent");
@@ -44,9 +39,6 @@ function configurarDropdownPerfil() {
     }
 }
 
-/**
- * Actualiza el display del username en el header
- */
 function updateUsernameDisplay() {
     const username = localStorage.getItem("username");
     const usernameDisplay = document.getElementById("usernameDisplay");
@@ -58,20 +50,67 @@ function updateUsernameDisplay() {
     }
 }
 
-// Exponer funciones al ámbito global
 window.logout = logout;
 
-// ========== INICIALIZACIÓN ==========
-// Mostrar loader al cargar la página
-showLoader("Cargando formulario...");
+function mostrarModalNotificaciones() {
+    const modal = document.getElementById("modalNotificaciones");
+    if (modal) {
+        modal.style.display = "flex";
+    }
+}
 
-// Ocultar loader cuando el DOM esté listo
+function cerrarModalNotificaciones() {
+    const modal = document.getElementById("modalNotificaciones");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+async function marcarTodasLeidas() {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/notificaciones/marcar-todas-leidas/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Error al marcar notificaciones como leídas:', error);
+    }
+}
+
+window.mostrarModalNotificaciones = mostrarModalNotificaciones;
+window.cerrarModalNotificaciones = cerrarModalNotificaciones;
+window.marcarTodasLeidas = marcarTodasLeidas;
+
+showLoader("Cargando formulario...");
 document.addEventListener("DOMContentLoaded", () => {
-    // Configurar header
+    initSessionManager();
     updateUsernameDisplay();
     configurarDropdownPerfil();
     
-    // Simular un pequeño delay para mostrar el loader
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+        initNotificaciones(userId);
+    }
+    
+    addHeaderAction({
+        id: "notificacionesBtn",
+        icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>`,
+        variant: "secondary",
+        onClick: () => {
+            mostrarModalNotificaciones();
+        }
+    });
+    
     setTimeout(() => {
         hideLoader();
     }, 800);
@@ -108,7 +147,6 @@ fileInput.addEventListener("change", () => {
         }
 
         try {
-            // Mostrar loader durante la creación
             showLoader("Creando club...");
             
             const body = { name, description, ownerUsername, imagen };
@@ -122,7 +160,6 @@ fileInput.addEventListener("change", () => {
             const data = await res.json();
 
             if (data.success) {
-                // Cambiar mensaje del loader
                 showLoader("Club creado! Redirigiendo...");
                 showNotification("success","Club creado con éxito. Ahora eres moderador!");
                 setTimeout(() => {

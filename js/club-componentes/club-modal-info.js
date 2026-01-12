@@ -5,16 +5,17 @@ let graficoInstancia = null;
 const modalAvatarStyles = document.createElement('style');
 modalAvatarStyles.textContent = `
 /* Estilos para avatares en modales */
-.ranking-avatar-container, .member-avatar-container {
+.ranking-avatar-container, .member-avatar-container, .request-avatar-container {
     position: relative;
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.ranking-avatar-img, .member-avatar-img {
+.ranking-avatar-img, .member-avatar-img, .request-avatar-img {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -22,7 +23,7 @@ modalAvatarStyles.textContent = `
     border: 2px solid #eaf6ff;
 }
 
-.ranking-avatar-initials, .member-avatar-initials {
+.ranking-avatar-initials, .member-avatar-initials, .request-avatar-initials {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -30,6 +31,7 @@ modalAvatarStyles.textContent = `
     color: white;
     font-weight: 600;
     font-size: 16px;
+    display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid #eaf6ff;
@@ -37,8 +39,21 @@ modalAvatarStyles.textContent = `
 }
 
 /* Backwards compatibility - hide old avatar classes */
-.ranking-avatar, .member-avatar {
+.ranking-avatar, .member-avatar, .request-avatar {
     display: none !important;
+}
+
+/* Request date styling */
+.request-date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #666;
+}
+
+.request-date svg {
+    opacity: 0.7;
 }
 `;
 
@@ -48,22 +63,16 @@ if (!document.querySelector('#modal-avatar-styles')) {
     document.head.appendChild(modalAvatarStyles);
 }
 
-// Info Modals Initialization
 function initInfoModals() {
-    console.log("Initializing Info Modals");
-    
-    // Initialize all modal configurations
     configurarModalGrafico();
     
-    // Expose necessary functions globally for HTML compatibility
     window.configurarModalGrafico = configurarModalGrafico;
     window.generarGraficoGeneros = generarGraficoGeneros;
     window.mostrarListaRanking = mostrarListaRanking;
     window.mostrarListaMiembros = mostrarListaMiembros;
     window.eliminarMiembro = eliminarMiembro;
     window.mostrarSolicitudesModal = mostrarSolicitudesModal;
-    window.mostrarSolicitudes = mostrarSolicitudesModal; // Alias for HTML compatibility
-    // Note: updateChart function doesn't exist - functionality may be handled within generarGraficoGeneros
+    window.mostrarSolicitudes = mostrarSolicitudesModal;
 }
 
 function configurarModalGrafico() {
@@ -74,13 +83,10 @@ function configurarModalGrafico() {
 
     if (chartBtn) {
         chartBtn.addEventListener('click', () => {
-            console.log('Botón de gráfico clickeado');
             modal.classList.add('show');
             modal.style.display = 'flex';
             generarGraficoGeneros('todos');
         });
-    } else {
-        console.error('No se encontró el botón ver-grafico-btn');
     }
 
     if (closeBtn) {
@@ -92,7 +98,6 @@ function configurarModalGrafico() {
         });
     }
 
-    // Cerrar modal al hacer clic fuera
     if (modal) {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -104,7 +109,6 @@ function configurarModalGrafico() {
         });
     }
 
-    // Event listener para el filtro de estado
     if (chartEstadoFilter) {
         chartEstadoFilter.addEventListener('change', (e) => {
             generarGraficoGeneros(e.target.value);
@@ -113,98 +117,58 @@ function configurarModalGrafico() {
 }
 
 function generarGraficoGeneros(estadoFiltro = 'todos') {
-    console.log('Generando gráfico con filtro:', estadoFiltro);
-    console.log('window.clubData:', window.clubData);
-    
     if (!window.clubData) {
-        console.error('No hay datos del club');
         return;
     }
     
     if (!window.clubData.readBooks) {
-        console.error('No hay libros en los datos del club');
-        console.log('Propiedades disponibles en clubData:', Object.keys(window.clubData));
         return;
     }
-    
-    console.log('Cantidad de libros:', window.clubData.readBooks.length);
 
-    // Obtener todos los libros del club
-    console.log('Libros disponibles:', window.clubData.readBooks);
-    
-    // Para el gráfico, usamos todos los libros del club
     let todosLosLibros = window.clubData.readBooks;
     
-    // Filtrar por estado directamente del libro
     let librosFiltrados;
     if (estadoFiltro === 'todos') {
         librosFiltrados = todosLosLibros;
     } else {
-        // Filtrar libros por su estado directo
         librosFiltrados = todosLosLibros.filter(book => {
             return book.estado === estadoFiltro;
         });
     }
-    
-    console.log('Libros filtrados:', librosFiltrados);
-    console.log(`Filtro aplicado: ${estadoFiltro}, Libros resultantes: ${librosFiltrados.length}`);
-    
-    // Debug: verificar estado directo de cada libro
-    if (estadoFiltro !== 'todos') {
-        console.log('=== DEBUG FILTRO POR ESTADO ===');
-        todosLosLibros.forEach((book, index) => {
-            console.log(`Libro ${index + 1}: ${book.title}`);
-            console.log(`  Estado: ${book.estado}, Coincide con filtro (${estadoFiltro}): ${book.estado === estadoFiltro}`);
-        });
-    }
-
-    // Contar libros por categoría usando la misma estructura que el filtro existente
     const conteoGeneros = {};
     
     librosFiltrados.forEach(book => {
         if (book.categorias && book.categorias.length > 0) {
-            // Si el libro tiene categorías, contar cada una
             book.categorias.forEach(categoria => {
                 const nombreCategoria = categoria.nombre || categoria.name || `Categoría ${categoria.id}`;
                 conteoGeneros[nombreCategoria] = (conteoGeneros[nombreCategoria] || 0) + 1;
             });
         } else {
-            // Si no tiene categorías, contar como "Sin categoría"
             conteoGeneros['Sin categoría'] = (conteoGeneros['Sin categoría'] || 0) + 1;
         }
-        console.log(`Libro: ${book.title}, Categorías:`, book.categorias);
     });
-    
-    console.log('Conteo por géneros:', conteoGeneros);
 
     // Preparar datos para el gráfico
     const labels = Object.keys(conteoGeneros);
     const data = Object.values(conteoGeneros);
     const total = data.reduce((sum, value) => sum + value, 0);
 
-    // Colores para el gráfico
     const colores = [
         '#0ea5e9', '#06b6d4', '#3b82f6', '#1d4ed8', '#0284c7',
         '#0891b2', '#075985', '#38bdf8', '#67e8f9', '#7dd3fc'
     ];
 
-    // Obtener canvas
     const canvas = document.getElementById('genreChart');
     if (!canvas) {
-        console.error('No se encontró el canvas genreChart');
         return;
     }
-    console.log('Canvas encontrado:', canvas);
     const ctx = canvas.getContext('2d');
-
-    // Destruir gráfico anterior si existe
     if (graficoInstancia) {
         graficoInstancia.destroy();
     }
 
     // Crear nuevo gráfico
     if (labels.length === 0) {
-        // Mostrar estado vacío más elegante
         const container = canvas.parentElement;
         container.innerHTML = `
             <div class="chart-no-data">
@@ -214,7 +178,6 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
             </div>
         `;
         
-        // Limpiar la leyenda también
         const leyenda = document.getElementById('chartLegend');
         if (leyenda) {
             leyenda.innerHTML = `
@@ -228,13 +191,9 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
     }
 
     if (typeof Chart === 'undefined') {
-        console.error('Chart.js no está cargado');
         return;
     }
-
-    console.log('Creando gráfico con datos:', { labels, data });
     
-    // Colores más vibrantes y gradientes para efecto 3D
     const colores3D = [
         'rgba(14, 165, 233, 0.8)', 'rgba(56, 189, 248, 0.8)', 'rgba(125, 211, 252, 0.8)',
         'rgba(6, 182, 212, 0.8)', 'rgba(34, 197, 218, 0.8)', 'rgba(103, 232, 249, 0.8)',
@@ -250,7 +209,7 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
     ];
     
     graficoInstancia = new Chart(ctx, {
-        type: 'doughnut', // Cambiado a doughnut para efecto más moderno
+        type: 'doughnut',
         data: {
             labels: labels,
             datasets: [{
@@ -260,10 +219,10 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
                 borderWidth: 3,
                 hoverBackgroundColor: coloresBorde.slice(0, labels.length),
                 hoverBorderWidth: 5,
-                hoverOffset: 15, // Efecto 3D al hacer hover
-                cutout: '40%', // Espacio interior del doughnut
-                borderRadius: 8, // Bordes redondeados para look moderno
-                spacing: 2 // Separación entre segmentos
+                hoverOffset: 15,
+                cutout: '40%',
+                borderRadius: 8,
+                spacing: 2
             }]
         },
         options: {
@@ -367,7 +326,6 @@ function generarGraficoGeneros(estadoFiltro = 'todos') {
         }
     });
 
-    // Actualizar leyenda personalizada
     actualizarLeyendaGrafico(labels, data, colores.slice(0, labels.length), total);
 }
 
@@ -377,7 +335,6 @@ function actualizarLeyendaGrafico(labels, data, colores, total) {
 
     leyenda.innerHTML = '';
     
-    // Ordenar por cantidad (descendente) para mejor visualización
     const datosOrdenados = labels.map((label, index) => ({
         label,
         cantidad: data[index],
@@ -391,7 +348,6 @@ function actualizarLeyendaGrafico(labels, data, colores, total) {
         itemLeyenda.style.setProperty('--legend-color', item.color);
         itemLeyenda.style.animationDelay = `${index * 0.1}s`;
         
-        // Determinar el emoji basado en el nombre de la categoría
         let emoji = '📖';
         const labelLower = item.label.toLowerCase();
         if (labelLower.includes('ficción') || labelLower.includes('novela')) emoji = '📚';
@@ -416,7 +372,6 @@ function actualizarLeyendaGrafico(labels, data, colores, total) {
             </div>
         `;
         
-        // Agregar efectos hover dinámicos
         itemLeyenda.addEventListener('mouseenter', () => {
             itemLeyenda.style.transform = 'translateX(12px) scale(1.02)';
             itemLeyenda.style.zIndex = '10';
@@ -430,7 +385,6 @@ function actualizarLeyendaGrafico(labels, data, colores, total) {
         leyenda.appendChild(itemLeyenda);
     });
     
-    // Agregar animación de entrada
     const items = leyenda.querySelectorAll('.legend-item');
     items.forEach((item, index) => {
         item.style.opacity = '0';
@@ -450,7 +404,6 @@ async function mostrarRanking() {
     const lista = document.getElementById('rankingList');
     const empty = document.getElementById('rankingEmpty');
 
-    // Mostrar modal y loader
     modal.classList.add('show');
     modal.style.display = 'flex';
     loader.style.display = 'block';
@@ -458,7 +411,6 @@ async function mostrarRanking() {
     empty.style.display = 'none';
 
     try {
-        // Obtener tanto el ranking como los datos actualizados del club
         const [rankingResponse, clubActualizado] = await Promise.all([
             fetch(`${API_URL}/api/ranking/club/${clubId}/ranking`),
             cargarDatosActualizadosClub()
@@ -467,7 +419,6 @@ async function mostrarRanking() {
         const rankingData = await rankingResponse.json();
 
         if (rankingData.success && rankingData.ranking && rankingData.ranking.length > 0) {
-            // Enriquecer los datos del ranking con la información actualizada del club
             const rankingConNiveles = rankingData.ranking.map(usuario => {
                 const miembroActualizado = clubActualizado.members?.find(m => m.id === usuario.userId || m.username === usuario.username);
                 return {
@@ -487,11 +438,9 @@ async function mostrarRanking() {
             empty.style.display = 'block';
         }
     } catch (error) {
-        console.error('Error al cargar ranking:', error);
         loader.style.display = 'none';
         empty.style.display = 'block';
         
-        // Cambiar el mensaje de error
         const emptyTitle = empty.querySelector('h3');
         const emptyText = empty.querySelector('p');
         emptyTitle.textContent = 'Error al cargar ranking';
@@ -506,7 +455,6 @@ function mostrarListaRanking(ranking, club) {
         const positionClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
         const initials = usuario.username.charAt(0).toUpperCase();
         
-        // Buscar el miembro correspondiente en el club para obtener el avatar
         const miembro = club.members?.find(m => m.id === usuario.userId || m.username === usuario.username);
         const hasAvatar = miembro && miembro.avatar && miembro.avatar.trim() !== '';
         
@@ -556,7 +504,6 @@ async function mostrarMiembros() {
     const lista = document.getElementById('membersList');
     const empty = document.getElementById('membersEmpty');
 
-    // Mostrar modal y loader
     modal.classList.add('show');
     modal.style.display = 'flex';
     loader.style.display = 'block';
@@ -564,14 +511,11 @@ async function mostrarMiembros() {
     empty.style.display = 'none';
 
     try {
-        // Obtener datos actualizados del club desde el servidor
         const clubActualizado = await cargarDatosActualizadosClub();
         
         if (clubActualizado && clubActualizado.members && clubActualizado.members.length > 0) {
-            // Actualizar window.clubData con datos frescos
             window.clubData = clubActualizado;
             
-            // Mostrar miembros con datos actualizados
             mostrarListaMiembros(clubActualizado.members, clubActualizado);
             loader.style.display = 'none';
             lista.style.display = 'block';
@@ -581,11 +525,9 @@ async function mostrarMiembros() {
             empty.style.display = 'block';
         }
     } catch (error) {
-        console.error('Error al cargar miembros actualizados:', error);
         loader.style.display = 'none';
         empty.style.display = 'block';
         
-        // Cambiar el mensaje de error
         const emptyTitle = empty.querySelector('h3');
         const emptyText = empty.querySelector('p');
         emptyTitle.textContent = 'Error al cargar miembros';
@@ -593,9 +535,6 @@ async function mostrarMiembros() {
     }
 }
 
-/**
- * Obtiene datos actualizados del club desde el servidor
- */
 async function cargarDatosActualizadosClub() {
     try {
         const clubId = getClubId();
@@ -611,10 +550,8 @@ async function cargarDatosActualizadosClub() {
             throw new Error(data.message || 'Error al obtener datos del club');
         }
 
-        console.log('✅ Datos del club actualizados:', data.club);
         return data.club;
     } catch (error) {
-        console.error('❌ Error al cargar datos actualizados del club:', error);
         throw error;
     }
 }
@@ -624,28 +561,14 @@ function mostrarListaMiembros(miembros, club) {
     const currentUserId = localStorage.getItem("userId");
     const isCurrentUserOwner = club.id_owner == currentUserId;
     
-    console.log('🔍 DEBUG - Datos de miembros para avatares:');
-    miembros.forEach((miembro, index) => {
-        console.log(`Miembro ${index + 1}:`, {
-            id: miembro.id,
-            username: miembro.username,
-            avatar: miembro.avatar,
-            avatarType: typeof miembro.avatar,
-            hasAvatar: miembro.avatar && miembro.avatar.trim() !== '',
-            avatarPath: miembro.avatar ? `../images/avatares/${miembro.avatar}` : 'NO AVATAR'
-        });
-    });
-    
     const html = miembros.map((miembro) => {
         const initials = miembro.username.charAt(0).toUpperCase();
         const isOwner = club.id_owner == miembro.id;
         const isCurrentUser = currentUserId == miembro.id;
         const canRemove = isCurrentUserOwner && !isCurrentUser && !isOwner;
         
-        // Verificar si tiene avatar
         const hasAvatar = miembro.avatar && miembro.avatar.trim() !== '';
         
-        // Obtener el rol del miembro (nuevo sistema)
         const memberRole = miembro.role || (isOwner ? 'OWNER' : 'LECTOR');
         const canChangeRole = isCurrentUserOwner && !isCurrentUser && !isOwner;
         
@@ -727,9 +650,6 @@ function mostrarListaMiembros(miembros, club) {
     lista.innerHTML = html;
 }
 
-/**
- * Obtiene la información de display para un rol específico
- */
 function getRoleDisplayInfo(role, isOwner) {
     if (isOwner) {
         return {
@@ -767,7 +687,6 @@ function getRoleDisplayInfo(role, isOwner) {
 function eliminarMiembro(miembroId, username) {
     const clubId = getClubId();
     
-    // Mostrar confirmación usando el patrón correcto
     mostrarConfirmacion(
         "Eliminar miembro",
         `¿Estás seguro de que quieres eliminar a <strong>${username}</strong> del club?`,
@@ -785,7 +704,6 @@ function eliminarMiembro(miembroId, username) {
                 if (data.success) {
                     showNotification("success", `${username} ha sido eliminado del club`);
                     
-                    // Cerrar el modal temporalmente
                     document.getElementById('modalMiembros').style.display = 'none';
                     document.getElementById('modalMiembros').classList.remove('show');
                     
@@ -801,13 +719,12 @@ function eliminarMiembro(miembroId, username) {
                     showNotification("error", data.message || "Error al eliminar el miembro");
                 }
             } catch (error) {
-                console.error("Error al eliminar miembro:", error);
                 showNotification("error", "Error de conexión al eliminar el miembro");
             } finally {
                 hideLoader();
             }
         },
-        null, // onCancel callback (null = no hacer nada al cancelar)
+        null,
         {
             confirmText: "Eliminar",
             cancelText: "Cancelar",
@@ -816,9 +733,6 @@ function eliminarMiembro(miembroId, username) {
     );
 }
 
-/**
- * Cambiar el rol de un miembro del club
- */
 async function cambiarRolMiembro(miembroId, username, nuevoRol) {
     const clubId = getClubId();
     
@@ -853,7 +767,6 @@ async function cambiarRolMiembro(miembroId, username, nuevoRol) {
                     
                     showNotification("success", successMessage);
                     
-                    // Cerrar el modal temporalmente
                     document.getElementById('modalMiembros').style.display = 'none';
                     document.getElementById('modalMiembros').classList.remove('show');
                     
@@ -869,35 +782,30 @@ async function cambiarRolMiembro(miembroId, username, nuevoRol) {
                     showNotification("error", data.message || "Error al cambiar el rol del miembro");
                 }
             } catch (error) {
-                console.error("Error al cambiar rol del miembro:", error);
                 showNotification("error", "Error de conexión al cambiar el rol del miembro");
             } finally {
                 hideLoader();
             }
         },
-        null, // onCancel callback
+        null,
         {
             confirmText: nuevoRol === 'MODERADOR' ? "Promover" : "Quitar Rol",
             cancelText: "Cancelar",
-            confirmClass: nuevoRol === 'MODERADOR' ? "blue-btn" : "orange-btn"
+            confirmClass: nuevoRol === 'MODERADOR' ? "orange-btn" : "orange-btn"
         }
     );
 }
 
 function mostrarSolicitudesModal() {
-    console.log("🚀 Mostrando modal de solicitudes");
-    
     const modal = document.getElementById('modalSolicitudes');
     const loader = document.getElementById('requestsLoader');
     const lista = document.getElementById('requestsList');
     const empty = document.getElementById('requestsEmpty');
     
     if (!modal || !loader || !lista || !empty) {
-        console.error("Elementos del modal de solicitudes no encontrados");
         return;
     }
     
-    // Mostrar modal y loader inicialmente
     modal.style.display = 'flex';
     loader.style.display = 'flex';
     lista.style.display = 'none';
@@ -920,12 +828,10 @@ function mostrarSolicitudesModal() {
                     empty.style.display = 'block';
                 }
             } else {
-                // No hay solicitudes
                 loader.style.display = 'none';
                 empty.style.display = 'block';
             }
         } catch (error) {
-            console.error("Error al mostrar solicitudes:", error);
             showNotification("error", "Error al mostrar las solicitudes");
             loader.style.display = 'none';
             empty.style.display = 'block';
@@ -937,19 +843,49 @@ function mostrarListaSolicitudes(solicitudes) {
     const lista = document.getElementById('requestsList');
     
     const html = solicitudes.map(solicitud => {
-        const fechaFormateada = new Date(solicitud.fecha_solicitud);
+        const fechaSolicitud = new Date(solicitud.fecha_solicitud);
+        const ahora = new Date();
+        const diffMs = ahora - fechaSolicitud;
+        const diffMinutos = Math.floor(diffMs / 60000);
+        const diffHoras = Math.floor(diffMinutos / 60);
+        const diffDias = Math.floor(diffHoras / 24);
+        
+        let tiempoTranscurrido;
+        if (diffDias > 0) {
+            tiempoTranscurrido = `Hace ${diffDias} día${diffDias !== 1 ? 's' : ''}`;
+        } else if (diffHoras > 0) {
+            tiempoTranscurrido = `Hace ${diffHoras} hora${diffHoras !== 1 ? 's' : ''}`;
+        } else if (diffMinutos > 0) {
+            tiempoTranscurrido = `Hace ${diffMinutos} minuto${diffMinutos !== 1 ? 's' : ''}`;
+        } else {
+            tiempoTranscurrido = 'Hace un momento';
+        }
         
         const inicial = solicitud.username ? solicitud.username.charAt(0).toUpperCase() : '?';
+        const hasAvatar = solicitud.avatar && solicitud.avatar.trim() !== '';
+        
+        const avatarHTML = hasAvatar 
+            ? `<img src="${solicitud.avatar}" alt="Avatar de ${solicitud.username}" class="request-avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">` 
+            : '';
+        
+        const initialsHTML = `<div class="request-avatar-initials" style="${hasAvatar ? 'display: none;' : 'display: flex;'}">${inicial}</div>`;
         
         return `
             <div class="request-item">
                 <div class="request-user">
-                    <div class="request-avatar">
-                        ${inicial}
+                    <div class="request-avatar-container">
+                        ${avatarHTML}
+                        ${initialsHTML}
                     </div>
                     <div class="request-info">
                         <div class="request-name">${solicitud.username || 'Usuario desconocido'}</div>
-                        <div class="request-date">Solicitado el ${fechaFormateada}</div>
+                        <div class="request-date">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            ${tiempoTranscurrido}
+                        </div>
                     </div>
                 </div>
                 <div class="request-actions">
@@ -991,12 +927,13 @@ async function gestionarSolicitudModal(solicitudId, aceptar) {
         if (data.success) {
             showNotification("success", data.message || (aceptar ? "Solicitud aceptada" : "Solicitud rechazada"));
             
-            // Cerrar el modal temporalmente
             document.getElementById('modalSolicitudes').style.display = 'none';
             
-            // Actualizar los datos del club primero
             await renderClub();
             
+            if (window.clubData && typeof window.actualizarBadgeSolicitudes === 'function') {
+                window.actualizarBadgeSolicitudes(window.clubData);
+            }
             // Reabrir el modal con datos actualizados después de un pequeño delay
             setTimeout(() => {
                 mostrarSolicitudesModal();
@@ -1006,7 +943,6 @@ async function gestionarSolicitudModal(solicitudId, aceptar) {
             showNotification("error", data.message || "Error al procesar la solicitud");
         }
     } catch (error) {
-        console.error("Error al gestionar solicitud:", error);
         showNotification("error", "Error de conexión");
     } finally {
         hideLoader();
@@ -1019,8 +955,7 @@ window.eliminarMiembro = eliminarMiembro;
 window.cambiarRolMiembro = cambiarRolMiembro;
 
 window.mostrarSolicitudesModal = mostrarSolicitudesModal;
-window.mostrarSolicitudes = mostrarSolicitudesModal; // Alias for HTML compatibility
+window.mostrarSolicitudes = mostrarSolicitudesModal;
 window.gestionarSolicitudModal = gestionarSolicitudModal;
 
-// Export for ES6 modules
 export { initInfoModals };
