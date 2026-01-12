@@ -1,7 +1,17 @@
 
 // ========== CONFIGURACIÓN ==========
 
+// Fallback para API_URL si no está disponible globalmente
 const API_URL = window.API_URL || "http://localhost:5000";
+
+// ========== UTILIDADES ==========
+
+/**
+ * Obtiene el ID del club actual desde la URL
+ */
+
+
+// ========== FUNCIONES HEADER ==========
 
 function logout() {
     localStorage.removeItem("username");
@@ -39,16 +49,22 @@ function updateUsernameDisplay() {
 function actualizarRolEnHeader(club) {
     const userRoleStatus = document.getElementById("userRoleStatus");
     
-    if (!userRoleStatus) return;
+    if (!userRoleStatus) {
+        console.warn('Elemento userRoleStatus no encontrado');
+        return;
+    }
     
     if (!club) {
+        console.warn('No hay datos de club para actualizar el rol');
         userRoleStatus.textContent = "Cargando...";
         return;
     }
     
     const userId = localStorage.getItem("userId");
+    console.log('🔄 Actualizando rol en header basándose en ClubMember...');
     
     try {
+        // Usar el sistema de permisos basado en ClubMember
         const userRole = getUserRoleInClub(club, userId);
         
         // Configurar texto y estilo según el rol
@@ -58,9 +74,13 @@ function actualizarRolEnHeader(club) {
         userRoleStatus.className = "user-status";
         userRoleStatus.title = roleConfig.tooltip;
         
+        // Agregar clase CSS específica para el rol
         userRoleStatus.classList.add(`role-${userRole.role.toLowerCase()}`);
         
+        console.log(`👤 ✅ Rol actualizado en header (ClubMember): ${userRole.role} -> "${roleConfig.displayText}"`);
+        
     } catch (error) {
+        console.error('❌ Error al actualizar rol en header:', error);
         userRoleStatus.textContent = "Error";
         userRoleStatus.className = "user-status error";
     }
@@ -96,12 +116,21 @@ function getRoleConfig(role) {
     return configs[role] || configs['ERROR'];
 }
 
+// ========== INICIALIZACIÓN ==========
 function initHeader() {
+    console.log('🏠 Inicializando header...');
+    
+    // Actualizar username al cargar
     updateUsernameDisplay();
     
+  
+    
+    // Exponer funciones globalmente para HTML
     window.logout = logout;
     window.updateUsernameDisplay = updateUsernameDisplay;
     window.actualizarRolEnHeader = actualizarRolEnHeader;
+    
+    console.log('✅ Header inicializado correctamente');
 }
 
 // Exportar función de inicialización

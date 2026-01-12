@@ -1,53 +1,32 @@
-import { API_URL } from "./env.js";
+import { API_URL } from "./env.js"; // Express + Prisma (tu server.js)
 import { showNotification } from "../componentes/notificacion.js";
 
-let isRegistering = false;
 
 const registerForm = document.getElementById("registerForm");
 if (registerForm) {
+
+  
+   
+   
+
     registerForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-        
-        // Prevenir múltiples clicks
-        if (isRegistering) return;
-        isRegistering = true;
-        
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        
-        // Deshabilitar botón
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.6';
-        submitBtn.style.cursor = 'not-allowed';
-        submitBtn.textContent = 'Registrando...';
-        
-        const username = document.getElementById("reg-username").value;
-        const email = document.getElementById("reg-email").value;
-        const password = document.getElementById("reg-password").value;
-        const passwordRepeat = document.getElementById("reg-password-repeat").value;
+    const username = document.getElementById("reg-username").value;
+    const email = document.getElementById("reg-email").value;
+    const password = document.getElementById("reg-password").value;
+    const passwordRepeat = document.getElementById("reg-password-repeat").value;
         const passwordMsg = document.getElementById("registerPasswordMsg");
         passwordMsg.style.display = "none";
 
+        // Validación: mínimo 8 caracteres y una mayúscula
         const minLength = password.length >= 8;
         const hasUpper = /[A-Z]/.test(password);
         if (!minLength || !hasUpper) {
             showNotification("error", "La contraseña debe tener al menos 8 caracteres y una mayúscula.");
-            // Rehabilitar botón
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
-            submitBtn.textContent = originalText;
-            isRegistering = false;
             return;
         }
         if (password !== passwordRepeat) {
             showNotification("error", "Las contraseñas no coinciden.");
-            // Rehabilitar botón
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
-            submitBtn.textContent = originalText;
-            isRegistering = false;
             return;
         }
 
@@ -58,29 +37,14 @@ if (registerForm) {
                 body: JSON.stringify({ username, email, password })
             });
             const result = await response.json();
-             if (result.success) {
+            if (result.success) {
                 showNotification("success", result.message || "¡Usuario creado exitosamente!");
-                submitBtn.textContent = '✓ Redirigiendo...';
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
             } else {
                 showNotification("error", result.message || "Error en el registro");
-                // Rehabilitar botón
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-                submitBtn.style.cursor = 'pointer';
-                submitBtn.textContent = originalText;
-                isRegistering = false;
             }
         } catch (error) {
+            
             showNotification("error", "Error de conexión con el servidor");
-            // Rehabilitar botón
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
-            submitBtn.textContent = originalText;
-            isRegistering = false;
         }
     });
 }

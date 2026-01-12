@@ -1,4 +1,3 @@
-
 <div id="modalCrearVotacion" class="modal-backdrop" style="display:none;">
   <div class="modal-content">
     
@@ -66,6 +65,7 @@
         <span id="comments-count">0</span>
       </div>
       <div id="comentariosList" class="comment-container">
+        <!-- Los comentarios se cargarán aquí dinámicamente -->
       </div>
     </div>
     <div class="text-box">
@@ -121,6 +121,7 @@
 <div id="modalLibro" class="modal-backdrop modal-agregar-libro" style="display:none;">
   <div class="modal-content modal-libro-content">
     
+    <!-- Header del Modal -->
     <div class="modal-header-libro">
       <div class="header-icon-libro">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -142,6 +143,7 @@
       </button>
     </div>
 
+    <!-- Body del Modal -->
     <div class="modal-body-libro">
       <div class="search-tabs-container">
   <button type="button" class="search-tab active" id="tab-libros" onclick="cambiarModoBusqueda('google')">
@@ -170,12 +172,14 @@
           <div class="search-hint">Usa palabras clave específicas para mejores resultados</div>
         </div>
 
+        <!-- Resultados de Búsqueda -->
         <div class="search-results-section" id="searchResultsSection" style="display: none;">
           <h4 class="results-title">Resultados de búsqueda</h4>
           <div id="resultadosBusquedaLibro" class="search-results-container"></div>
         </div>
       </div>
 
+      <!-- Libro Seleccionado -->
       <div class="selected-book-section" id="selectedBookSection" style="display: none;">
         <div class="selected-book-card">
           <div class="book-cover-preview">
@@ -201,13 +205,16 @@
         </div>
       </div>
 
+      <!-- Formulario Principal -->
       <form id="formLibro" class="form-libro">
         
+        <!-- Campos ocultos -->
         <input type="hidden" id="tituloLibro">
         <input type="hidden" id="autorLibro">
         <input type="hidden" id="portadaLibro">
         <input type="hidden" id="idApiLibro">
 
+        <!-- Sección de Categorías -->
         <div class="categories-section-libro">
           <div class="form-group-libro">
             <label class="form-label-libro">
@@ -221,8 +228,10 @@
             </label>
             <div class="categories-hint">Selecciona las categorías que mejor describan este libro</div>
             
+            <!-- Contenedor de categorías existentes -->
             <div class="categories-grid" id="categoriasContainer"></div>
             
+            <!-- Crear nueva categoría -->
             <div class="create-category-section">
               <h5 class="create-category-title">¿No encuentras la categoría perfecta?</h5>
               <div class="create-category-form">
@@ -239,6 +248,7 @@
           </div>
         </div>
 
+        <!-- Acciones del Modal -->
         <div class="modal-actions-libro">
           <button type="button" class="btn-cancel-libro" onclick="document.getElementById('modalLibro').style.display='none'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -259,6 +269,7 @@
         </div>
       </form>
 
+      <!-- Mensaje de error/éxito -->
       <div id="msgLibro" class="message-libro" style="display: none;"></div>
     </div>
 
@@ -287,6 +298,7 @@
       </div>
       
       <div id="rankingList" class="ranking-list" style="display:none;">
+        <!-- Los usuarios del ranking se cargarán aquí -->
       </div>
       
       <div id="rankingEmpty" class="ranking-empty" style="display:none;">
@@ -326,6 +338,7 @@
       </div>
       
       <div id="membersList" class="members-list" style="display:none;">
+        <!-- Los miembros se cargarán aquí -->
       </div>
       
       <div id="membersEmpty" class="members-empty" style="display:none;">
@@ -366,6 +379,7 @@
       </div>
       
       <div id="requestsList" class="requests-list" style="display:none;">
+        <!-- Las solicitudes se cargarán aquí -->
       </div>
       
       <div id="requestsEmpty" class="requests-empty" style="display:none;">
@@ -473,6 +487,7 @@
       </div>
       
       <div id="historialModalContent" class="historial-timeline-content" style="display:none;">
+        <!-- El contenido del historial se cargará aquí -->
       </div>
       
       <div id="historialModalEmpty" class="historial-empty" style="display:none;">
@@ -510,6 +525,7 @@
         </div>
         
         <div class="chart-legend" id="chartLegend">
+          
         </div>
       </div>
     </div>
@@ -543,6 +559,7 @@
       </div>
       
       <div id="periodosList" class="periodos-list" style="display:none;">
+        <!-- Los períodos se cargarán aquí dinámicamente -->
       </div>
       
       <div id="periodosEmpty" class="periodos-empty" style="display:none;">
@@ -569,16 +586,11 @@
     <meta charset="UTF-8">
     <title>Club de Lectura</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-<link rel="stylesheet" href="../css/componentes/notificacion-alerta.css">
     <link rel="stylesheet" href="../css/clubstylesnew.css">
     <link rel="stylesheet" href="../css/componentes/notificaciones.css">
     <link rel="stylesheet" href="../css/componentes/loader.css">
     <link rel="stylesheet" href="../css/componentes/confirmacion.css">
-    <link rel="stylesheet" href="../css/componentes/agenda.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 </head>
 <body>
 
@@ -694,6 +706,7 @@
               </div>
             </div>
             <div class="progress-list" id="progress-list">
+              <!-- Los libros en progreso se cargarán aquí dinámicamente -->
               <div class="progress-item-placeholder">
                 <div class="book-thumbnail-placeholder">📖</div>
                 <div class="book-info-placeholder">
@@ -761,18 +774,6 @@
                 </div>
                 <span>Miembros <span id="miembros-count" class="count-badge">0</span></span>
               </button>
-              
-              <button class="quick-action-btn secondary" onclick="mostrarAgenda()">
-                <div class="action-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                  </svg>
-                </div>
-                <span>Agenda</span>
-              </button>
             </div>
           </div>
         </div>
@@ -791,6 +792,7 @@
               </button>
             </div>
             <div class="categories-list" id="categories-display-list">
+              <!-- Las categorías se cargarán aquí dinámicamente -->
               <div class="category-item-display">
                 <div class="category-info">
                   <span class="category-name">Cargando categorías...</span>
@@ -810,6 +812,7 @@
               <button class="ver-historial-btn" onclick="mostrarHistorialCompleto()">Ver Historial</button>
             </div>
             <div class="activity-list" id="recent-activity-list">
+              <!-- Las actividades se cargarán aquí dinámicamente -->
               <div class="activity-item">
                 <div class="activity-icon book">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -869,6 +872,7 @@
       
       </div>
       <div class="biblioteca-grid-container">
+        <!-- El filtro se insertará aquí dinámicamente por JavaScript -->
         <div id="libros-leidos-list" class="biblioteca-grid"></div>
         <div id="empty-state" class="empty-state" style="display:none;">
           <div class="empty-icon">
@@ -897,180 +901,6 @@
 </div>
 
 <div id="notifications" class="notification-container"></div>
-
-<!-- Modal de Agenda -->
-<div id="modalAgenda" class="modal-overlay">
-  <div class="agenda-modal-content">
-    <div class="agenda-modal-header">
-      <h2>📅 Agenda del Club</h2>
-      <div class="agenda-actions">
-        <button class="btn-primary" id="btnCrearSesion" onclick="mostrarModalCrearSesion()" style="display: none;">
-          + Nueva Sesión
-        </button>
-        <button class="close-btn" onclick="cerrarModalAgenda()">✕</button>
-      </div>
-    </div>
-
-    <div class="agenda-modal-body">
-      <!-- Pestañas de vista principal -->
-      <div class="agenda-tabs">
-        <button class="agenda-tab active" id="btnVistaCalendario" onclick="cambiarVistaAgenda('calendario')">
-          📅 Calendario
-        </button>
-        <button class="agenda-tab" id="btnVistaLista" onclick="cambiarVistaAgenda('lista')">
-          📋 Lista
-        </button>
-      </div>
-
-      <!-- Contenedor del calendario -->
-      <div id="calendarioContainer" style="display: block;">
-      </div>
-
-      <!-- Contenedor de la lista -->
-      <div id="listaContainer" style="display: none;">
-        <div class="agenda-tabs" style="margin-top: 15px;">
-          <button class="agenda-tab active" id="btnSesionesProximas" onclick="cambiarVistaAgenda('proximas')">
-            Próximas Sesiones
-          </button>
-          <button class="agenda-tab" id="btnSesionesPasadas" onclick="cambiarVistaAgenda('pasadas')">
-            Historial
-          </button>
-        </div>
-        
-        <div id="sesionesContainer">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de Crear Sesión -->
-<div id="modalCrearSesion" class="modal-overlay">
-  <div class="crear-sesion-modal-content">
-    <h2>Crear Nueva Sesión</h2>
-    
-    <form id="formCrearSesion" onsubmit="crearSesion(event)">
-      <div class="form-group">
-        <label for="sesionTitulo">Título de la sesión *</label>
-        <input type="text" id="sesionTitulo" name="titulo" required placeholder="Ej: Debate capítulos 1-5">
-      </div>
-
-      <div class="form-group">
-        <label for="sesionLibroId">Libro asociado</label>
-        <select id="sesionLibroId" name="clubBookId">
-          <option value="">Sesión general (sin libro específico)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="sesionFechaHora">Fecha y hora *</label>
-        <input type="datetime-local" id="sesionFechaHora" name="fechaHora" required>
-      </div>
-
-      <div class="form-group">
-        <label for="sesionLugar">Lugar *</label>
-        <input type="text" id="sesionLugar" name="lugar" required placeholder="Dirección o link de videollamada">
-      </div>
-
-      <div class="form-group">
-        <label for="sesionDescripcion">Notas o consigna</label>
-        <textarea id="sesionDescripcion" name="descripcion" placeholder="Ej: Traer frases subrayadas, foco en el personaje X..."></textarea>
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn-secondary" onclick="cerrarModalCrearSesion()">Cancelar</button>
-        <button type="submit" class="btn-primary">Crear Sesión</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Modal de Editar Sesión -->
-<div id="modalEditarSesion" class="modal-overlay">
-  <div class="crear-sesion-modal-content">
-    <h2>Editar Sesión</h2>
-    
-    <form id="formEditarSesion" onsubmit="editarSesionSubmit(event)">
-      <input type="hidden" id="editSesionId">
-      
-      <div class="form-group">
-        <label for="editSesionTitulo">Título de la sesión *</label>
-        <input type="text" id="editSesionTitulo" name="titulo" required placeholder="Ej: Debate capítulos 1-5">
-      </div>
-
-      <div class="form-group">
-        <label for="editSesionLibroId">Libro asociado</label>
-        <select id="editSesionLibroId" name="clubBookId">
-          <option value="">Sesión general (sin libro específico)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="editSesionFechaHora">Fecha y hora *</label>
-        <input type="datetime-local" id="editSesionFechaHora" name="fechaHora" required>
-      </div>
-
-      <div class="form-group">
-        <label for="editSesionLugar">Lugar *</label>
-        <input type="text" id="editSesionLugar" name="lugar" required placeholder="Dirección o link de videollamada">
-      </div>
-
-      <div class="form-group">
-        <label for="editSesionDescripcion">Notas o consigna</label>
-        <textarea id="editSesionDescripcion" name="descripcion" placeholder="Ej: Traer frases subrayadas, foco en el personaje X..."></textarea>
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn-secondary" onclick="cerrarModalEditarSesion()">Cancelar</button>
-        <button type="submit" class="btn-primary">Guardar Cambios</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Agregar después del modal de Registrar Asistencia, antes de los scripts -->
-
-<!-- Modal de Notificaciones -->
-<div id="modalNotificaciones" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 10000; justify-content: center; align-items: center;">
-  <div class="notificaciones-modal-content">
-    <div class="notificaciones-modal-header">
-      <h2>🔔 Notificaciones</h2>
-      <div class="notificaciones-actions">
-        <button class="btn-secondary btn-small" onclick="marcarTodasLeidas()">
-          Marcar todas como leídas
-        </button>
-        <button class="close-btn" onclick="cerrarModalNotificaciones()">✕</button>
-      </div>
-    </div>
-    <div class="notificaciones-modal-body">
-      <div id="notificacionesLista" class="notificaciones-lista">
-      </div>
-    </div>
-  </div>
-</div>
-<!-- Modal de Registrar Asistencia -->
-<div id="modalRegistrarAsistencia" class="modal-overlay" style="display: none;">
-  <div class="crear-sesion-modal-content">
-    <h2>Registrar Asistencia Real</h2>
-    <p style="color: #636e72; margin-bottom: 20px;">Marca quién efectivamente asistió a la sesión</p>
-    
-    <form id="formRegistrarAsistencia" onsubmit="registrarAsistenciaSubmit(event)">
-      <input type="hidden" id="asistenciaSesionId">
-      
-      <div class="asistencia-confirmados">
-        <h3 style="margin-bottom: 12px; font-size: 16px;">Personas que confirmaron asistencia:</h3>
-        <div id="listaConfirmados" style="max-height: 300px; overflow-y: auto;">
-        </div>
-      </div>
-
-      <div class="form-actions" style="margin-top: 20px;">
-        <button type="button" class="btn-secondary" onclick="cerrarModalRegistrarAsistencia()">Cancelar</button>
-        <button type="submit" class="btn-primary">Guardar Asistencias</button>
-      </div>
-    </form>
-  </div>
-</div>
-
    <script type="module"src="../componentes/loader.js"></script>
    <script type="module" src="../componentes/notificacion.js"></script>
    <script type="module" src="../js/clubnew.js"></script>
